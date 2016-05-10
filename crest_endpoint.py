@@ -1,5 +1,6 @@
-from flask import Flask, Response, jsonify, abort
+from flask import Flask, Response, jsonify, abort, Markup
 from flask_restful import reqparse, Api, Resource, request
+from flaskext.markdown import Markdown
 import datetime
 import os
 import json
@@ -15,8 +16,11 @@ config.read(DEV_CONFIGFILE)
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 
+#### FLASK HANDLERS ####
 app = Flask(__name__)
 api = Api(app)
+md  = Markdown(app)
+
 
 if __name__ == '__main__':
     if BOOL_DEBUG_ENABLED:
@@ -24,4 +28,5 @@ if __name__ == '__main__':
     else:
         app.run(
             host='0.0.0.0',
-            port=CREST_FLASK_PORT)
+            port=CREST_FLASK_PORT
+        )
