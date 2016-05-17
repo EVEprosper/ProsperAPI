@@ -76,8 +76,8 @@ def email_body_builder(errorMsg, helpMsg):
 
 #TODO: log access per endpoint to database?
 #### API ENDPOINTS ####
-def OHLC_endpoint(parser):
-    None
+def OHLC_endpoint(parser, returnType):
+    return None, None
 class OHLCendpoint(Resource):
     '''Recieve calls on OHLC endpoint'''
     def __init__(self):
@@ -103,15 +103,17 @@ class OHLCendpoint(Resource):
                                    help='API key for tracking requests',
                                    location=['args', 'headers'])
 
-    def get(self):
+    def get(self, returnType):
         '''GET behavior'''
-        Logger.info('OHLC request')
+        Logger.info('OHLC request:' + returnType)
         Logger.debug(self.reqparse.parse_args())
+        message, status = OHLC_endpoint(self.reqparse, returnType)
 
 #### WORKER FUNCTIONS ####
 
 #### MAIN ####
-api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC'))
+api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
+    '.<returnType>')
 if __name__ == '__main__':
     log_setup()
     if BOOL_DEBUG_ENABLED:
