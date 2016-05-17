@@ -10,6 +10,7 @@ from flask import Flask, Response, jsonify, abort, Markup
 from flask_restful import reqparse, Api, Resource, request
 from flaskext.markdown import Markdown
 import requests
+import pandas
 
 #### CONFIG PARSER ####
 DEV_CONFIGFILE = os.getcwd() + "/init.ini" #TODO: figure out multi-file configparser in py35
@@ -27,6 +28,8 @@ md  = Markdown(app)
 
 #### LOGGING STUFF ####
 LOG_ABSPATH = os.getcwd() + config.get('LOGGING', 'log_path')
+if not os.path.exists(LOG_ABSPATH):
+    os.mkdir(LOG_ABSPATH)
 LOG_NAME    = __file__.replace('.py', '.log')
 LOG_FORMAT  = '%(asctime)s;%(levelname)s;%(funcName)s;%(message)s'
 LOG_LEVEL   = config.get('LOGGING', 'log_level')
@@ -34,15 +37,15 @@ LOG_FREQ    = config.get('LOGGING', 'log_freq')
 LOG_TOTAL   = config.get('LOGGING', 'log_total')
 EMAIL_TITLE = __file__.replace('.py', '') + " CRITICAL ERROR"
 EMAIL_TOLIST= str(config.get('LOGGING', 'email_recipients')).split(',')
-Logger = logging.getLogger(__file__)
+Logger = logging.getLogger(__name__)
 
 #### LOGGING UTILITIES ####
 def log_setup():
     '''Sets up logging object for app'''
     Logger.setLevel(LOG_LEVEL)
     generalHandler = TimedRotatingFileHandler(
-        LOG_ABSPATH,
-        when        = LOG_LEVEL,
+        LOG_ABSPATH + '/' + __file__.replace('.py', '.log'),
+        when        = LOG_FREQ,
         interval    = 1,
         backupCount = LOG_TOTAL
     )
@@ -71,7 +74,10 @@ def email_body_builder(errorMsg, helpMsg):
 if __name__ == '__main__':
     log_setup()
     if BOOL_DEBUG_ENABLED:
-        app.run(debug=True)
+        app.run(
+            debug=True,
+            port = CREST_FLASK_PORT
+        )
     else:
         app.run(
             host = '0.0.0.0',
