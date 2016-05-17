@@ -21,6 +21,9 @@ config.read(DEV_CONFIGFILE)
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 
+#### GLOBALS ####
+
+
 #### FLASK HANDLERS ####
 app = Flask(__name__)
 api = Api(app)
@@ -62,7 +65,7 @@ def log_setup():
         subject     = EMAIL_TITLE,
         credentials = (config.get('LOGGING', 'email_username'),
                        config.get('LOGGING', 'email_secret'))
-        )
+    )
     emailHandler.setLevel(config.get('LOGGING', 'log_email_level'))
     emailHandler.setFormatter(formatter)
     Logger.addHandler(emailHandler)
@@ -71,6 +74,44 @@ def email_body_builder(errorMsg, helpMsg):
     '''Builds email message for easier reading with SMTPHandler'''
     None
 
+#TODO: log access per endpoint to database?
+#### API ENDPOINTS ####
+def OHLC_endpoint(parser):
+    None
+class OHLCendpoint(Resource):
+    '''Recieve calls on OHLC endpoint'''
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('regionID',
+                                   type=int,
+                                   required=True,
+                                   help='regionID required',
+                                   location=['args', 'headers'])
+        self.reqparse.add_argument('typeID',
+                                   type=int,
+                                   required=True,
+                                   help='typeID required',
+                                   location=['args', 'headers'])
+        self.reqparse.add_argument('User-Agent',
+                                   type=str,
+                                   required=True,
+                                   help='user-agent required',
+                                   location=['headers'])
+        self.reqparse.add_argument('api_key',
+                                   type=str,
+                                   required=False,
+                                   help='API key for tracking requests',
+                                   location=['args', 'headers'])
+
+    def get(self):
+        '''GET behavior'''
+        Logger.info('OHLC request')
+        Logger.debug(self.reqparse.parse_args())
+
+#### WORKER FUNCTIONS ####
+
+#### MAIN ####
+api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC'))
 if __name__ == '__main__':
     log_setup()
     if BOOL_DEBUG_ENABLED:
