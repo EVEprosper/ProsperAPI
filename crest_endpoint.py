@@ -22,7 +22,10 @@ BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 
 #### GLOBALS ####
-
+VALID_RESPONSE_TYPES = ('json', 'csv', 'xml')
+CREST_URL   = config.get('CREST', 'source_url')
+USERAGENT   = config.get('GLOBAL', 'useragent')
+RETRY_LIMIT = config.get('GLOBAL', 'default_retries')
 
 #### FLASK HANDLERS ####
 app = Flask(__name__)
@@ -72,44 +75,145 @@ def log_setup():
 
 def email_body_builder(errorMsg, helpMsg):
     '''Builds email message for easier reading with SMTPHandler'''
-    None
+    #todo: format emails better
+    return errorMsg + '\n' + helpMsg
 
 #TODO: log access per endpoint to database?
 #### API ENDPOINTS ####
 def OHLC_endpoint(parser, returnType):
+    args = parser.parse_args()
+
+    typeID       = -1
+    typeID_CREST = None
+    if 'typeID' in args:
+        typeID = args.get('typeID')
+        validTypeID, typeID_CREST = test_typeid(typeID)
+        if not validTypeID:
+            errorStr = 'Invalid TypeID given: ' + typeID
+            Logger.error(errorStr)
+            return errorStr, 400
+
+    regionID       = -1
+    regionID_CREST = None
+
     return None, None
 class OHLCendpoint(Resource):
     '''Recieve calls on OHLC endpoint'''
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('regionID',
-                                   type=int,
-                                   required=True,
-                                   help='regionID required',
-                                   location=['args', 'headers'])
-        self.reqparse.add_argument('typeID',
-                                   type=int,
-                                   required=True,
-                                   help='typeID required',
-                                   location=['args', 'headers'])
-        self.reqparse.add_argument('User-Agent',
-                                   type=str,
-                                   required=True,
-                                   help='user-agent required',
-                                   location=['headers'])
-        self.reqparse.add_argument('api_key',
-                                   type=str,
-                                   required=False,
-                                   help='API key for tracking requests',
-                                   location=['args', 'headers'])
+        self.reqparse.add_argument(
+            'regionID',
+            type=int,
+            required=True,
+            help='regionID required',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'typeID',
+            type=int,
+            required=True,
+            help='typeID required',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'User-Agent',
+            type=str,
+            required=True,
+            help='user-agent required',
+            location=['headers']
+        )
+        self.reqparse.add_argument(
+            'api_key',
+            type=str,
+            required=False,
+            help='API key for tracking requests',
+            location=['args', 'headers']
+        )
 
     def get(self, returnType):
         '''GET behavior'''
         Logger.info('OHLC request:' + returnType)
         Logger.debug(self.reqparse.parse_args())
-        message, status = OHLC_endpoint(self.reqparse, returnType)
+        if returnType.lower() in VALID_RESPONSE_TYPES:
+            message, status = OHLC_endpoint(self.reqparse, returnType.lower())
+        else:
+            errorStr = 'UNSUPPORTED RETURN TYPE: ' + returnType
+            Logger.error(errorStr)
+            message = errorStr
+            status = 400
+
+        return message, status
 
 #### WORKER FUNCTIONS ####
+def test_typeid(typeID):
+    validTypeID  = False
+    typeID_CREST = None
+    try:
+        typeID = int(typeID)
+    except ValueError as err:
+        errorStr = 'bad typeID recieved: ' + str(err)
+        Logger.error(errorStr)
+        return validTypeID, typeID_CREST
+
+    crestResponse = fetch_crest('types', typeID)
+
+def fetch_crest(endpointStr, value):
+    crestResponse = None
+    crest_endpoint_URL = CREST_URL + endpointStr + '/' + str(value) + '/'
+    GET_headers = {
+        'User-Agent': USERAGENT
+    }
+    last_error = ""
+    Logger.info('Fetching CREST: ' + crest_endpoint_URL)
+    for tries in range (0, RETRY_LIMIT):
+        try:
+            crest_request = requests.get(
+                crest_endpoint_URL,
+                headers=GET_headers
+            )
+        except requests.exceptions.ConnectTimeout as err:
+            last_error = 'RETRY=' + str(tries) + ' ' + \
+                'ConnectTimeout: ' + str(err)
+            Logger.error(last_error)
+            continue
+        except requests.exceptions.ConnectionError as err:
+            last_error = 'RETRY=' + str(tries) + ' ' + \
+                'ConnectionError: ' + str(err)
+            Logger.error(last_error)
+            continue
+        except requests.exceptions.ReadTimeout as err:
+            last_error = 'RETRY=' + str(tries) + ' ' + \
+                'ReadTimeout: ' + str(err)
+            Logger.error(last_error)
+            continue
+
+        if crest_request.status_code == requests.codes.ok:
+            try:
+                crestResponse = crest_request.json()
+            except ValueError as err:
+                last_error = 'RETRY=' + str(tries) + ' ' + \
+                    'request not JSON: ' + str(err)
+                Logger.error(last_error)
+                continue #try again
+            break   #if all OK, break out of error checking
+        else:
+            last_error = 'RETRY=' + str(tries) + ' ' + \
+                'bad status code: ' + str(crest_request.status_code)
+            Logger.error(last_error)
+            continue #try again
+    else:
+        criticalMessage = ''' ERROR: retries exceeded in crest_fetch()
+    URL=''' + crest_endpoint_URL + '''
+    LAST_ERROR=''' + last_error
+        helpMsg = '''CREST Outage?'''
+        criticalStr = email_body_builder(
+            criticalMessage,
+            helpMsg
+        )
+        Logger.critical(criticalStr)
+    Logger.info('Fetched CREST:' + crest_endpoint_URL)
+    Logger.debug(crestResponse)
+    return(crestResponse)
 
 #### MAIN ####
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
