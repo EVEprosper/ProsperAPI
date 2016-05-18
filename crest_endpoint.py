@@ -25,7 +25,7 @@ CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 VALID_RESPONSE_TYPES = ('json', 'csv', 'xml')
 CREST_URL   = config.get('CREST', 'source_url')
 USERAGENT   = config.get('GLOBAL', 'useragent')
-RETRY_LIMIT = config.get('GLOBAL', 'default_retries')
+RETRY_LIMIT = int(config.get('GLOBAL', 'default_retries'))
 
 #### FLASK HANDLERS ####
 app = Flask(__name__)
@@ -81,18 +81,19 @@ def email_body_builder(errorMsg, helpMsg):
 #TODO: log access per endpoint to database?
 #### API ENDPOINTS ####
 def OHLC_endpoint(parser, returnType):
+    '''Function for building OHLC response'''
     args = parser.parse_args()
 
     typeID       = -1
-    typeID_CREST = None
     if 'typeID' in args:
         typeID = args.get('typeID')
-        validTypeID, typeID_CREST = test_typeid(typeID)
-        if not validTypeID:
-            errorStr = 'Invalid TypeID given: ' + typeID
+        typeCRESTobj = test_typeid(typeID)
+        if not typeCRESTobj:
+            errorStr = 'Invalid TypeID given: ' + str(typeID)
             Logger.error(errorStr)
             return errorStr, 400
 
+    return typeCRESTobj.crestResponse, 200
     regionID       = -1
     regionID_CREST = None
 
@@ -145,19 +146,61 @@ class OHLCendpoint(Resource):
         return message, status
 
 #### WORKER FUNCTIONS ####
+class CRESTresults(object):
+    '''Parser/storage for CREST/SDE lookups'''
+    def __init__ (self):
+        self.objectID      = -1
+        self.objectName    = ''
+        self.crestResponse = None
+        self.endpointType  = ''
+    def parse_crest_response(self, crestJSON, endpointType):
+        '''splits out crest response for name/ID/info conversion'''
+        bool_SuccessStatus = False
+        try:
+            self.objectID   = crestJSON['id']
+            self.objectName = crestJSON['name']
+        except KeyError as err:
+            errorStr = 'Unable to load name/ID from CREST object ' + \
+                str(endpointType) + ' ' + str(err)
+            Logger.error(errorStr)
+            Logger.debug(crestJSON)
+            return bool_SuccessStatus
+
+        self.crestResponse = crestJSON
+        self.endpointType  = endpointType
+        bool_SuccessStatus = True
+        infoStr = 'Success: parsed ' + str(self.objectID) + ':' + \
+            str(self.objectName) + ' ' +\
+            'from ' + str(endpointType)
+        Logger.info(infoStr)
+        return bool_SuccessStatus
+
 def test_typeid(typeID):
-    validTypeID  = False
-    typeID_CREST = None
-    try:
-        typeID = int(typeID)
+    '''Validates typeID is queryable'''
+    crestObj = CRESTresults()
+
+    try:    #test types
+        typeID_INT = int(typeID)
     except ValueError as err:
         errorStr = 'bad typeID recieved: ' + str(err)
         Logger.error(errorStr)
-        return validTypeID, typeID_CREST
+        return None
 
-    crestResponse = fetch_crest('types', typeID)
+    crestResponse = fetch_crest('types', typeID)    #test CREST endpoint
+
+    validCrest = crestObj.parse_crest_response(crestResponse, 'types')
+    if validCrest:
+        #success
+        Logger.info('CREST/types pulled correctly')
+        return crestObj
+    else:
+        errorStr = 'invalid crestObj'
+        Logger.error(errorStr)
+        return None
+
 
 def fetch_crest(endpointStr, value):
+    '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
     crestResponse = None
     crest_endpoint_URL = CREST_URL + endpointStr + '/' + str(value) + '/'
     GET_headers = {
