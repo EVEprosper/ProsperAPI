@@ -44,7 +44,10 @@ LOG_TOTAL   = config.get('LOGGING', 'log_total')
 EMAIL_TITLE = __file__.replace('.py', '') + " CRITICAL ERROR"
 EMAIL_TOLIST= str(config.get('LOGGING', 'email_recipients')).split(',')
 Logger = logging.getLogger(__name__)
-
+CACHE_ABSPATH = os.getcwd() + config.get('CREST', 'cache_path')
+if not os.path.exists(CACHE_ABSPATH):
+    os.mkdir(CACHE_ABSPATH)
+SDE_CACHE_LIMIT = int(config.get('CREST', 'sde_cache_limit'))
 #### LOGGING UTILITIES ####
 def log_setup():
     '''Sets up logging object for app'''
@@ -85,6 +88,7 @@ def OHLC_endpoint(parser, returnType):
     args = parser.parse_args()
 
     typeID       = -1
+    typeCRESTobj = CRESTresults()
     if 'typeID' in args:
         typeID = args.get('typeID')
         typeCRESTobj = test_typeid(typeID)
@@ -92,11 +96,18 @@ def OHLC_endpoint(parser, returnType):
             errorStr = 'Invalid TypeID given: ' + str(typeID)
             Logger.error(errorStr)
             return errorStr, 400
+    #return typeCRESTobj.crestResponse, 200
 
-    return typeCRESTobj.crestResponse, 200
     regionID       = -1
-    regionID_CREST = None
-
+    regionCRESTobj = CRESTresults()
+    if 'regionID' in args:
+        regionID = args.get('regionID')
+        regionCRESTobj = test_regionid(regionID)
+        if not regionCRESTobj:
+            errorStr = 'Invalid regionID given: ' + str(regionID)
+            Logger.error(errorStr)
+            return errorStr, 400
+    #return regionCRESTobj.crestResponse, 200
     return None, None
 class OHLCendpoint(Resource):
     '''Recieve calls on OHLC endpoint'''
@@ -153,9 +164,15 @@ class CRESTresults(object):
         self.objectName    = ''
         self.crestResponse = None
         self.endpointType  = ''
+        self.bool_SuccessStatus = False
+
+    def __bool__ (self):
+        '''test if object is loaded with valid data'''
+        return self.bool_SuccessStatus
+
     def parse_crest_response(self, crestJSON, endpointType):
         '''splits out crest response for name/ID/info conversion'''
-        bool_SuccessStatus = False
+        self.bool_SuccessStatus = False
         try:
             self.objectID   = crestJSON['id']
             self.objectName = crestJSON['name']
@@ -164,16 +181,51 @@ class CRESTresults(object):
                 str(endpointType) + ' ' + str(err)
             Logger.error(errorStr)
             Logger.debug(crestJSON)
-            return bool_SuccessStatus
+            return self.bool_SuccessStatus
 
         self.crestResponse = crestJSON
         self.endpointType  = endpointType
-        bool_SuccessStatus = True
+        self.bool_SuccessStatus = True
         infoStr = 'Success: parsed ' + str(self.objectID) + ':' + \
             str(self.objectName) + ' ' +\
             'from ' + str(endpointType)
         Logger.info(infoStr)
-        return bool_SuccessStatus
+        return self.bool_SuccessStatus
+
+    def write_cache_response(self, crestJSON, endpointType):
+        '''update on-file cache'''
+        cachePath = CACHE_ABSPATH + '/' + endpointType
+        if not os.path.exists(cachePath):
+            #TODO: repeated function
+            os.mkdir(cachePath)
+            Logger.info('Created cache path: ' + cachePath)
+            return False
+
+        cacheFilePath  = cachePath + '/' + str(self.objectID) + '.json'
+        bool_writeFile = False
+        if os.path.isfile(cacheFilePath):
+            #cache exists on file
+            fileAccessStats  = os.stat(cacheFilePath)
+            modifiedDatetime = datetime.datetime.fromtimestamp(
+                fileAccessStats.st_mtime
+            )
+            nowDatetime = datetime.datetime.now()
+            fileAge = (modifiedDatetime - nowDatetime).total_seconds()
+            Logger.debug(cacheFilePath + '.fileAge=' + str(fileAge))
+            if fileAge > SDE_CACHE_LIMIT:
+                bool_writeFile = True
+        else:
+            bool_writeFile = True
+
+        if bool_writeFile:
+            Logger.info('updating cache file: ' + cacheFilePath)
+            try:
+                with open(cacheFilePath, 'w') as file_handle:
+                    file_handle.write(json.dumps(crestJSON))
+            except Exception as err:
+                errorStr = 'Unable to write cache to file ' + str(err)
+                Logger.error(errorStr)
+                Logger.debug(crestJSON)
 
 def test_typeid(typeID):
     '''Validates typeID is queryable'''
@@ -186,9 +238,18 @@ def test_typeid(typeID):
         Logger.error(errorStr)
         return None
 
-    crestResponse = fetch_crest('types', typeID)    #test CREST endpoint
+    jsonObj = None
+    cacheResponse = check_cache(typeID, 'types')
+    if not cacheResponse:
+        Logger.info('fetching crest ' + str(typeID))
+        crestResponse = fetch_crest('types', typeID)    #test CREST endpoint
+        jsonObj = crestResponse
+    else:
+        Logger.info('using local cache ' + str(typeID))
+        jsonObj = cacheResponse
 
-    validCrest = crestObj.parse_crest_response(crestResponse, 'types')
+    validCrest = crestObj.parse_crest_response(jsonObj, 'types')
+    crestObj.write_cache_response(jsonObj, 'types')
     if validCrest:
         #success
         Logger.info('CREST/types pulled correctly')
@@ -198,6 +259,35 @@ def test_typeid(typeID):
         Logger.error(errorStr)
         return None
 
+def test_regionid(regionID):
+    '''Validates regionID is queryable'''
+    crestObj = CRESTresults()
+
+    try:    #test types
+        regionID_INT = int(regionID)
+    except ValueError as err:
+        errorStr = 'bad regionID recieved: ' + str(err)
+        Logger.error(errorStr)
+        return None
+
+    jsonObj = None
+    cacheResponse = check_cache(regionID, 'regions')
+    if not cacheResponse:
+        crestResponse = fetch_crest('regions', regionID)  #test CREST endpoint
+        jsonObj = crestResponse
+    else:
+        jsonObj = cacheResponse
+
+    validCrest = crestObj.parse_crest_response(jsonObj, 'regions')
+    crestObj.write_cache_response(jsonObj, 'regions')
+    if validCrest:
+        #success
+        Logger.info('CREST/regions pulled correctly')
+        return crestObj
+    else:
+        errorStr = 'invalid crestObj'
+        Logger.error(errorStr)
+        return None
 
 def fetch_crest(endpointStr, value):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
@@ -256,7 +346,32 @@ def fetch_crest(endpointStr, value):
         Logger.critical(criticalStr)
     Logger.info('Fetched CREST:' + crest_endpoint_URL)
     Logger.debug(crestResponse)
-    return(crestResponse)
+    return crestResponse
+
+def check_cache(objectID, endpointName):
+    '''Try to read CREST/SDE items off disk'''
+    cachePath = CACHE_ABSPATH + '/' + endpointName
+    if not os.path.exists(cachePath):
+        #TODO: repeated function
+        os.mkdir(cachePath)
+        Logger.info('Created cache path: ' + cachePath)
+        return None
+
+    jsonObj = None
+    cacheFilePath = cachePath + '/' + str(objectID) + '.json'
+    if os.path.isfile(cacheFilePath):
+        try:
+            with open(cacheFilePath, 'r') as file_handle:
+                jsonObj = json.load(file_handle)
+        except Exception as err:
+            errorStr = 'unable to read json: ' + cacheFilePath + \
+                ' ' + str(err)
+            Logger.error(errorStr)
+            #TODO: delete cached file?
+            return None #need to read again from CREST
+        return jsonObj
+    else:
+        return None
 
 #### MAIN ####
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
