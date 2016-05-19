@@ -6,12 +6,12 @@ import json
 import configparser
 import logging
 from logging.handlers import TimedRotatingFileHandler, SMTPHandler
-from flask import Flask, Response, jsonify, abort, Markup
+from flask import Flask, Response, jsonify, Markup
 from flask_restful import reqparse, Api, Resource, request
 from flaskext.markdown import Markdown
 import requests
 import pandas
-
+from pandas.io.json import json_normalize
 #### CONFIG PARSER ####
 DEV_CONFIGFILE = os.getcwd() + "/init.ini" #TODO: figure out multi-file configparser in py35
 #ALT_CONFIGFILE = os.getcwd() + '/init_local.ini'
@@ -87,6 +87,7 @@ def OHLC_endpoint(parser, returnType):
     '''Function for building OHLC response'''
     args = parser.parse_args()
 
+    #TODO: shortcut for CSV? return?
     typeID       = -1
     typeCRESTobj = CRESTresults()
     if 'typeID' in args:
@@ -108,7 +109,10 @@ def OHLC_endpoint(parser, returnType):
             Logger.error(errorStr)
             return errorStr, 400
     #return regionCRESTobj.crestResponse, 200
-    return None, None
+
+    historyObj = fetch_crest_marketHistory(typeID, regionID)
+    process_crest_for_OHLC(historyObj)
+    return historyObj, 200
 class OHLCendpoint(Resource):
     '''Recieve calls on OHLC endpoint'''
     def __init__(self):
@@ -289,6 +293,17 @@ def test_regionid(regionID):
         Logger.error(errorStr)
         return None
 
+def fetch_crest_marketHistory(typeID, regionID):
+    '''CREST history call is weird, reformat/overload fetch_crest'''
+    Logger.info('Fetching market history from CREST ' +\
+        str(typeID) + ':' + str(regionID))
+    crestResponse = None
+    crestResponse = fetch_crest(
+        'market/' + str(regionID) + '/types/' + str(typeID),
+        'history'
+    )
+    return crestResponse
+    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
 def fetch_crest(endpointStr, value):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
     crestResponse = None
@@ -372,6 +387,21 @@ def check_cache(objectID, endpointName):
         return jsonObj
     else:
         return None
+
+def process_crest_for_OHLC(historyObj):
+    '''refactor crest history into OHLC shape'''
+    pandasObj_input = json_normalize(historyObj['items'])
+    pandasObj_output = pandas.DataFrame({
+        'date':   pandasObj_input['date'],
+        'volume': pandasObj_input['volume'],
+        'close':  pandasObj_input['avgPrice'],
+        'open':   pandasObj_input['avgPrice'].shift(1),
+        'high':   pandasObj_input['highPrice'],
+        'low':    pandasObj_input['lowPrice']
+        })
+    Logger.info('Processed CREST->OHLC')
+    Logger.debug(pandasObj_output[1:])
+    return pandasObj_output[1:]
 
 #### MAIN ####
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
