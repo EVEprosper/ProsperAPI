@@ -82,6 +82,13 @@ def email_body_builder(errorMsg, helpMsg):
     return errorMsg + '\n' + helpMsg
 
 #TODO: log access per endpoint to database?
+#### FLASK STUFF ####
+@api.representation('text/csv')
+def output_csv(data, status, headers=None):
+    resp = app.make_response(data)
+    resp.headers['Content-Type'] = 'text/csv'
+    return resp
+
 #### API ENDPOINTS ####
 def OHLC_endpoint(parser, returnType):
     '''Function for building OHLC response'''
@@ -111,8 +118,18 @@ def OHLC_endpoint(parser, returnType):
     #return regionCRESTobj.crestResponse, 200
 
     historyObj = fetch_crest_marketHistory(typeID, regionID)
-    process_crest_for_OHLC(historyObj)
-    return historyObj, 200
+    pandasObj  = process_crest_for_OHLC(historyObj)
+    return pandasObj, None #TODO: this is bad
+    returnObj = None
+    if returnType == 'csv':
+        None
+
+        #returnObj = output_csv(csvStr, 200)
+        #print(returnObj)
+    elif returnType == 'json':
+        Logger.info('reporting csv')
+        None
+    return returnObj
 class OHLCendpoint(Resource):
     '''Recieve calls on OHLC endpoint'''
     def __init__(self):
@@ -157,8 +174,36 @@ class OHLCendpoint(Resource):
             Logger.error(errorStr)
             message = errorStr
             status = 400
+            return message, status
+        if not status:  #TODO: this is bad, so bad
+            if returnType == 'csv':
+                Logger.info('reporting csv')
+                csvStr = message.to_csv(
+                             path_or_buf=None,
+                             columns=[
+                                 'date',
+                                 'open',
+                                 'high',
+                                 'low',
+                                 'close',
+                                 'volume'
+                             ],
+                             header=True,
+                             index=False
+                         )
+                returnObj = output_csv(csvStr, 200)
+                return returnObj
+            elif returnType == 'json':
+                Logger.info('reporting json')
+                jsonObj = message.to_json(
+                            path_or_buf=None,
+                            orient='records'
+                        )
+                pretty_jsonObj = quandlfy_json(jsonObj)
+                print(jsonObj)
 
-        return message, status
+
+
 
 #### WORKER FUNCTIONS ####
 class CRESTresults(object):
@@ -387,18 +432,23 @@ def check_cache(objectID, endpointName):
         return jsonObj
     else:
         return None
+def quandlfy_json(jsonObj):
+    '''formats dataframe into quandl format'''
+    None
 
 def process_crest_for_OHLC(historyObj):
     '''refactor crest history into OHLC shape'''
     pandasObj_input = json_normalize(historyObj['items'])
-    pandasObj_output = pandas.DataFrame({
-        'date':   pandasObj_input['date'],
-        'volume': pandasObj_input['volume'],
-        'close':  pandasObj_input['avgPrice'],
-        'open':   pandasObj_input['avgPrice'].shift(1),
-        'high':   pandasObj_input['highPrice'],
-        'low':    pandasObj_input['lowPrice']
-        })
+    pandasObj_output = pandas.DataFrame(
+        {
+            'date'   : pandasObj_input['date'],
+            'volume' : pandasObj_input['volume'],
+            'close'  : pandasObj_input['avgPrice'],
+            'open'   : pandasObj_input['avgPrice'].shift(1),
+            'high'   : pandasObj_input['highPrice'],
+            'low'    : pandasObj_input['lowPrice']
+        }
+    )
     Logger.info('Processed CREST->OHLC')
     Logger.debug(pandasObj_output[1:])
     return pandasObj_output[1:]
