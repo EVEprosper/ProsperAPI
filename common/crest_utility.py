@@ -219,7 +219,7 @@ def check_cache(objectID, endpointName):
         return None
 
     jsonObj = None
-    cacheFilePath = cachePath + '/' + str(objectID) + '.json'
+    cacheFilePath = os.path.join(cachePath, str(objectID) + '.json')
     if os.path.isfile(cacheFilePath):
         try:
             with open(cacheFilePath, 'r') as file_handle:
