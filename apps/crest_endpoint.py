@@ -1,5 +1,6 @@
 '''crest_endpoint.py: CREST centric REST API endpoints'''
-
+import sys
+sys.path.insert(0, '../common')
 import datetime
 import os
 import json
@@ -12,11 +13,10 @@ from flaskext.markdown import Markdown
 import requests
 import pandas
 from pandas.io.json import json_normalize
+import prosperAPI_utility
+
 #### CONFIG PARSER ####
-DEV_CONFIGFILE = os.getcwd() + "/init.ini" #TODO: figure out multi-file configparser in py35
-#ALT_CONFIGFILE = os.getcwd() + '/init_local.ini'
-config = configparser.ConfigParser()
-config.read(DEV_CONFIGFILE)
+config = prosperAPI_utility.get_config('../common')
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
