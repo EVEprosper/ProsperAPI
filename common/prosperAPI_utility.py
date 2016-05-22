@@ -41,7 +41,7 @@ def create_logger(logName, logLevel_override = ''):
     logTotal  = tmpConfig.get('LOGGING', 'logTotal')
     logName   = logName + '.log'
     logFormat = '%(asctime)s;%(levelname)s;%(funcName)s;%(message)s'
-
+    print(logName + ':' + logLevel)
     if logLevel_override:
         logLevel = logLevel_override
 
