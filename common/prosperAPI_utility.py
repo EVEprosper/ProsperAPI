@@ -1,24 +1,25 @@
 '''prosperAPI_utility.py: worker functions for CREST calls'''
 
-import datetime
 import os
-import json
-import configparser
-from configparser import ExtendedInterpolation
 import logging
 from logging.handlers import TimedRotatingFileHandler, SMTPHandler
-import requests
+import configparser
+from configparser import ExtendedInterpolation
 
 CONFIG_FILE = 'prosperAPI.cfg' #TODO: change to .cfg?
 
-def get_config(dir=''):
+def get_config(subpath=''):
+    '''returns config object for parsing global values'''
     config = configparser.ConfigParser(
         interpolation  = ExtendedInterpolation(),
         allow_no_value = True,
         delimiters     = ('=')
     )
-    config_filepath = os.path.join('..', dir, CONFIG_FILE)
-    print(config_filepath)
+    if subpath:
+        config_filepath = os.path.join('..', subpath, CONFIG_FILE)
+    else:
+        config_filepath = os.path.join('..', 'common', CONFIG_FILE)
+
     if os.path.exists(config_filepath):
         with open(config_filepath, 'r') as filehandle:
             config.read_file(filehandle)
@@ -26,6 +27,7 @@ def get_config(dir=''):
     return None
 
 def create_logger(logName, logLevel_override = ''):
+    '''creates logging handle for programs'''
     tmpConfig = get_config('common')
 
     logFolder = os.path.join('..', tmpConfig.get('LOGGING', 'logFolder'))
@@ -86,3 +88,16 @@ def create_logger(logName, logLevel_override = ''):
         Logger.addHandler(emailHandler)
 
     return Logger
+
+def email_body_builder(errorMsg, helpMsg):
+    '''Builds email message for easier reading with SMTPHandler'''
+    #todo: format emails better
+    return errorMsg + '\n' + helpMsg
+
+def quandlfy_json(jsonObj):
+    '''turn object from JSON into QUANDL-style JSON'''
+    None
+
+def quandlfy_xml(xmlObj):
+    '''turn object from XML into QUANDL-style XML'''
+    None

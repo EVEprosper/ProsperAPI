@@ -3,5 +3,8 @@
 import datetime
 import os
 import json
-import configparser
 import requests
+import prosperAPI_utility
+
+config = prosperAPI_utility.get_config('common')
+

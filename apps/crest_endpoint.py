@@ -13,6 +13,7 @@ import requests
 import pandas
 from pandas.io.json import json_normalize
 import prosperAPI_utility
+import crest_utility
 
 #### CONFIG PARSER ####
 config = prosperAPI_utility.get_config('common')
@@ -40,11 +41,6 @@ if not os.path.exists(CACHE_ABSPATH):
 SDE_CACHE_LIMIT = int(config.get('CREST', 'sde_cache_limit'))
 #### LOGGING UTILITIES ####
 
-
-def email_body_builder(errorMsg, helpMsg):
-    '''Builds email message for easier reading with SMTPHandler'''
-    #todo: format emails better
-    return errorMsg + '\n' + helpMsg
 
 #TODO: log access per endpoint to database?
 #### FLASK STUFF ####
@@ -364,7 +360,7 @@ def fetch_crest(endpointStr, value):
     URL=''' + crest_endpoint_URL + '''
     LAST_ERROR=''' + last_error
         helpMsg = '''CREST Outage?'''
-        criticalStr = email_body_builder(
+        criticalStr = prosperAPI_utility.email_body_builder(
             criticalMessage,
             helpMsg
         )

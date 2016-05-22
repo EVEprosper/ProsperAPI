@@ -60,3 +60,10 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+#pylint logs
+lint*.txt$
+
+#untracked paths
+logs/
+cache/
