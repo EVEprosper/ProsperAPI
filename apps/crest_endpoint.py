@@ -157,10 +157,15 @@ def fetch_crest_marketHistory(typeID, regionID):
     Logger.info('Fetching market history from CREST ' +\
         str(typeID) + ':' + str(regionID))
     crestResponse = None
-    crestResponse = crest_utility.fetch_crest(
-        'market/' + str(regionID) + '/types/' + str(typeID),
-        'history'
+    marketHistory_uri = 'market/{regionID}/history/?{crestURL}inventory/types'
+    marketHistory_uri = marketHistory_uri.format(
+        regionID = regionID,
+        crestURL = config.get('CREST', 'source_url')
     )
+    crestResponse = crest_utility.fetch_crest(
+        marketHistory_uri,
+        typeID
+    )#TODO, make this better
     return crestResponse
     #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
 

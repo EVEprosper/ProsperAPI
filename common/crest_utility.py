@@ -104,7 +104,7 @@ def test_typeid(typeID):
     cacheResponse = check_cache(typeID, 'types')
     if not cacheResponse:
         crestLogger.info('fetching crest ' + str(typeID))
-        crestResponse = fetch_crest('types', typeID)    #test CREST endpoint
+        crestResponse = fetch_crest('inventory/types', typeID)    #test CREST endpoint
         jsonObj = crestResponse
     else:
         crestLogger.info('using local cache ' + str(typeID))
@@ -150,6 +150,7 @@ def test_regionid(regionID):
         errorStr = 'invalid crestObj'
         crestLogger.error(errorStr)
         return None
+
 def fetch_crest(endpointStr, value):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
     crestResponse = None
