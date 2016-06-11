@@ -24,7 +24,7 @@ BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 
 #### GLOBALS ####
-VALID_RESPONSE_TYPES = ('json', 'csv', 'xml')
+VALID_RESPONSE_TYPES = ('json', 'csv', 'xml', 'quandl')
 
 
 #### FLASK HANDLERS ####
@@ -148,8 +148,7 @@ class OHLCendpoint(Resource):
                             path_or_buf=None,
                             orient='records'
                         )
-                pretty_jsonObj = quandlfy_json(jsonObj)
-                print(jsonObj)
+                return(json.loads(jsonObj))
 
 #### WORKER FUNCTIONS ####
 def fetch_crest_marketHistory(typeID, regionID):
@@ -157,6 +156,11 @@ def fetch_crest_marketHistory(typeID, regionID):
     Logger.info('Fetching market history from CREST ' +\
         str(typeID) + ':' + str(regionID))
     crestResponse = None
+    #crestResponse = crest_utility.fetch_crest(
+    #    'market/' + str(regionID) + '/types/' + str(typeID),
+    #    'history'
+    #)
+    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
     marketHistory_uri = 'market/{regionID}/history/?{crestURL}inventory/types'
     marketHistory_uri = marketHistory_uri.format(
         regionID = regionID,
@@ -167,7 +171,7 @@ def fetch_crest_marketHistory(typeID, regionID):
         typeID
     )#TODO, make this better
     return crestResponse
-    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
+    #
 
 def process_crest_for_OHLC(historyObj):
     '''refactor crest history into OHLC shape'''

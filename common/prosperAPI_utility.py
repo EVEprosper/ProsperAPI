@@ -30,7 +30,7 @@ def create_logger(logName, logLevel_override = ''):
     '''creates logging handle for programs'''
     tmpConfig = get_config('common')
 
-    logFolder = os.path.join('..', tmpConfig.get('LOGGING', 'logFolder'))
+    logFolder = os.path.join('../', tmpConfig.get('LOGGING', 'logFolder'))
     if not os.path.exists(logFolder):
         os.makedirs(logFolder)
 
