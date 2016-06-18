@@ -18,6 +18,7 @@ from crest_utility import CRESTresults
 
 #### CONFIG PARSER ####
 config = prosperAPI_utility.get_config('common')
+print(config.get('CREST', 'flask_port'))
 Logger = prosperAPI_utility.create_logger('crest_endpoint')
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))

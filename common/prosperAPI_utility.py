@@ -6,9 +6,7 @@ from logging.handlers import TimedRotatingFileHandler, SMTPHandler
 import configparser
 from configparser import ExtendedInterpolation
 
-CONFIG_FILE = 'prosperAPI.cfg' #TODO: change to .cfg?
-if os.path.isfile('prosperAPI_local.cfg'):
-    CONFIG_FILE = 'prosperAPI_local.cfg'
+CONFIG_FILES = ['prosperAPI_local.cfg','prosperAPI.cfg'] #TODO: change to .cfg?
 
 def get_config(subpath=''):
     '''returns config object for parsing global values'''
@@ -17,10 +15,17 @@ def get_config(subpath=''):
         allow_no_value = True,
         delimiters     = ('=')
     )
-    if subpath:
-        config_filepath = os.path.join('..', subpath, CONFIG_FILE)
+    config_filepath = ''
+    for config_file in CONFIG_FILES:
+        if subpath:
+            config_filepath = os.path.join('..', subpath, config_file)
+        else:
+            config_filepath = os.path.join('..', 'common', config_file)
+        if os.path.isfile(config_filepath):
+            break
     else:
-        config_filepath = os.path.join('..', 'common', CONFIG_FILE)
+        return None
+        #ERROR: unable to find configfile
 
     if os.path.exists(config_filepath):
         with open(config_filepath, 'r') as filehandle:
