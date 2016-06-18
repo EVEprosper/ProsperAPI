@@ -7,6 +7,8 @@ import configparser
 from configparser import ExtendedInterpolation
 
 CONFIG_FILE = 'prosperAPI.cfg' #TODO: change to .cfg?
+if os.path.isfile('prosperAPI_local.cfg'):
+    CONFIG_FILE = 'prosperAPI_local.cfg'
 
 def get_config(subpath=''):
     '''returns config object for parsing global values'''
