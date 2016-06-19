@@ -161,7 +161,7 @@ def fetch_crest_marketHistory(typeID, regionID):
     #    'history'
     #)
     #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
-    marketHistory_uri = 'market/{regionID}/history/type={crestURL}inventory/types'
+    marketHistory_uri = 'market/{regionID}/history/?type={crestURL}inventory/types'
     marketHistory_uri = marketHistory_uri.format(
         regionID = regionID,
         crestURL = config.get('CREST', 'source_url')
