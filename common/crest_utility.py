@@ -155,6 +155,7 @@ def fetch_crest(endpointStr, value):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
     crestResponse = None
     crest_endpoint_URL = CREST_URL + endpointStr + '/' + str(value) + '/'
+    print(crest_endpoint_URL)
     GET_headers = {
         'User-Agent': USERAGENT
     }
