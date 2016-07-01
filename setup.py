@@ -15,11 +15,10 @@ setup(
     ],
     keywords='prosper eveonline api CREST',
     packages=find_packages(),
-    package_dir={
-        'publicAPI': 'prosper/publicAPI'
-    },
     package_data={
-        'publicAPI': 'prosperAPI.cfg'
+        'prosper':[
+            'publicAPI/prosperAPI.cfg'
+        ]
     },
     install_requires=[
         'aniso8601==1.1.0',
