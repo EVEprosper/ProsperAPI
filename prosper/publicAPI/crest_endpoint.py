@@ -1,6 +1,6 @@
 '''crest_endpoint.py: CREST centric REST API endpoints'''
 import sys
-sys.path.insert(0, '../common')
+#sys.path.insert(0, '../common')
 import datetime
 import os
 import json
@@ -12,17 +12,22 @@ from flaskext.markdown import Markdown
 import requests
 import pandas
 from pandas.io.json import json_normalize
-import prosperAPI_utility
-import crest_utility
-from crest_utility import CRESTresults
+from prosper.common import crest
+from crest import CRESTresults
+from prosper.common import utiltiies
+#import prosperAPI_utility
+#import crest_utility
+#from crest_utility import CRESTresults
 
 #### CONFIG PARSER ####
-config = prosperAPI_utility.get_config('common')
-Logger = prosperAPI_utility.create_logger('crest_endpoint')
+HERE = os.path.abspath(path.dirname(__file__))
+CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
+config = utiltiies.get_config(CONFIG_FILEPATH)
+Logger = utiltiies.create_logger('crest_endpoint')
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
-
+print(CREST_FLASK_PORT)
 #### GLOBALS ####
 VALID_RESPONSE_TYPES = ('json', 'csv', 'xml', 'quandl')
 
@@ -128,27 +133,27 @@ class OHLCendpoint(Resource):
             if returnType == 'csv':
                 Logger.info('reporting csv')
                 csvStr = message.to_csv(
-                             path_or_buf=None,
-                             columns=[
-                                 'date',
-                                 'open',
-                                 'high',
-                                 'low',
-                                 'close',
-                                 'volume'
-                             ],
-                             header=True,
-                             index=False
-                         )
+                    path_or_buf=None,
+                    columns=[
+                        'date',
+                        'open',
+                        'high',
+                        'low',
+                        'close',
+                        'volume'
+                    ],
+                    header=True,
+                    index=False
+                )
                 returnObj = output_csv(csvStr, 200)
                 return returnObj
             elif returnType == 'json':
                 Logger.info('reporting json')
                 jsonObj = message.to_json(
-                            path_or_buf=None,
-                            orient='records'
-                        )
-                return(json.loads(jsonObj))
+                    path_or_buf=None,
+                    orient='records'
+                )
+                return json.loads(jsonObj)
 
 #### WORKER FUNCTIONS ####
 def fetch_crest_marketHistory(typeID, regionID):
