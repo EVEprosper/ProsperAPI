@@ -13,17 +13,27 @@ import requests
 import pandas
 from pandas.io.json import json_normalize
 from prosper.common import crest
-from crest import CRESTresults
-from prosper.common import utiltiies
+from prosper.common.crest import CRESTresults
+from prosper.common import utilities
 #import prosperAPI_utility
 #import crest_utility
 #from crest_utility import CRESTresults
 
 #### CONFIG PARSER ####
-HERE = os.path.abspath(path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
-config = utiltiies.get_config(CONFIG_FILEPATH)
-Logger = utiltiies.create_logger('crest_endpoint')
+config = utilities.get_config(CONFIG_FILEPATH)
+LOG_PATH = config.get('LOGGING', 'log_folder')
+if not LOG_PATH: #blank line
+    LOG_PATH = os.path.join(HERE, 'logs')
+    if not os.path.exists(LOG_PATH):
+        os.makedirs(LOG_PATH)
+Logger = utilities.create_logger(
+    'crest_endpoint',
+    LOG_PATH,
+    config,
+    config.get('CREST', 'log_level_override')
+)
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
@@ -60,7 +70,7 @@ def OHLC_endpoint(parser, returnType):
     typeCRESTobj = CRESTresults()
     if 'typeID' in args:
         typeID = args.get('typeID')
-        typeCRESTobj = crest_utility.test_typeid(typeID)
+        typeCRESTobj = crest.test_typeid(typeID)
         if not typeCRESTobj:
             errorStr = 'Invalid TypeID given: ' + str(typeID)
             Logger.error(errorStr)
@@ -72,7 +82,7 @@ def OHLC_endpoint(parser, returnType):
     regionCRESTobj = CRESTresults()
     if 'regionID' in args:
         regionID = args.get('regionID')
-        regionCRESTobj = crest_utility.test_regionid(regionID)
+        regionCRESTobj = crest.test_regionid(regionID)
         if not regionCRESTobj:
             errorStr = 'Invalid regionID given: ' + str(regionID)
             Logger.error(errorStr)
@@ -80,7 +90,9 @@ def OHLC_endpoint(parser, returnType):
     Logger.info('Validated regionID: ' + str(regionID))
     #return regionCRESTobj.crestResponse, 200
 
-    historyObj = fetch_crest_marketHistory(typeID, regionID)
+    #historyObj = fetch_crest_marketHistory(typeID, regionID)
+    historyObj = crest.fetch_market_history(typeID, regionID)
+
     pandasObj  = process_crest_for_OHLC(historyObj)
     return pandasObj, None #TODO: this is bad
 
@@ -156,27 +168,27 @@ class OHLCendpoint(Resource):
                 return json.loads(jsonObj)
 
 #### WORKER FUNCTIONS ####
-def fetch_crest_marketHistory(typeID, regionID):
-    '''CREST history call is weird, reformat/overload fetch_crest'''
-    Logger.info('Fetching market history from CREST ' +\
-        str(typeID) + ':' + str(regionID))
-    crestResponse = None
-    #crestResponse = crest_utility.fetch_crest(
-    #    'market/' + str(regionID) + '/types/' + str(typeID),
-    #    'history'
-    #)
-    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
-    marketHistory_uri = 'market/{regionID}/history/?type={crestURL}inventory/types'
-    marketHistory_uri = marketHistory_uri.format(
-        regionID = regionID,
-        crestURL = config.get('CREST', 'source_url')
-    )
-    crestResponse = crest_utility.fetch_crest(
-        marketHistory_uri,
-        typeID
-    )#TODO, make this better
-    return crestResponse
-    #
+#def fetch_crest_marketHistory(typeID, regionID):
+#    '''CREST history call is weird, reformat/overload fetch_crest'''
+#    Logger.info('Fetching market history from CREST ' +\
+#        str(typeID) + ':' + str(regionID))
+#    crestResponse = crest.fetch_market_history(typeID ,regionID)
+#    #crestResponse = crest_utility.fetch_crest(
+#    #    'market/' + str(regionID) + '/types/' + str(typeID),
+#    #    'history'
+#    #)
+#    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
+#    marketHistory_uri = 'market/{regionID}/history/?type={crestURL}inventory/types'
+#    marketHistory_uri = marketHistory_uri.format(
+#        regionID = regionID,
+#        crestURL = config.get('CREST', 'source_url')
+#    )
+#    crestResponse = crest_utility.fetch_crest(
+#        marketHistory_uri,
+#        typeID
+#    )#TODO, make this better
+#    return crestResponse
+#    #
 
 def process_crest_for_OHLC(historyObj):
     '''refactor crest history into OHLC shape'''
