@@ -168,28 +168,6 @@ class OHLCendpoint(Resource):
                 return json.loads(jsonObj)
 
 #### WORKER FUNCTIONS ####
-#def fetch_crest_marketHistory(typeID, regionID):
-#    '''CREST history call is weird, reformat/overload fetch_crest'''
-#    Logger.info('Fetching market history from CREST ' +\
-#        str(typeID) + ':' + str(regionID))
-#    crestResponse = crest.fetch_market_history(typeID ,regionID)
-#    #crestResponse = crest_utility.fetch_crest(
-#    #    'market/' + str(regionID) + '/types/' + str(typeID),
-#    #    'history'
-#    #)
-#    #CREST HISTORY CALL: [crest_addr]/market/[regionID]/types/[typeID]/history/
-#    marketHistory_uri = 'market/{regionID}/history/?type={crestURL}inventory/types'
-#    marketHistory_uri = marketHistory_uri.format(
-#        regionID = regionID,
-#        crestURL = config.get('CREST', 'source_url')
-#    )
-#    crestResponse = crest_utility.fetch_crest(
-#        marketHistory_uri,
-#        typeID
-#    )#TODO, make this better
-#    return crestResponse
-#    #
-
 def process_crest_for_OHLC(historyObj):
     '''refactor crest history into OHLC shape'''
     pandasObj_input = json_normalize(historyObj['items'])
