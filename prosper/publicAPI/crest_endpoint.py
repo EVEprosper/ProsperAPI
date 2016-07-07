@@ -24,6 +24,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
 config = utilities.get_config(CONFIG_FILEPATH)
 LOG_PATH = config.get('LOGGING', 'log_folder')
+if '..' in LOG_PATH:
+    LOG_PATH = os.path.join(HERE, LOG_PATH)
 if not LOG_PATH: #blank line
     LOG_PATH = os.path.join(HERE, 'logs')
     if not os.path.exists(LOG_PATH):
@@ -34,7 +36,7 @@ Logger = utilities.create_logger(
     config,
     config.get('CREST', 'log_level_override')
 )
-
+crest.override_logger(Logger)
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 print(CREST_FLASK_PORT)
