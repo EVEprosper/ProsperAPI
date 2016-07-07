@@ -8,7 +8,7 @@ HERE = path.abspath(path.dirname(__file__))
 
 setup(
     name='ProsperAPI',
-    version='0.0.3',
+    version='0.1.0',
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3.5'
