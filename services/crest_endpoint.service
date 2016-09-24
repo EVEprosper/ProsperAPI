@@ -1,0 +1,16 @@
+[Unit]
+Description=CREST-transforming Flask-restful endpoint
+After=multi-user.target
+
+[Service]
+TimeoutStartSec=30
+Type=simple
+WorkingDirectory=/opt/prosper/prosperAPI/publicAPI
+ExecStart=/usr/share/python/prosper-api/bin/python3.5 crest_endpoint.py
+StandardOutput=syslog
+StadardError=syslog
+User=prosper
+user=root
+
+[Install]
+WantedBy=multi-user.target
