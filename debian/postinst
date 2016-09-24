@@ -1,0 +1,2 @@
+#!/bin/bash
+echo 'RUNNING POST INSTALL FOR prosper-api'

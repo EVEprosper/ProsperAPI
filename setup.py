@@ -26,7 +26,7 @@ def hack_find_packages(include_str):
 
 setup(
     name='ProsperAPI',
-    version='0.1.0',
+    version='0.1.1',
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3.5'
@@ -35,7 +35,8 @@ setup(
     packages=hack_find_packages('prosper'),
     data_files=[
         ('services', include_all_subfiles('services')),
-        ('docs', include_all_subfiles('docs'))
+        ('docs', include_all_subfiles('docs')),
+        ('scripts', include_all_subfiles('scripts'))
         #TODO: license + README
     ],
     package_data={
