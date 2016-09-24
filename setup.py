@@ -33,6 +33,11 @@ setup(
     ],
     keywords='prosper eveonline api CREST',
     packages=hack_find_packages('prosper'),
+    data_files=[
+        ('services', include_all_subfiles('services')),
+        ('docs', include_all_subfiles('docs'))
+        #TODO: license + README
+    ],
     package_data={
         'prosper':[
             'publicAPI/prosperAPI.cfg'
