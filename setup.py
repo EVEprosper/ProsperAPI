@@ -69,6 +69,7 @@ setup(
         'wrapt==1.10.8'
     ],
     dependency_links=[
+        'https://github.com/EVEprosper/ProsperCommon.git#egg=ProsperCommon',
         'https://github.com/EVEprosper/ProsperWarehouse.git#egg=ProsperWarehouse' #not quite right
     ]
 )
