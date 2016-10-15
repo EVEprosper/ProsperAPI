@@ -41,7 +41,8 @@ setup(
     ],
     package_data={
         'prosper':[
-            'publicAPI/prosperAPI.cfg'
+            'publicAPI/prosperAPI.cfg',
+            'publicAPI/prosperAPI_local.cfg'
         ]
     },
     install_requires=[
