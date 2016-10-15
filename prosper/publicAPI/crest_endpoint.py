@@ -14,7 +14,9 @@ import pandas
 from pandas.io.json import json_normalize
 from prosper.common import crest
 from prosper.common.crest import CRESTresults
-from prosper.common import utilities
+from prosper.common.prosper_logger import create_logger
+from prosper.common.prosper_config import get_config
+from prosper.common import prosper_utilities as utilities
 #import prosperAPI_utility
 #import crest_utility
 #from crest_utility import CRESTresults
@@ -22,7 +24,7 @@ from prosper.common import utilities
 #### CONFIG PARSER ####
 HERE = os.path.abspath(os.path.dirname(__file__))
 CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
-config = utilities.get_config(CONFIG_FILEPATH)
+config = get_config(CONFIG_FILEPATH)
 LOG_PATH = config.get('LOGGING', 'log_folder')
 if '..' in LOG_PATH:
     LOG_PATH = os.path.join(HERE, LOG_PATH)
@@ -30,7 +32,7 @@ if not LOG_PATH: #blank line
     LOG_PATH = os.path.join(HERE, 'logs')
     if not os.path.exists(LOG_PATH):
         os.makedirs(LOG_PATH)
-Logger = utilities.create_logger(
+Logger = create_logger(
     'crest_endpoint',
     LOG_PATH,
     config,
