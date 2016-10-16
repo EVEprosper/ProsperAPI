@@ -1,2 +1,21 @@
 #!/bin/bash
 echo 'RUNNING POST INSTALL FOR prosper-api'
+
+echo '--installing additional wheels'
+for wheel in /usr/share/python/prosper-api/wheels/*
+do
+    echo $wheel
+    pip3 install --target=/usr/share/python/prosper-api/lib/python3.5/site-pacakges $wheel --upgrade
+done
+
+echo '--installing services'
+for service in /usr/share/python/prosper-api/services/*
+do
+    echo $service
+    systemctl stop $(basename $service)
+    cp -f $service /lib/systemd/system/
+    systemctl enable $(basename $service)
+    systemctl start $(basename $service)
+done
+systemctl daemon-reload
+
