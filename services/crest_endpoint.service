@@ -5,8 +5,8 @@ After=multi-user.target
 [Service]
 TimeoutStartSec=30
 Type=simple
-WorkingDirectory=/usr/share/python/prosper-api/lib/python3.5/site-packages/prosper/publicAPI/
-ExecStart=/usr/share/python/prosper-api/bin/python3.5 /usr/share/python/prosper-api/lib/python3.5/site-packages/prosper/publicAPI/crest_endpoint.py
+WorkingDirectory=/opt/prosper/publicAPI
+ExecStart=/usr/share/python/prosper-api/bin/python3.5 /opt/prosper/publicAPI/crest_endpoint.py
 StandardOutput=syslog
 StadardError=syslog
 User=prosper
