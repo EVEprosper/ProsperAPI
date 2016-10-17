@@ -11,15 +11,15 @@ do
     echo $wheel
     /usr/share/python/prosper-api/bin/pip install wheel --target=/usr/share/python/prosper-api/lib/python3.5/site-pacakges $wheel
 done
-#
-#echo '--installing services'
-#for service in /usr/share/python/prosper-api/services/*
-#do
-#    echo $service
-#    systemctl stop $(basename $service)
-#    cp -f $service /lib/systemd/system/
-#    systemctl enable $(basename $service)
-#    systemctl start $(basename $service)
-#done
-#systemctl daemon-reload
+
+echo '--installing services'
+for service in /usr/share/python/prosper-api/services/*
+do
+    echo $service
+    systemctl stop $(basename $service)
+    cp -f $service /lib/systemd/system/
+    systemctl enable $(basename $service)
+    systemctl start $(basename $service)
+done
+systemctl daemon-reload
 
