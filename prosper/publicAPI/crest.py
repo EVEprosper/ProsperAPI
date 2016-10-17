@@ -11,7 +11,7 @@ from prosper.common import prosper_utilities as utilities
 from prosper.common.prosper_logging import create_logger
 from prosper.common.prosper_config import get_config
 HERE = os.path.abspath(os.path.dirname(__file__))
-CONFIG_FILEPATH = os.path.join(HERE, 'crest.cfg')
+CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
 config = get_config(CONFIG_FILEPATH)
 #LOG_PATH = config.get('GLOBAL', 'log_path')
 #if not LOG_PATH: #blank line
@@ -33,7 +33,7 @@ crestLogger = DEFAULT_LOGGER
 CACHE_ABSPATH = os.path.join(HERE, config.get('CACHING', 'cache_path'))
 print(CACHE_ABSPATH)
 if not os.path.exists(CACHE_ABSPATH):
-    os.mkdir(CACHE_ABSPATH)
+    os.makedirs(CACHE_ABSPATH)
 SDE_CACHE_LIMIT = int(config.get('CACHING', 'sde_cache_limit'))
 CREST_URL   = config.get('ROOTPATH', 'public_crest')
 USERAGENT   = config.get('GLOBAL', 'useragent')
