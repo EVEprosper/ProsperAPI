@@ -12,6 +12,9 @@ do
     /usr/share/python/prosper-api/bin/pip install wheel $wheel --upgrade
 done
 
+echo '--filling out folder struct'
+mkdir -p /opt/prosper/publicAPI/SDE_cache
+
 echo '--installing services'
 for service in /usr/share/python/prosper-api/services/*
 do
