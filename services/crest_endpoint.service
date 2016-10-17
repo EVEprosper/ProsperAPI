@@ -10,7 +10,7 @@ ExecStart=/usr/share/python/prosper-api/bin/python3.5 /opt/prosper/publicAPI/cre
 StandardOutput=syslog
 StadardError=syslog
 User=prosper
-user=root
+User=root
 
 [Install]
 WantedBy=multi-user.target
