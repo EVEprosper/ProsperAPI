@@ -3,7 +3,7 @@ echo 'RUNNING POST INSTALL FOR prosper-api'
 echo 'Builidng /opt/ directory'
 rm -rf /opt/prosper/
 mkdir -p /opt/prosper/
-cp -rf /usr/share/python/prosper-api/lib/python3.5/site-pacakges/prosper/ /opt/
+cp -rf /usr/share/python/prosper-api/lib/python3.5/site-packages/prosper/ /opt/
 
 #echo '--installing additional wheels'
 #for wheel in /usr/share/python/prosper-api/wheels/*
