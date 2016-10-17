@@ -9,7 +9,7 @@ echo '--installing additional wheels'
 for wheel in /usr/share/python/prosper-api/wheels/*
 do
     echo $wheel
-    /usr/share/python/prosper-api/bin/pip install wheel $wheel
+    /usr/share/python/prosper-api/bin/pip install wheel $wheel --upgrade
 done
 
 echo '--installing services'
