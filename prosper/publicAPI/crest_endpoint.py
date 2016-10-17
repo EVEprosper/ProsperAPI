@@ -13,8 +13,9 @@ import requests
 import pandas
 from pandas.io.json import json_normalize
 import crest
+from crest import CRESTresults
 #from prosper.common import crest
-from prosper.common.crest import CRESTresults
+#from prosper.common.crest import CRESTresults
 from prosper.common.prosper_logging import create_logger
 from prosper.common.prosper_config import get_config
 from prosper.common import prosper_utilities as utilities
