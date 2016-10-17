@@ -5,12 +5,12 @@ rm -rf /opt/prosper/
 mkdir -p /opt/prosper/
 cp -rf /usr/share/python/prosper-api/lib/python3.5/site-packages/prosper/ /opt/
 
-#echo '--installing additional wheels'
-#for wheel in /usr/share/python/prosper-api/wheels/*
-#do
-#    echo $wheel
-#    pip3 install --target=/usr/share/python/prosper-api/lib/python3.5/site-pacakges $wheel --upgrade
-#done
+echo '--installing additional wheels'
+for wheel in /usr/share/python/prosper-api/wheels/*
+do
+    echo $wheel
+    pip3 install wheel --target=/usr/share/python/prosper-api/lib/python3.5/site-pacakges $wheel
+done
 #
 #echo '--installing services'
 #for service in /usr/share/python/prosper-api/services/*
