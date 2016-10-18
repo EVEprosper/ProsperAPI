@@ -36,7 +36,8 @@ setup(
     data_files=[
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
-        ('scripts', include_all_subfiles('scripts'))
+        ('scripts', include_all_subfiles('scripts')),
+        ('wheels', include_all_subfiles('wheels'))
         #TODO: license + README
     ],
     package_data={
