@@ -31,3 +31,11 @@ ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/
 
 # How to Install
 
+1. `sudo dpkg -i prosper-api_[version]_amd64.deb
+2. `sudo systemctl status crest_endpoint.service` to  make sure deploy is correct
+
+## Notes
+Deploys a virgin virtualenv for code to run in.  Does not adjust production python on machine.
+
+`source /usr/share/python/prosper-api/bin/activate`
+`sudo /usr/share/python/prosper-api/bin/python` <-- for running python directly
