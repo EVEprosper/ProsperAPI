@@ -24,7 +24,7 @@ config = get_config(CONFIG_FILEPATH)
 LOG_PATH = config.get('LOGGING', 'log_folder')
 
 
-Logger = p_logging.DEFAULT_LOGGER
+LOGGER = p_logging.DEFAULT_LOGGER
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
@@ -63,9 +63,9 @@ def OHLC_endpoint(parser, returnType):
         typeCRESTobj = crest.test_typeid(typeID)
         if not typeCRESTobj:
             errorStr = 'Invalid TypeID given: ' + str(typeID)
-            Logger.error(errorStr)
+            LOGGER.error(errorStr)
             return errorStr, 400
-    Logger.info('Validated typeID: ' + str(typeID))
+    LOGGER.info('Validated typeID: ' + str(typeID))
     #return typeCRESTobj.crestResponse, 200
 
     regionID       = -1
@@ -75,9 +75,9 @@ def OHLC_endpoint(parser, returnType):
         regionCRESTobj = crest.test_regionid(regionID)
         if not regionCRESTobj:
             errorStr = 'Invalid regionID given: ' + str(regionID)
-            Logger.error(errorStr)
+            LOGGER.error(errorStr)
             return errorStr, 400
-    Logger.info('Validated regionID: ' + str(regionID))
+    LOGGER.info('Validated regionID: ' + str(regionID))
     #return regionCRESTobj.crestResponse, 200
 
     #historyObj = fetch_crest_marketHistory(typeID, regionID)
@@ -121,19 +121,19 @@ class OHLCendpoint(Resource):
 
     def get(self, returnType):
         '''GET behavior'''
-        Logger.info('OHLC request:' + returnType)
-        Logger.debug(self.reqparse.parse_args())
+        LOGGER.info('OHLC request:' + returnType)
+        LOGGER.debug(self.reqparse.parse_args())
         if returnType.lower() in VALID_RESPONSE_TYPES:
             message, status = OHLC_endpoint(self.reqparse, returnType.lower())
         else:
             errorStr = 'UNSUPPORTED RETURN TYPE: ' + returnType
-            Logger.error(errorStr)
+            LOGGER.error(errorStr)
             message = errorStr
             status = 400
             return message, status
         if not status:  #TODO: this is bad, so bad
             if returnType == 'csv':
-                Logger.info('reporting csv')
+                LOGGER.info('reporting csv')
                 csvStr = message.to_csv(
                     path_or_buf=None,
                     columns=[
@@ -150,7 +150,7 @@ class OHLCendpoint(Resource):
                 returnObj = output_csv(csvStr, 200)
                 return returnObj
             elif returnType == 'json':
-                Logger.info('reporting json')
+                LOGGER.info('reporting json')
                 jsonObj = message.to_json(
                     path_or_buf=None,
                     orient='records'
@@ -171,8 +171,8 @@ def process_crest_for_OHLC(historyObj):
             'low'    : pandasObj_input['lowPrice']
         }
     )
-    Logger.info('Processed CREST->OHLC')
-    Logger.debug(pandasObj_output[1:])
+    LOGGER.info('Processed CREST->OHLC')
+    LOGGER.debug(pandasObj_output[1:])
     return pandasObj_output[1:]
 
 #### MAIN ####
@@ -187,16 +187,16 @@ if __name__ == '__main__':
 
     if BOOL_DEBUG_ENABLED:
         LOG_BUILDER.configure_debug_logger()
-        Logger = LOG_BUILDER.get_logger()
-        crest.override_logger(Logger)
+        LOGGER = LOG_BUILDER.get_logger()
+        crest.override_logger(LOGGER)
         app.run(
             debug=True,
             port = CREST_FLASK_PORT
         )
     else:
         LOG_BUILDER.configure_discord_logger()
-        Logger = LOG_BUILDER.get_logger()
-        crest.override_logger(Logger)
+        LOGGER = LOG_BUILDER.get_logger()
+        crest.override_logger(LOGGER)
         app.run(
             host = '0.0.0.0',
             port = CREST_FLASK_PORT
