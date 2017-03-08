@@ -1,26 +1,21 @@
 '''crest_endpoint.py: CREST centric REST API endpoints'''
 import sys
-#sys.path.insert(0, '../common')
 import datetime
 import os
 import json
-import logging
+
 from logging.handlers import TimedRotatingFileHandler, SMTPHandler
 from flask import Flask, Response, jsonify, Markup
 from flask_restful import reqparse, Api, Resource, request
 import requests
 import pandas
 from pandas.io.json import json_normalize
+
 import crest
 from crest import CRESTresults
-#from prosper.common import crest
-#from prosper.common.crest import CRESTresults
-from prosper.common.prosper_logging import create_logger
+import prosper.common.prosper_logging as p_logging
 from prosper.common.prosper_config import get_config
-from prosper.common import prosper_utilities as utilities
-#import prosperAPI_utility
-#import crest_utility
-#from crest_utility import CRESTresults
+
 
 #### CONFIG PARSER ####
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -33,13 +28,15 @@ if not LOG_PATH: #blank line
     LOG_PATH = os.path.join(HERE, 'logs')
     if not os.path.exists(LOG_PATH):
         os.makedirs(LOG_PATH)
-Logger = create_logger(
-    'crest_endpoint',
-    LOG_PATH,
-    config,
-    config.get('CREST', 'log_level_override')
-)
-crest.override_logger(Logger)
+
+Logger = p_logging.DEFAULT_LOGGER
+#Logger = create_logger(
+#    'crest_endpoint',
+#    LOG_PATH,
+#    config,
+#    config.get('CREST', 'log_level_override')
+#)
+#crest.override_logger(Logger)
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 print(CREST_FLASK_PORT)
@@ -193,6 +190,8 @@ def process_crest_for_OHLC(historyObj):
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
     '.<returnType>')
 if __name__ == '__main__':
+
+
     if BOOL_DEBUG_ENABLED:
         app.run(
             debug=True,
