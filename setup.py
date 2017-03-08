@@ -1,32 +1,85 @@
-'''wheel setup for public prosper API's'''
+"""Setup.py for ProsperAPI Flask project"""
 
 from os import path, listdir
 from setuptools import setup, find_packages
-
+from setuptools.command.test import test as TestCommand
 
 HERE = path.abspath(path.dirname(__file__))
-
-def include_all_subfiles(path_included):
-    '''for data_files {path_included}/*'''
-    local_path = path.join(HERE, path_included)
-    file_list = []
-
-    for file in listdir(local_path):
-        file_list.append(path_included + '/' + file)
-
-    return file_list
+__version__ = '0.2.0'
 
 def hack_find_packages(include_str):
-    '''setuptools.find_packages({include_str}) does not work.  Adjust pathing'''
+    """patches setuptools.find_packages issue
+
+    setuptools.find_packages(path='') doesn't work as intended
+
+    Returns:
+        (:obj:`list` :obj:`str`) append <include_str>. onto every element of setuptools.find_pacakges() call
+
+    """
     new_list = [include_str]
     for element in find_packages(include_str):
         new_list.append(include_str + '.' + element)
 
     return new_list
 
+def include_all_subfiles(*args):
+    """Slurps up all files in a directory (non recursive) for data_files section
+
+    Note:
+        Not recursive, only includes flat files
+
+    Returns:
+        (:obj:`list` :obj:`str`) list of all non-directories in a file
+
+    """
+    file_list = []
+    for path_included in args:
+        local_path = path.join(HERE, path_included)
+
+        for file in listdir(local_path):
+            file_abspath = path.join(local_path, file)
+            if path.isdir(file_abspath):    #do not include sub folders
+                continue
+            file_list.append(path_included + '/' + file)
+
+    return file_list
+
+class PyTest(TestCommand):
+    """PyTest cmdclass hook for test-at-buildtime functionality
+
+    http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
+
+    """
+    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = [
+            'Tests',
+            '--cov=prosper/',
+            '--cov-report=term-missing'
+        ]    #load defaults here
+
+    def run_tests(self):
+        import shlex
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        pytest_commands = []
+        try:    #read commandline
+            pytest_commands = shlex.split(self.pytest_args)
+        except AttributeError:  #use defaults
+            pytest_commands = self.pytest_args
+        errno = pytest.main(pytest_commands)
+        exit(errno)
+
+
 setup(
     name='ProsperAPI',
-    version='0.1.1',
+    author='John Purcell',
+    author_email='prospermarketshow@gmail.com',
+    url='https://github.com/EVEprosper/ProsperAPI',
+    download_url='https://github.com/EVEprosper/ProsperAPI/tarball/v' + __version__,
+    version=__version__,
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3.5'
@@ -37,8 +90,8 @@ setup(
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
         ('scripts', include_all_subfiles('scripts')),
-        ('wheels', include_all_subfiles('wheels'))
-        #TODO: license + README
+        ('wheels', include_all_subfiles('wheels')),
+        ('tests', include_all_subfiles('tests'))
     ],
     package_data={
         'prosper':[
@@ -47,31 +100,20 @@ setup(
         ]
     },
     install_requires=[
-        'aniso8601==1.1.0',
-        'astroid==1.4.5',
-        'colorama==0.3.7',
-        'Flask==0.10.1',
-        'Flask-Cache==0.13.1',
-        'Flask-Markdown==0.3',
-        'Flask-RESTful==0.3.5',
-        'itsdangerous==0.24',
-        'Jinja2==2.8',
-        'lazy-object-proxy==1.2.2',
-        'Markdown==2.6.6',
-        'MarkupSafe==0.23',
-        'numpy==1.11.0',
-        'pandas==0.18.1',
-        'pylint==1.5.5',
-        'pypyodbc==1.3.3',
-        'python-dateutil==2.5.3',
-        'pytz==2016.4',
-        'requests==2.10.0',
-        'six==1.10.0',
-        'Werkzeug==0.11.9',
-        'wrapt==1.10.8'
+        'Flask~=0.12',
+        'Flask-RESTful~=0.3.5',
+        'requests~=2.13.0',
+        'mysql-connector~=2.1.4',
+        'pandas~=0.19.2',
+        'numpy~=1.12.0',
+        'ProsperCommon~=0.4.0',
+        'prophet~=0.1.1'
     ],
-    dependency_links=[
-        'https://github.com/EVEprosper/ProsperCommon.git#egg=ProsperCommon',
-        'https://github.com/EVEprosper/ProsperWarehouse.git#egg=ProsperWarehouse' #not quite right
-    ]
+    tests_require=[
+        'pytest~=3.0.0',
+        'pytest_cov~=2.4.0',
+    ],
+    cmdclass={
+        'test':PyTest
+    }
 )
