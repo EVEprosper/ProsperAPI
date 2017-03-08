@@ -1,4 +1,4 @@
-prosper-api (0.1.1) stable; urgency=high
+prosper-api (0.2.0) stable; urgency=high
 
   * Adding debian installer to package
 
