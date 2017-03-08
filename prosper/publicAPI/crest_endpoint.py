@@ -8,7 +8,6 @@ import logging
 from logging.handlers import TimedRotatingFileHandler, SMTPHandler
 from flask import Flask, Response, jsonify, Markup
 from flask_restful import reqparse, Api, Resource, request
-from flaskext.markdown import Markdown
 import requests
 import pandas
 from pandas.io.json import json_normalize
@@ -51,7 +50,6 @@ VALID_RESPONSE_TYPES = ('json', 'csv', 'xml', 'quandl')
 #### FLASK HANDLERS ####
 app = Flask(__name__)
 api = Api(app)
-md  = Markdown(app)
 
 #### LOGGING STUFF ####
 
