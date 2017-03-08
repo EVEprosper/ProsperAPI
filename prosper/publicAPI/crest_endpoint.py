@@ -22,21 +22,10 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 CONFIG_FILEPATH = os.path.join(HERE, 'prosperAPI.cfg')
 config = get_config(CONFIG_FILEPATH)
 LOG_PATH = config.get('LOGGING', 'log_folder')
-if '..' in LOG_PATH:
-    LOG_PATH = os.path.join(HERE, LOG_PATH)
-if not LOG_PATH: #blank line
-    LOG_PATH = os.path.join(HERE, 'logs')
-    if not os.path.exists(LOG_PATH):
-        os.makedirs(LOG_PATH)
+
 
 Logger = p_logging.DEFAULT_LOGGER
-#Logger = create_logger(
-#    'crest_endpoint',
-#    LOG_PATH,
-#    config,
-#    config.get('CREST', 'log_level_override')
-#)
-#crest.override_logger(Logger)
+
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
 print(CREST_FLASK_PORT)
@@ -190,14 +179,24 @@ def process_crest_for_OHLC(historyObj):
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
     '.<returnType>')
 if __name__ == '__main__':
-
+    LOG_BUILDER = p_logging.ProsperLoger(
+        'ProsperAPI',
+        LOG_PATH,
+        config
+    )
 
     if BOOL_DEBUG_ENABLED:
+        LOG_BUILDER.configure_debug_logger()
+        Logger = LOG_BUILDER.get_logger()
+        crest.override_logger(Logger)
         app.run(
             debug=True,
             port = CREST_FLASK_PORT
         )
     else:
+        LOG_BUILDER.configure_discord_logger()
+        Logger = LOG_BUILDER.get_logger()
+        crest.override_logger(Logger)
         app.run(
             host = '0.0.0.0',
             port = CREST_FLASK_PORT
