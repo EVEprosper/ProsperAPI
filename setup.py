@@ -107,7 +107,9 @@ setup(
         'pandas~=0.19.2',
         'numpy~=1.12.0',
         'ProsperCommon~=0.4.0',
-        'prophet~=0.1.1'
+        'prophet~=0.1.1',
+        'tinydb~=3.2.2',
+        'ujson~=1.35'
     ],
     tests_require=[
         'pytest~=3.0.0',

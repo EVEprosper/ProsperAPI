@@ -189,22 +189,22 @@ def fetch_regionid(regionID, override_cache=False):
 
     return jsonObj
 
-def fetch_market_history(typeID, regionID, override_cache=False):
+def fetch_market_history(type_id, region_id, override_cache=False):
     '''fetches market history from CREST or cache'''
     endpoint_url = CREST_URL + config.get('RESOURCES', 'market_history')
     endpoint_url = endpoint_url.format(
-        typeID=typeID,
-        regionID=regionID
+        typeID=type_id,
+        regionID=region_id
     )
-    jsonObj = None
+    json_obj = {}
     #TODO: cached market_history utility?
-    jsonObj = fetch_crest(endpoint_url)
-    return jsonObj
+    json_obj = fetch_crest(endpoint_url)
+    return json_obj
 
 #def fetch_crest(endpointStr, value):
 def fetch_crest(crest_url):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
-    crestResponse = {}
+    crest_response = {}
     #crest_endpoint_URL = CREST_URL + endpointStr + '/' + str(value) + '/'
     crestLogger.debug(crest_url)
     GET_headers = {
