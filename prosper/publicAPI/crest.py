@@ -1,7 +1,8 @@
 '''crest_utility.py: worker functions for CREST calls'''
 
 import datetime
-import os
+#import os
+from os import path, makedirs
 import json
 
 import requests
@@ -201,87 +202,57 @@ def fetch_market_history(typeID, regionID, override_cache=False):
     return jsonObj
 
 #def fetch_crest(endpointStr, value):
-def fetch_crest(crestURL):
+def fetch_crest(crest_url):
     '''Fetches CREST endpoints and returns JSON.  Has retry built in'''
-    crestResponse = None
+    crestResponse = {}
     #crest_endpoint_URL = CREST_URL + endpointStr + '/' + str(value) + '/'
-    print(crestURL)
+    crestLogger.debug(crest_url)
     GET_headers = {
         'User-Agent': USERAGENT
     }
-    last_error = ""
-    crestLogger.info('Fetching CREST: ' + crestURL)
+    last_exception = None
+    crestLogger.info('Fetching CREST: ' + crest_url)
     for tries in range (0, RETRY_LIMIT):
         try:
             crest_request = requests.get(
-                crestURL,
+                crest_url,
                 headers=GET_headers
             )
-        except requests.exceptions.ConnectTimeout as err:
-            last_error = 'RETRY=' + str(tries) + ' ' + \
-                'ConnectTimeout: ' + str(err)
-            crestLogger.error(last_error)
+            crest_request.raise_for_status()
+            crest_response = crest_request.json()
+        except Exception as err_msg:
+            last_exception = err_msg
             continue
-        except requests.exceptions.ConnectionError as err:
-            last_error = 'RETRY=' + str(tries) + ' ' + \
-                'ConnectionError: ' + str(err)
-            crestLogger.error(last_error)
-            continue
-        except requests.exceptions.ReadTimeout as err:
-            last_error = 'RETRY=' + str(tries) + ' ' + \
-                'ReadTimeout: ' + str(err)
-            crestLogger.error(last_error)
-            continue
-
-        if crest_request.status_code == requests.codes.ok:
-            try:
-                crestResponse = crest_request.json()
-            except ValueError as err:
-                last_error = 'RETRY=' + str(tries) + ' ' + \
-                    'request not JSON: ' + str(err)
-                crestLogger.error(last_error)
-                continue #try again
-            break   #if all OK, break out of error checking
-        else:
-            last_error = 'RETRY=' + str(tries) + ' ' + \
-                'bad status code: ' + str(crest_request.status_code)
-            crestLogger.error(last_error)
-            continue #try again
     else:
-        critical_message = ''' ERROR: retries exceeded in crest_fetch()
-    URL=''' + crestURL + '''
-    LAST_ERROR=''' + last_error
-        helpMsg = '''CREST Outage?'''
-        critical_string = utilities.email_body_builder(
-            critical_message,
-            helpMsg
+        crestLogger.critical(
+            'CRITICAL: retries exceeded' +
+            '\n\turl={0}'.format(crest_url) +
+            '\n\tlast_error={0}'.format(repr(last_exception))
         )
-        crestLogger.critical(critical_string)
-    crestLogger.info('Fetched CREST:' + crestURL)
-    crestLogger.debug(crestResponse)
-    return crestResponse
 
-def check_cache(objectID, endpointName):
+    crestLogger.info('Fetched CREST:' + crest_url)
+    crestLogger.debug(crest_response)
+    return crest_response
+
+def check_cache(object_id, endpoint_name):
     '''Try to read CREST/SDE items off disk'''
-    cachePath = os.path.join(CACHE_ABSPATH, endpointName)
-    if not os.path.exists(cachePath):
-        #TODO: repeated function
-        os.mkdir(cachePath)
-        crestLogger.info('Created cache path: ' + cachePath)
-        return None
+    cache_path = path.join(CACHE_ABSPATH, endpoint_name)
+    if not path.exists(cache_path):
+        crestLogger.info('Creating cache path: ' + cache_path)
+    makedirs(cache_path, exist_ok=True)
 
-    jsonObj = None
-    cacheFilePath = os.path.join(cachePath, str(objectID) + '.json')
-    if os.path.isfile(cacheFilePath):
+    json_obj = {}
+    cache_filepath = path.join(cache_path, str(object_id) + '.json')
+    if path.isfile(cache_filepath):
         try:
-            with open(cacheFilePath, 'r') as file_handle:
-                jsonObj = json.load(file_handle)
-        except Exception as err:
-            errorStr = 'unable to read json: ' + cacheFilePath + \
-                ' ' + str(err)
-            crestLogger.error(errorStr)
-            #TODO: delete cached file?
+            with open(cache_filepath, 'r') as file_handle:
+                json_obj = json.load(file_handle)
+        except Exception:
+            crestLogger.error(
+                'unable to read json: ' + cache_filepath,
+                exc_info=True
+            )
             return None #need to read again from CREST
-        return jsonObj
+        return json_obj
     else:
         return None
