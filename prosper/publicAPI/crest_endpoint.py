@@ -89,6 +89,8 @@ class OHLC_endpoint(Resource):
             'types',
             args.get('typeID')
         )
+        #TODO: validate range
+        #TODO: validate API key
 
         ## Fetch CREST ##
         #TODO: error piping
@@ -105,6 +107,83 @@ class OHLC_endpoint(Resource):
 
         return message
 
+DEFAULT_RANGE = CONFIG.get('CREST', 'prophet_range')
+MAX_RANGE = CONFIG.get('CREST', 'prophet_max')
+class ProphetEndpoint(Resource):
+    """Handle calls on Prophet endpoint"""
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'regionID',
+            type=int,
+            required=True,
+            help='regionid for market history API',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'typeID',
+            type=int,
+            required=True,
+            help='typeid for market history API',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'User-Agent',
+            type=str,
+            required=True,
+            help='User-Agent required',
+            location=['headers']
+        )
+        self.reqparse.add_argument(
+            'api',
+            type=str,
+            required=True,
+            help='API key for tracking requests',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'range',
+            type=int,
+            required=False,
+            help='Range for forecasting: default=' + DEFAULT_RANGE + ' max=' + MAX_RANGE,
+            location=['args', 'headers']
+        )
+
+    def get(self):
+        args = self.reqparse.parse_args()
+        LOGGER.info(
+            'OHLC?regionID={0}&typeID={1}'.format(
+                args.get('regionID'), args.get('typeID')
+        ))
+        LOGGER.debug(args)
+
+        ## Validate inputs ##
+        #TODO: error piping
+        status = crest_utils.validate_id(
+            'regions',
+            args.get('regionID')
+        )
+        status = crest_utils.validate_id(
+            'types',
+            args.get('typeID')
+        )
+
+        #TODO: validate range
+
+        ## Fetch CREST ##
+        #TODO: error piping
+        data = forecast_utils.fetch_extended_history(
+            args.get('regionID'),
+            args.get('typeID')
+        )
+
+        ## Format output ##
+        message = forecast_utils.data_to_format(
+            data,
+            return_type
+        )
+
+        return message
 ## Flask Endpoints ##
 APP.add_resource(
     OHLC_endpoint,
@@ -143,15 +222,21 @@ class PublicAPIRunner(cli.Application):
         LOGGER = self._log_builder.get_logger()
         #TODO: push logger out to helper lib
 
-        if DEBUG:
-            APP.run(
-                debug=True,
-                port=self.port
-            )
-        else:
-            APP.run(
-                host='0.0.0.0',
-                port=self.port
+        try:
+            if DEBUG:
+                APP.run(
+                    debug=True,
+                    port=self.port
+                )
+            else:
+                APP.run(
+                    host='0.0.0.0',
+                    port=self.port
+                )
+        except Exception as err:
+            LOGGER.critical(
+                __name__ + ' exiting unexpectedly',
+                exc_info=True
             )
 
 if __name__ == '__main__':
