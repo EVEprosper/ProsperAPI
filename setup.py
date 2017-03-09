@@ -109,11 +109,13 @@ setup(
         'ProsperCommon~=0.4.0',
         'prophet~=0.1.1',
         'tinydb~=3.2.2',
-        'ujson~=1.35'
+        'ujson~=1.35',
+        'plumbum~=1.6.3'
     ],
     tests_require=[
         'pytest~=3.0.0',
         'pytest_cov~=2.4.0',
+        'pytest-flask~=0.10.0'
     ],
     cmdclass={
         'test':PyTest
