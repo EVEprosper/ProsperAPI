@@ -179,13 +179,13 @@ def fetch_regionid(region_id, override_cache=False):
     endpoint_url = endpoint_url.format(
         region_id=region_id
     )
-    jsonObj = None
-    cacheResponse = check_cache(region_id, 'regions')
-    if (not cacheResponse) or override_cache:
-        crestResponse = fetch_crest(endpoint_url)  #test CREST endpoint
-        jsonObj = crestResponse
+    json_obj = {}
+    cache_response = check_cache(region_id, 'regions')
+    if (not cache_response) or override_cache:
+        cache_response = fetch_crest(endpoint_url)  #test CREST endpoint
+        json_obj = cache_response
     else:
-        jsonObj = cacheResponse
+        json_obj = cache_response
 
     return jsonObj
 
