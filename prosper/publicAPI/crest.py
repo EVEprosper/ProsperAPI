@@ -109,18 +109,18 @@ class CRESTresults(object):
                 crestLogger.error(errorStr)
                 crestLogger.debug(crestJSON)
 
-def test_typeid(typeID):
+def test_typeid(type_id):
     '''Validates typeID is queryable'''
     crestObj = CRESTresults()
 
     try:    #test types
-        typeID_INT = int(typeID)
+        type_id = int(type_id)
     except ValueError as err:
-        errorStr = 'bad typeID recieved: ' + str(err)
+        errorStr = 'bad type_id recieved: ' + str(err)
         crestLogger.error(errorStr)
         return None
 
-    jsonObj = fetch_typeid(typeID)
+    jsonObj = fetch_typeid(type_id)
     validCrest = crestObj.parse_crest_response(jsonObj, 'types')
     crestObj.write_cache_response(jsonObj, 'types')
     if validCrest:
@@ -132,36 +132,36 @@ def test_typeid(typeID):
         crestLogger.error(errorStr)
         return None
 
-def fetch_typeid(typeID, override_cache=False):
+def fetch_typeid(type_id, override_cache=False):
     '''fetches typeid conversion from CREST or cache'''
     endpoint_url = CREST_URL + config.get('RESOURCES', 'inventory_types')
     endpoint_url = endpoint_url.format(
-        typeID=typeID
+        type_id=type_id
     )
     jsonObj = None
-    cacheResponse = check_cache(typeID, 'types')
+    cacheResponse = check_cache(type_id, 'types')
     if (not cacheResponse) or override_cache:
-        crestLogger.info('fetching crest ' + str(typeID))
+        crestLogger.info('fetching crest ' + str(type_id))
         crestResponse = fetch_crest(endpoint_url)    #test CREST endpoint
         jsonObj = crestResponse
     else:
-        crestLogger.info('using local cache ' + str(typeID))
+        crestLogger.info('using local cache ' + str(type_id))
         jsonObj = cacheResponse
 
     return jsonObj
 
-def test_regionid(regionID):
+def test_regionid(region_id):
     '''Validates regionID is queryable'''
     crestObj = CRESTresults()
 
     try:    #test types
-        regionID_INT = int(regionID)
+        region_id = int(region_id)
     except ValueError as err:
         errorStr = 'bad regionID recieved: ' + str(err)
         crestLogger.error(errorStr)
         return None
 
-    jsonObj = fetch_regionid(regionID)
+    jsonObj = fetch_regionid(region_id)
     validCrest = crestObj.parse_crest_response(jsonObj, 'regions')
     crestObj.write_cache_response(jsonObj, 'regions')
     if validCrest:
@@ -173,14 +173,14 @@ def test_regionid(regionID):
         crestLogger.error(errorStr)
         return None
 
-def fetch_regionid(regionID, override_cache=False):
+def fetch_regionid(region_id, override_cache=False):
     '''fetches regionid conversion from CREST or cache'''
     endpoint_url = CREST_URL + config.get('RESOURCES', 'map_regions')
     endpoint_url = endpoint_url.format(
-        regionID=regionID
+        region_id=region_id
     )
     jsonObj = None
-    cacheResponse = check_cache(regionID, 'regions')
+    cacheResponse = check_cache(region_id, 'regions')
     if (not cacheResponse) or override_cache:
         crestResponse = fetch_crest(endpoint_url)  #test CREST endpoint
         jsonObj = crestResponse
@@ -193,8 +193,8 @@ def fetch_market_history(type_id, region_id, override_cache=False):
     '''fetches market history from CREST or cache'''
     endpoint_url = CREST_URL + config.get('RESOURCES', 'market_history')
     endpoint_url = endpoint_url.format(
-        typeID=type_id,
-        regionID=region_id
+        type_id=type_id,
+        region_id=region_id
     )
     json_obj = {}
     #TODO: cached market_history utility?
