@@ -28,7 +28,6 @@ LOGGER = p_logging.DEFAULT_LOGGER
 
 BOOL_DEBUG_ENABLED = bool(config.get('GLOBAL', 'debug_enabled'))
 CREST_FLASK_PORT   =  int(config.get('CREST', 'flask_port'))
-print(CREST_FLASK_PORT)
 #### GLOBALS ####
 VALID_RESPONSE_TYPES = ('json', 'csv', 'xml', 'quandl')
 
@@ -119,22 +118,22 @@ class OHLCendpoint(Resource):
             location=['args', 'headers']
         )
 
-    def get(self, returnType):
+    def get(self, return_type):
         '''GET behavior'''
-        LOGGER.info('OHLC request:' + returnType)
+        LOGGER.info('OHLC request:' + return_type)
         LOGGER.debug(self.reqparse.parse_args())
-        if returnType.lower() in VALID_RESPONSE_TYPES:
-            message, status = OHLC_endpoint(self.reqparse, returnType.lower())
+        if return_type.lower() in VALID_RESPONSE_TYPES:
+            message, status = OHLC_endpoint(self.reqparse, return_type.lower())
         else:
-            errorStr = 'UNSUPPORTED RETURN TYPE: ' + returnType
-            LOGGER.error(errorStr)
-            message = errorStr
+            error_str = 'UNSUPPORTED RETURN TYPE: ' + return_type
+            LOGGER.warning(error_str)
+            message = error_str
             status = 400
             return message, status
         if not status:  #TODO: this is bad, so bad
-            if returnType == 'csv':
+            if return_type == 'csv':
                 LOGGER.info('reporting csv')
-                csvStr = message.to_csv(
+                csv_str = message.to_csv(
                     path_or_buf=None,
                     columns=[
                         'date',
@@ -147,33 +146,33 @@ class OHLCendpoint(Resource):
                     header=True,
                     index=False
                 )
-                returnObj = output_csv(csvStr, 200)
-                return returnObj
-            elif returnType == 'json':
+                return_obj = output_csv(csv_str, 200)
+                return return_obj
+            elif return_type == 'json':
                 LOGGER.info('reporting json')
-                jsonObj = message.to_json(
+                json_obj = message.to_json(
                     path_or_buf=None,
                     orient='records'
                 )
-                return json.loads(jsonObj)
+                return json.loads(json_obj)
 
 #### WORKER FUNCTIONS ####
-def process_crest_for_OHLC(historyObj):
+def process_crest_for_OHLC(history_obj):
     '''refactor crest history into OHLC shape'''
-    pandasObj_input = json_normalize(historyObj['items'])
-    pandasObj_output = pandas.DataFrame(
+    pandas_input = json_normalize(history_obj['items'])
+    pandas_output = pandas.DataFrame(
         {
-            'date'   : pandasObj_input['date'],
-            'volume' : pandasObj_input['volume'],
-            'close'  : pandasObj_input['avgPrice'],
-            'open'   : pandasObj_input['avgPrice'].shift(1),
-            'high'   : pandasObj_input['highPrice'],
-            'low'    : pandasObj_input['lowPrice']
+            'date'   : pandas_input['date'],
+            'volume' : pandas_input['volume'],
+            'close'  : pandas_input['avgPrice'],
+            'open'   : pandas_input['avgPrice'].shift(1),
+            'high'   : pandas_input['highPrice'],
+            'low'    : pandas_input['lowPrice']
         }
     )
     LOGGER.info('Processed CREST->OHLC')
-    LOGGER.debug(pandasObj_output[1:])
-    return pandasObj_output[1:]
+    LOGGER.debug(pandas_output[1:])
+    return pandas_output[1:]
 
 #### MAIN ####
 api.add_resource(OHLCendpoint, config.get('ENDPOINTS', 'OHLC') + \
@@ -191,13 +190,13 @@ if __name__ == '__main__':
         crest.override_logger(LOGGER)
         app.run(
             debug=True,
-            port = CREST_FLASK_PORT
+            port=CREST_FLASK_PORT
         )
     else:
         LOG_BUILDER.configure_discord_logger()
         LOGGER = LOG_BUILDER.get_logger()
         crest.override_logger(LOGGER)
         app.run(
-            host = '0.0.0.0',
-            port = CREST_FLASK_PORT
+            host='0.0.0.0',
+            port=CREST_FLASK_PORT
         )
