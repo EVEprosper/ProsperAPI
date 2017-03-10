@@ -7,6 +7,7 @@ import ujson as json
 #import requests
 from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
+from flask_mysqldb import MySQL
 #import pandas
 #from pandas.io.json import json_normalize
 from plumbum import cli
@@ -14,6 +15,7 @@ from plumbum import cli
 #requests.models.json = json
 
 import crest_utils
+import forecast_utils
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
@@ -27,7 +29,9 @@ DEBUG = False
 
 ## Flask Handles ##
 APP = Flask(__name__)
-API = Api(app)
+API = Api(APP)
+MYSQL = None
+
 
 ## Flask Endpoints ##
 @api.representation('text/csv')
@@ -172,9 +176,11 @@ class ProphetEndpoint(Resource):
 
         ## Fetch CREST ##
         #TODO: error piping
+        curr = mysql.connection.cursor()
         data = forecast_utils.fetch_extended_history(
             args.get('regionID'),
-            args.get('typeID')
+            args.get('typeID'),
+            curr
         )
 
         ## Format output ##
@@ -188,6 +194,10 @@ class ProphetEndpoint(Resource):
 APP.add_resource(
     OHLC_endpoint,
     CONFIG.get('ENDPOINTS', 'OHLC') + '.<return_type>'
+)
+APP.add_resource(
+    ProphetEndpoint,
+    CONFIG.get('ENDPOINTS', 'prophet')
 )
 class PublicAPIRunner(cli.Application):
     """CLI wrapper for starting up/debugging Flask application"""
@@ -214,13 +224,21 @@ class PublicAPIRunner(cli.Application):
 
     def main(self):
         """__main__ section for launching Flask app"""
-        global LOGGER, DEBUG
+        global LOGGER, DEBUG, MYSQL
         DEBUG = self.debug
         if not DEBUG:
             self._log_builder.configure_discord_logger()
 
         LOGGER = self._log_builder.get_logger()
         #TODO: push logger out to helper lib
+
+        APP.config['MYSQL_USER']     = CONFIG.get('DB', 'user')
+        APP.config['MYSQL_PASSWORD'] = CONFIG.get('DB', 'passwd')
+        APP.config['MYSQL_DB']       = CONFIG.get('DB', 'schema')
+        APP.config['MYSQL_PORT']     = CONFIG.get('DB', 'port')
+        APP.config['MYSQL_HOST']     = CONFIG.get('DB', 'host')
+
+        MYSQL = MySQL(APP)
 
         try:
             if DEBUG:
