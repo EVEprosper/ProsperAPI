@@ -89,8 +89,8 @@ setup(
     data_files=[
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
-        ('scripts', include_all_subfiles('scripts')),
-        ('wheels', include_all_subfiles('wheels')),
+        #('scripts', include_all_subfiles('scripts')),
+        #('wheels', include_all_subfiles('wheels')),
         ('tests', include_all_subfiles('tests'))
     ],
     package_data={
@@ -103,11 +103,13 @@ setup(
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'requests~=2.13.0',
-        'mysql-connector~=2.1.4',
+        'flask-mysqldb~=0.2.0', # mac install issue http://stackoverflow.com/a/12621216
         'pandas~=0.19.2',
         'numpy~=1.12.0',
+        'cython~=0.25.2',
+        'pystan~=2.14.0',
+        'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
         'ProsperCommon~=0.4.0',
-        'prophet~=0.1.1',
         'tinydb~=3.2.2',
         'ujson~=1.35',
         'plumbum~=1.6.3'
