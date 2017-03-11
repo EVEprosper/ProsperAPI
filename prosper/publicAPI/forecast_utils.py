@@ -12,6 +12,7 @@ import crest_utils
 import prosper.common.prosper_logging as p_logging
 
 LOGGER = p_logging.DEFAULT_LOGGER
+HERE = path.abspath(path.dirname(__file__))
 
 DEFAULT_RANGE = 700
 CREST_RANGE = 365
@@ -55,7 +56,7 @@ def build_forecast(
 
     Returns:
         (:obj:`pandas.data_frame`): collection of data + forecast info
-            ['date', 'avgPrice', 'yhat', 'yhat_low', 'yhat_high']
+            ['date', 'avgPrice', 'yhat', 'yhat_low', 'yhat_high', 'prediction']
 
     """
     pass
