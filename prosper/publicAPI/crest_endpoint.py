@@ -2,17 +2,13 @@
 
 from os import path
 from datetime import datetime
+from enum import Enum
 
 import ujson as json
-#import requests
 from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
-#import pandas
-#from pandas.io.json import json_normalize
 from plumbum import cli
-
-#requests.models.json = json
 
 import crest_utils
 import forecast_utils
@@ -31,6 +27,20 @@ DEBUG = False
 APP = Flask(__name__)
 API = Api(APP)
 MYSQL = None
+
+class AcceptedDataFormat(Enum):
+    """enum for handling format support"""
+    CSV = 0
+    JSON = 1
+
+def return_supported_types():
+    """parse AccpetedDataFormat.__dict__ for accepted types"""
+    supported_types = []
+    for key in AcceptedDataFormat.__dict__.keys():
+        if '_' not in key:
+            supported_types.append(key.lower())
+
+    return supported_types
 
 
 ## Flask Endpoints ##
@@ -173,16 +183,29 @@ class ProphetEndpoint(Resource):
         )
 
         #TODO: validate range
-
+        forecast_range = DEFAULT_RANGE
         ## Fetch CREST ##
         #TODO: error piping
-        curr = mysql.connection.cursor()
-        data = forecast_utils.fetch_extended_history(
-            args.get('regionID'),
-            args.get('typeID'),
-            curr
+        try:
+            curr = MYSQL.connection.cursor()
+            data = forecast_utils.fetch_extended_history(
+                args.get('regionID'),
+                args.get('typeID'),
+                curr
+            )
+        except Exception as err:
+            LOGGER.warning(
+                'Unable to fetch data from archive',
+                exc_info=True
+            )
+            data = crest_utils.fetch_market_history(
+                args.get('regionID'),
+                args.get('typeID')
+            )
+        data = forecast_utils.build_forecast(
+            data,
+            forecast_range
         )
-
         ## Format output ##
         message = forecast_utils.data_to_format(
             data,
