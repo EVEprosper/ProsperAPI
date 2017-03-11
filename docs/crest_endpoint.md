@@ -7,7 +7,7 @@ As of writing this (2017-03-10), CCP is working to replace CREST/XML API's with 
 # Endpoints
 ## OHLC
 |  |  |
-| -- | -- |
+| --- | --- |
 | **Path** | /api/OHLC.*<return_format>* (csv, json) |
 | **Methods** | GET |
 | **Args** | typeID <br /> regionID <br /> api (unused) |
@@ -26,7 +26,7 @@ OHLC endpoint transposes the [market history endpoint](http://eveonline-third-pa
 
 ## prophet
 |  |  |
-| -- | -- |
+| --- | --- |
 | **Path** | /api/prophet.*<return_format>* (csv, json) |
 | **Methods** | GET |
 | **Args** | typeID <br /> regionID <br /> api <br /> range |
