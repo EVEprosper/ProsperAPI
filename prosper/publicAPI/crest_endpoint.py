@@ -42,6 +42,11 @@ def return_supported_types():
 
     return supported_types
 
+def raise_for_status(
+        status_value
+):
+    """raise exception for non-good status"""
+    pass
 
 ## Flask Endpoints ##
 @api.representation('text/csv')
@@ -279,6 +284,13 @@ class PublicAPIRunner(cli.Application):
                 __name__ + ' exiting unexpectedly',
                 exc_info=True
             )
+
+class CrestEndpointException(Exception):
+    """baseclass for crest_endpoint exceptions"""
+    pass
+class BadStatus(CrestEndpointException):
+    """unexpected status raised"""
+    pass
 
 if __name__ == '__main__':
     PublicAPIRunner.run()
