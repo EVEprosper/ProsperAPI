@@ -89,7 +89,8 @@ setup(
     data_files=[
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
-        ('tests', include_all_subfiles('tests'))
+        ('tests', include_all_subfiles('tests')),
+        ('scripts', include_all_subfiles('scripts'))
     ],
     package_data={
         'prosper':[
