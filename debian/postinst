@@ -1,22 +1,8 @@
 #!/bin/bash
 echo 'RUNNING POST INSTALL FOR prosper-api'
-echo 'Builidng /opt/ directory'
-rm -rf /opt/prosper/
-mkdir -p /opt/prosper/
-cp -rf /usr/share/python/prosper-api/lib/python3.5/site-packages/prosper/ /opt/
-
-echo '--installing additional wheels'
-for wheel in /usr/share/python/prosper-api/wheels/*
-do
-    echo $wheel
-    /usr/share/python/prosper-api/bin/pip install wheel $wheel --upgrade
-done
-
-echo '--filling out folder struct'
-mkdir -p /opt/prosper/publicAPI/SDE_cache
 
 echo '--installing services'
-for service in /usr/share/python/prosper-api/services/*
+for service in /opt/venvs/prosper-api/services/*
 do
     echo $service
     systemctl stop $(basename $service)
@@ -25,4 +11,3 @@ do
     systemctl start $(basename $service)
 done
 systemctl daemon-reload
-
