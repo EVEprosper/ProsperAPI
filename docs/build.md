@@ -38,6 +38,11 @@ ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/
     * fbprophet
 * dpkg
 * [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html) v1.0
+* mysql-server installed on build system
+```
+sudo apt-get install mysql-server
+sudo apt-get install libmysqlclient-dev
+```
 
 ## Building the Package
 
