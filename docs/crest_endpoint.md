@@ -7,10 +7,10 @@ As of writing this (2017-03-10), CCP is working to replace CREST/XML API's with 
 # Endpoints
 ## OHLC
 |  |  |
-| -- | -- |
-| **Path** | /api/OHLC.*<return_format>* (csv, json) |
+| --- | --- |
+| **Path** | /api/OHLC.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
-| **Args** | typeID <br /> regionID <br /> api (unused) |
+| **Args** | `typeID` <br /> `regionID` <br /> `api` (unused) |
 | **Headers** | User-Agent |
 | **Returns** | [`date`, `open`, `high`, `low`, `close`, `volume`] |
 
@@ -26,10 +26,10 @@ OHLC endpoint transposes the [market history endpoint](http://eveonline-third-pa
 
 ## prophet
 |  |  |
-| -- | -- |
-| **Path** | /api/prophet.*<return_format>* (csv, json) |
+| --- | --- |
+| **Path** | /api/prophet.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
-| **Args** | typeID <br /> regionID <br /> api <br /> range |
+| **Args** | `typeID` <br /> `regionID` <br /> `api` <br /> `range` optional |
 | **Headers** | User-Agent |
 | **Returns** | [`date`, `avgPrice`, `yhat`, `yhat_low`, `yhat_high`, `prediction`] |
 

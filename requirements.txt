@@ -1,11 +1,13 @@
+--extra-index-url https://repo.fury.io/lockefox/
 aniso8601==1.2.0
 appdirs==1.4.3
 click==6.7
 Cython==0.25.2
-fbprophet==0.1.post1
+fbprophet~=0.1.post1
 Flask==0.12
 Flask-MySQLdb==0.2.0
 Flask-RESTful==0.3.5
+Flask-Script==2.0.5
 itsdangerous==0.24
 Jinja2==2.9.5
 MarkupSafe==1.0
@@ -14,10 +16,10 @@ numpy==1.12.0
 packaging==16.8
 pandas==0.19.2
 plumbum==1.6.3
-ProsperAPI==0.2.0
+#ProsperAPI==0.2.0
 ProsperCommon==0.4.0
 pyparsing==2.2.0
-pystan==2.14.0.0
+pystan~=2.14.0.0
 python-dateutil==2.6.0
 pytz==2016.10
 requests==2.13.0
