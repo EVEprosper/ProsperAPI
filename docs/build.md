@@ -7,6 +7,8 @@ To help deploy Prosper API services, a .deb builder/installer has been developed
 ### [fbprophet](https://facebookincubator.github.io/prophet/docs/installation.html)
 [Prophet](https://facebookincubator.github.io/prophet/docs/installation.html) is a troublesome library to install.  Required build-from-source to get working with dh-virtualenv.  
 
+Best-practice may be to host precompiled binary on a private PyPI service (GemFury, DevPi)
+
 ```
 git clone --recursive https://github.com/stan-dev/pystan.git
 cd pystan
