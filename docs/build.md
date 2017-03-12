@@ -4,6 +4,21 @@ To help deploy Prosper API services, a .deb builder/installer has been developed
 # Notes
 
 (need to figure out something for the prosperAPI_local.cfg)
+### [fbprophet](https://facebookincubator.github.io/prophet/docs/installation.html)
+[Prophet](https://facebookincubator.github.io/prophet/docs/installation.html) is a troublesome library to install.  Required build-from-source to get working with dh-virtualenv.  
+
+```
+git clone --recursive https://github.com/stan-dev/pystan.git
+cd pystan
+python setup.py install
+pip install matplotlib #for png.h and freetype.h 
+cd ..
+git clone https://github.com/facebookincubator/prophet.git
+cd prophet/python
+python setup.py install
+```
+
+Additionally, for windows, required [VS2015 C++ binaries]() and to build from source.  See `wheels/` for precompiled windows packages.
 
 # How To Build
 ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html).  This should wrap up the project into a .deb file for easy installing/deploying
@@ -16,8 +31,11 @@ ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/
     * setuptools
     * virtualenv
     * [Plumbum](https://plumbum.readthedocs.io/en/latest/)
+    * matplotlib
+    * pystan
+    * fbprophet
 * dpkg
-* [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html)
+* [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html) v1.0
 
 ## Building the Package
 
@@ -27,6 +45,7 @@ ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/
 4. `sudo apt-get install python3-pip`
 5. `sudo pip3 install wheel`
 6. `sudo pip3 install setuptools`
+7. see notes about build-from-source for fbprophet
 7. `sudo dpkg-buildpackage -us -uc`
 
 # How to Install
