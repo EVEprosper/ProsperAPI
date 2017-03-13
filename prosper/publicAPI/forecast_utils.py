@@ -8,7 +8,6 @@ import pandas as pd
 from pandas.io.json import json_normalize
 from fbprophet import Prophet
 
-import crest_utils as crest_utils
 import prosper.common.prosper_logging as p_logging
 
 LOGGER = p_logging.DEFAULT_LOGGER

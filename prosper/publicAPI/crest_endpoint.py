@@ -10,8 +10,6 @@ from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
 from plumbum import cli
 
-import prosper.publicAPI.crest_utils as crest_utils
-import prosper.publicAPI.forecast_utils as forecast_utils
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
@@ -49,7 +47,7 @@ def raise_for_status(
     pass
 
 ## Flask Endpoints ##
-@api.representation('text/csv')
+@API.representation('text/csv')
 def output_csv(data, status, headers=None):
     """helper for sending out CSV instead of JSON"""
     resp = APP.make_response(data)
@@ -219,11 +217,11 @@ class ProphetEndpoint(Resource):
 
         return message
 ## Flask Endpoints ##
-APP.add_resource(
+API.add_resource(
     OHLC_endpoint,
     CONFIG.get('ENDPOINTS', 'OHLC') + '.<return_type>'
 )
-APP.add_resource(
+API.add_resource(
     ProphetEndpoint,
     CONFIG.get('ENDPOINTS', 'prophet')
 )
@@ -248,7 +246,7 @@ class PublicAPIRunner(cli.Application):
         help='run in headless/debug mode, do not connect to internet'
     )
 
-    port = int(CONFIG.get('CREST', 'port'))
+    port = int(CONFIG.get('CREST', 'flask_port'))
 
     def main(self):
         """__main__ section for launching Flask app"""

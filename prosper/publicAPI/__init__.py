@@ -5,11 +5,12 @@ from flask import Flask
 
 from prosper.publicAPI.crest_endpoint import API as crest_api
 import prosper.common.prosper_logging as p_logging
+import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
 def create_app(
         settings=None,
-        local_configs=None
+        local_configs=p_logging.COMMON_CONFIG
 ):
     """create Flask application (ROOT)
 
