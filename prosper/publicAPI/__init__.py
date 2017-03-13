@@ -7,10 +7,18 @@ from prosper.publicAPI.crest_endpoint import API as crest_api
 import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
-def create_app(settings=None):
+def create_app(
+        settings=None,
+        local_configs=None
+):
     """create Flask application (ROOT)
 
     Modeled from: https://github.com/yabb85/ueki/blob/master/ueki/__init__.py
+
+    Args:
+        settings (:obj:`dict`, optional): collection of Flask options
+        local_configs (:obj:`configparser.ConfigParser` optional): app private configs
+
     """
     app = Flask(__name__)
 
@@ -24,8 +32,8 @@ def create_app(settings=None):
     #TODO: config.debug?
     log_builder = p_logging.ProsperLogger(
         'ProsperFlask',
-        path.join(HERE, 'logs')
-        #TODO config
+        path.join(HERE, 'logs'),
+        local_configs
     )
     if debug:
         log_builder.configure_debug_logger()

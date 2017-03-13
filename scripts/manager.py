@@ -2,10 +2,14 @@
 
 using https://github.com/yabb85/ueki as prototype
 """
+from os import path
 
 from flask_script import Manager, Server
 
 from prosper.publicAPI import create_app
+
+HERE = path.abspath(path.dirname(__file__))
+ROOT = path.dirname(HERE)
 
 SETTINGS = {
     'port':8001

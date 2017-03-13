@@ -10,8 +10,8 @@ from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
 from plumbum import cli
 
-import crest_utils
-import forecast_utils
+import prosper.publicAPI.crest_utils as crest_utils
+import prosper.publicAPI.forecast_utils as forecast_utils
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
