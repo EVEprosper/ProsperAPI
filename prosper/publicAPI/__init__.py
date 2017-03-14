@@ -10,7 +10,8 @@ import prosper.common.prosper_config as p_config
 HERE = path.abspath(path.dirname(__file__))
 def create_app(
         settings=None,
-        local_configs=p_logging.COMMON_CONFIG
+        local_configs=p_logging.COMMON_CONFIG,
+        log_builder=None
 ):
     """create Flask application (ROOT)
 
@@ -19,6 +20,7 @@ def create_app(
     Args:
         settings (:obj:`dict`, optional): collection of Flask options
         local_configs (:obj:`configparser.ConfigParser` optional): app private configs
+        log_builder (:obj:`prosper_config.ProsperLogger`, optional): logging container
 
     """
     app = Flask(__name__)

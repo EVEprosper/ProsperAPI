@@ -8,7 +8,6 @@ import ujson as json
 from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
-from plumbum import cli
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
@@ -225,63 +224,7 @@ API.add_resource(
     ProphetEndpoint,
     CONFIG.get('ENDPOINTS', 'prophet')
 )
-class PublicAPIRunner(cli.Application):
-    """CLI wrapper for starting up/debugging Flask application"""
-    _log_builder = p_logging.ProsperLogger(
-        'ProsperAPI',
-        CONFIG.get('LOGGING', 'log_path'),   #TODO, remove log_path?
-        CONFIG
-    )
 
-    @cli.switch(
-        ['v', '--verbose'],
-        help='enable verbose logging'
-    )
-    def enable_verbose(self):
-        """verbose logging: log to stdout"""
-        self._log_builder.configure_debug_logger()
-
-    debug = cli.Flag(
-        ['d', '--debug'],
-        help='run in headless/debug mode, do not connect to internet'
-    )
-
-    port = int(CONFIG.get('CREST', 'flask_port'))
-
-    def main(self):
-        """__main__ section for launching Flask app"""
-        global LOGGER, DEBUG, MYSQL
-        DEBUG = self.debug
-        if not DEBUG:
-            self._log_builder.configure_discord_logger()
-
-        LOGGER = self._log_builder.get_logger()
-        #TODO: push logger out to helper lib
-
-        APP.config['MYSQL_USER']     = CONFIG.get('DB', 'user')
-        APP.config['MYSQL_PASSWORD'] = CONFIG.get('DB', 'passwd')
-        APP.config['MYSQL_DB']       = CONFIG.get('DB', 'schema')
-        APP.config['MYSQL_PORT']     = CONFIG.get('DB', 'port')
-        APP.config['MYSQL_HOST']     = CONFIG.get('DB', 'host')
-
-        MYSQL = MySQL(APP)
-
-        try:
-            if DEBUG:
-                APP.run(
-                    debug=True,
-                    port=self.port
-                )
-            else:
-                APP.run(
-                    host='0.0.0.0',
-                    port=self.port
-                )
-        except Exception as err:
-            LOGGER.critical(
-                __name__ + ' exiting unexpectedly',
-                exc_info=True
-            )
 
 class CrestEndpointException(Exception):
     """baseclass for crest_endpoint exceptions"""
@@ -290,5 +233,4 @@ class BadStatus(CrestEndpointException):
     """unexpected status raised"""
     pass
 
-if __name__ == '__main__':
-    PublicAPIRunner.run()
+
