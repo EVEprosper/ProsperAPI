@@ -7,11 +7,15 @@ import ujson as json
 import pandas as pd
 from pandas.io.json import json_normalize
 from fbprophet import Prophet
+import requests
+
+requests.models.json = json
 
 import prosper.common.prosper_logging as p_logging
 
 LOGGER = p_logging.DEFAULT_LOGGER
 HERE = path.abspath(path.dirname(__file__))
+config = crest_endpoint.CONFIG.get('GLOBAL', 'useragent_short')
 
 DEFAULT_RANGE = 700
 CREST_RANGE = 365
@@ -34,10 +38,43 @@ def fetch_extended_history(
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        (pandas.data_frame): collection of data from database
+        (:obj:`pandas.data_frame`): collection of data from database
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
     pass
+
+EMD_MARKET_HISTORY = 'http://eve-marketdata.com/api/item_history2.json'
+def fetch_market_history_emd(
+        region_id,
+        type_id,
+        data_range,
+        endpoint_addr=EMD_MARKET_HISTORY,
+        logger=LOGGER
+):
+    """use EMD endpoint to fetch data instead of MySQL
+
+    Args:
+        region_id (int): EVE Online regionID: https://crest-tq.eveonline.com/regions/
+        type_id (int): EVE Online typeID: https://crest-tq.eveonline.com/types/
+        data_range (int): number of days to fetch
+        endpoint_addr (str, optional): EMD endpoint to query against
+        logger (:obj:`logging.logger`): logging handle
+
+    Returns:
+        (:obj:`dict` json): collection of data from endpoint
+            ['typeID', 'regionID', 'date', 'lowPrice', 'highPrice', 'avgPrice', 'volume', 'orders']
+
+    """
+    payload = {
+        'region_ids': region_id,
+        'type_ids': type_id,
+        'days': data_range,
+        'char_name': crest_endpoint.CONFIG.get('GLOBAL', 'useragent_short')
+    }
+    headers = {
+        'User-Agent': crest_endpoint.CONFIG.get('GLOBAL', 'useragent')
+    }
+
 
 def build_forecast(
         data,

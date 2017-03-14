@@ -1,5 +1,6 @@
 """crest_endpoint.py: collection of public crest endpoints for Prosper"""
 
+import sys
 from os import path
 from datetime import datetime
 from enum import Enum
@@ -9,17 +10,24 @@ from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
 
+HERE = path.abspath(path.dirname(__file__))
+sys.path.append(HERE)   #FIXME: this shouldn't be required]
+import forecast_utils
+
+#from prosper.prosperAPI.forecast_utils import LOGGER
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
 
-HERE = path.abspath(path.dirname(__file__))
+
+
 CONFIG_FILEPATH = path.join(HERE, 'prosperAPI.cfg')
 
 CONFIG = p_config.ProsperConfig(CONFIG_FILEPATH)
 LOGGER = p_logging.DEFAULT_LOGGER
 DEBUG = False
 
+TEST = forecast_utils.LOGGER
 ## Flask Handles ##
 APP = Flask(__name__)
 API = Api(APP)

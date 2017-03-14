@@ -78,18 +78,18 @@ class PublicAPIRunner(cli.Application):
         APP.config['MYSQL_PORT']     = CONFIG.get('DB', 'port')
         APP.config['MYSQL_HOST']     = CONFIG.get('DB', 'host')
 
-        MYSQL = MySQL(APP)  #TODO
+        #MYSQL = MySQL(APP)  #TODO
 
         try:
             if DEBUG:
-                APP.run(
-                    debug=True,
-                    port=self.port
+                Server(
+                    host='localhost',
+                    port=SETTINGS['PORT']
                 )
             else:
-                APP.run(
+                Server(
                     host='0.0.0.0',
-                    port=self.port
+                    port=SETTINGS['PORT']
                 )
         except Exception as err:
             LOGGER.critical(
