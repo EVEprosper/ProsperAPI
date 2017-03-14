@@ -85,7 +85,8 @@ setup(
         'Programming Language :: Python :: 3.5'
     ],
     keywords='prosper eveonline api CREST',
-    packages=hack_find_packages('prosper'),
+    #packages=hack_find_packages('prosper'),
+    packages=find_packages('publicAPI'),
     data_files=[
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
@@ -93,10 +94,13 @@ setup(
         ('scripts', include_all_subfiles('scripts'))
     ],
     package_data={
-        'prosper':[
-            'publicAPI/prosperAPI.cfg',
-            'publicAPI/prosperAPI_local.cfg'
+        'publicAPI':[
+            'publicAPI.cfg'
         ]
+        #'prosper':[
+        #    'publicAPI/prosperAPI.cfg',
+        #    'publicAPI/prosperAPI_local.cfg'
+        #]
     },
     install_requires=[
         'Flask~=0.12',

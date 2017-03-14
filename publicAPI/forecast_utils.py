@@ -1,5 +1,5 @@
 """forecast_utils.py: collection of tools for forecasting future performance"""
-
+import sys
 from os import path
 from datetime import datetime
 
@@ -11,11 +11,12 @@ import requests
 
 requests.models.json = json
 
+import publicAPI.crest_utils as crest_utils
+import publicAPI.config as config
 import prosper.common.prosper_logging as p_logging
 
-LOGGER = p_logging.DEFAULT_LOGGER
 HERE = path.abspath(path.dirname(__file__))
-config = crest_endpoint.CONFIG.get('GLOBAL', 'useragent_short')
+LOGGER = p_logging.DEFAULT_LOGGER
 
 DEFAULT_RANGE = 700
 CREST_RANGE = 365
@@ -69,10 +70,10 @@ def fetch_market_history_emd(
         'region_ids': region_id,
         'type_ids': type_id,
         'days': data_range,
-        'char_name': crest_endpoint.CONFIG.get('GLOBAL', 'useragent_short')
+        'char_name': CONFIG.get('GLOBAL', 'useragent_short')
     }
     headers = {
-        'User-Agent': crest_endpoint.CONFIG.get('GLOBAL', 'useragent')
+        'User-Agent': CONFIG.get('GLOBAL', 'useragent')
     }
 
 

@@ -7,7 +7,7 @@ from os import path
 from flask_script import Manager, Server
 from plumbum import cli
 
-from prosper.publicAPI import create_app
+from publicAPI import create_app
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config

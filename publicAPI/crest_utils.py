@@ -11,6 +11,7 @@ from pandas.io.json import json_normalize
 
 requests.models.json = json
 
+import publicAPI.config as config
 import prosper.common.prosper_logging as p_logging
 
 LOGGER = p_logging.DEFAULT_LOGGER

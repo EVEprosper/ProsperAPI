@@ -10,17 +10,14 @@ from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
 from flask_mysqldb import MySQL
 
-HERE = path.abspath(path.dirname(__file__))
-sys.path.append(HERE)   #FIXME: this shouldn't be required]
-import forecast_utils
+import publicAPI.forecast_utils as forecast_utils
+import publicAPI.crest_utils as crest_utils
 
-#from prosper.prosperAPI.forecast_utils import LOGGER
+import publicAPI.config as config
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
-
-
-
+HERE = path.abspath(path.dirname(__file__))
 CONFIG_FILEPATH = path.join(HERE, 'prosperAPI.cfg')
 
 CONFIG = p_config.ProsperConfig(CONFIG_FILEPATH)
