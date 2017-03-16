@@ -21,7 +21,7 @@ CONFIG = p_config.ProsperConfig(CONFIG_FILEPATH)
 SETTINGS = {
     'PORT':8001
 }
-APP = create_app(SETTINGS)
+APP = create_app(SETTINGS, CONFIG)
 
 MANAGER = Manager(APP)
 MANAGER.add_command(

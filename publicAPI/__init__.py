@@ -15,7 +15,7 @@ CONFIG = p_config.ProsperConfig(CONFIG_FILE)
 
 def create_app(
         settings=None,
-        local_configs=p_logging.COMMON_CONFIG,
+        local_configs=CONFIG,
         log_builder=None
 ):
     """create Flask application (ROOT)
@@ -34,7 +34,19 @@ def create_app(
         app.config.update(settings)
 
     crest_endpoint.API.init_app(app)
-    #TODO mysql connector init_app()
+
+    if not log_builder:
+        ## build default logging objects ##
+        log_builder = p_logging.ProsperLogger(
+            'publicAPI',
+            HERE,
+            local_configs
+        )
+        if app.debug:
+            log_builder.configure_debug_logger()
+        else:
+            log_builder.configure_discord_logger()
+
     if log_builder:
         for handle in log_builder:
             app.logger.addHandler(handle)

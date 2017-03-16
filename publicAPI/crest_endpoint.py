@@ -94,7 +94,7 @@ class OHLC_endpoint(Resource):
     def get(self, return_type):
         """GET data from CREST and send out OHLC info"""
         args = self.reqparse.parse_args()
-        LOGGER.info(
+        LOGGER.error(
             'OHLC?regionID={0}&typeID={1}'.format(
                 args.get('regionID'), args.get('typeID')
         ))
