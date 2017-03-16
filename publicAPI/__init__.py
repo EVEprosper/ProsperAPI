@@ -41,4 +41,6 @@ def create_app(
 
         config.LOGGER = log_builder.get_logger()
     config.CONFIG = CONFIG
+
+    crest_endpoint.LOGGER = app.logger
     return app

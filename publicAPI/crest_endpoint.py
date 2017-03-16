@@ -26,8 +26,8 @@ DEBUG = False
 
 TEST = forecast_utils.LOGGER
 ## Flask Handles ##
-APP = Flask(__name__)
-API = Api(APP)
+#APP = Flask(__name__)
+API = Api()
 MYSQL = None
 
 class AcceptedDataFormat(Enum):
@@ -225,9 +225,10 @@ API.add_resource(
     OHLC_endpoint,
     CONFIG.get('ENDPOINTS', 'OHLC') + '.<return_type>'
 )
+
 API.add_resource(
     ProphetEndpoint,
-    CONFIG.get('ENDPOINTS', 'prophet')
+    CONFIG.get('ENDPOINTS', 'prophet') + '.<return_type>'
 )
 
 
