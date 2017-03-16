@@ -86,7 +86,7 @@ setup(
     ],
     keywords='prosper eveonline api CREST',
     #packages=hack_find_packages('prosper'),
-    packages=find_packages('publicAPI'),
+    packages=find_packages(),
     data_files=[
         ('services', include_all_subfiles('services')),
         ('docs', include_all_subfiles('docs')),
