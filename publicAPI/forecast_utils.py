@@ -48,8 +48,8 @@ def fetch_market_history_emd(
         type_id,
         data_range,
         endpoint_addr=EMD_MARKET_HISTORY,
-        logger=LOGGER
-):
+        config=config.CONFIG
+    ):
     """use EMD endpoint to fetch data instead of MySQL
 
     Args:
@@ -57,7 +57,7 @@ def fetch_market_history_emd(
         type_id (int): EVE Online typeID: https://crest-tq.eveonline.com/types/
         data_range (int): number of days to fetch
         endpoint_addr (str, optional): EMD endpoint to query against
-        logger (:obj:`logging.logger`): logging handle
+        config (:obj:`configparser.ConfigParser`, optional): overrides for config
 
     Returns:
         (:obj:`dict` json): collection of data from endpoint
@@ -68,12 +68,22 @@ def fetch_market_history_emd(
         'region_ids': region_id,
         'type_ids': type_id,
         'days': data_range,
-        'char_name': CONFIG.get('GLOBAL', 'useragent_short')
+        'char_name': config.get('GLOBAL', 'useragent_short')
     }
     headers = {
-        'User-Agent': CONFIG.get('GLOBAL', 'useragent')
+        'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
+    req = requests.get(
+        endpoint_addr,
+        headers=headers,
+        params=payload
+    )
+    req.raise_for_status()
+    data = req.json()['emd']
+
+
+    return data
 
 def build_forecast(
         data,
@@ -125,5 +135,14 @@ class NotEnoughDataInDB(ForecastException):
     pass
 class UnsupportedFormat(ForecastException):
     """exception for data_to_format failure"""
+    pass
+class EMDDataException(ForecastException):
+    """collection of exceptions around EMD data"""
+    pass
+class UnableToFetchData(EMDDataException):
+    """http error getting EMD data"""
+    pass
+class IncompleteHistoryData(EMDDataException):
+    """missing data in EMD data"""
     pass
 

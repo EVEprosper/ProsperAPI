@@ -191,10 +191,11 @@ class ProphetEndpoint(Resource):
         forecast_range = DEFAULT_RANGE
         ## Fetch CREST ##
         #TODO: error piping
-        data = forecast_utils.fetch_extended_history(
-            args.get('regionID'),
-            args.get('typeID')
-        )
+        try:
+            data = forecast_utils.fetch_extended_history(
+                args.get('regionID'),
+                args.get('typeID')
+            )
         except Exception as err:
             LOGGER.warning(
                 'Unable to fetch data from archive',

@@ -56,7 +56,7 @@ class PyTest(TestCommand):
         TestCommand.initialize_options(self)
         self.pytest_args = [
             'Tests',
-            '--cov=prosper/',
+            '--cov=publicAPI/',
             '--cov-report=term-missing'
         ]    #load defaults here
 
