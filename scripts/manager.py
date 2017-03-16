@@ -72,11 +72,11 @@ class PublicAPIRunner(cli.Application):
         LOGGER = self._log_builder.get_logger()
         #TODO: push logger out to helper lib
 
-        APP.config['MYSQL_USER']     = CONFIG.get('DB', 'user')
-        APP.config['MYSQL_PASSWORD'] = CONFIG.get('DB', 'passwd')
-        APP.config['MYSQL_DB']       = CONFIG.get('DB', 'schema')
-        APP.config['MYSQL_PORT']     = CONFIG.get('DB', 'port')
-        APP.config['MYSQL_HOST']     = CONFIG.get('DB', 'host')
+        #APP.config['MYSQL_USER']     = CONFIG.get('DB', 'user')
+        #APP.config['MYSQL_PASSWORD'] = CONFIG.get('DB', 'passwd')
+        #APP.config['MYSQL_DB']       = CONFIG.get('DB', 'schema')
+        #APP.config['MYSQL_PORT']     = CONFIG.get('DB', 'port')
+        #APP.config['MYSQL_HOST']     = CONFIG.get('DB', 'host')
 
         #MYSQL = MySQL(APP)  #TODO
 

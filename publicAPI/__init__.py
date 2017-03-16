@@ -10,7 +10,7 @@ import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
-CONFIG_FILE = path.join(HERE, 'prosperAPI.cfg')
+CONFIG_FILE = path.join(HERE, 'publicAPI.cfg')
 CONFIG = p_config.ProsperConfig(CONFIG_FILE)
 
 def create_app(
@@ -35,10 +35,10 @@ def create_app(
 
     crest_endpoint.API.init_app(app)
     #TODO mysql connector init_app()
+    if log_builder:
+        for handle in log_builder:
+            app.logger.addHandler(handle)
 
-    for handle in log_builder:
-        app.logger.addHandler(handle)
-
-    config.LOGGER = log_builder.get_logger()
+        config.LOGGER = log_builder.get_logger()
     config.CONFIG = CONFIG
     return app

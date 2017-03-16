@@ -18,7 +18,7 @@ import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
-CONFIG_FILEPATH = path.join(HERE, 'prosperAPI.cfg')
+CONFIG_FILEPATH = path.join(HERE, 'publicAPI.cfg')
 
 CONFIG = p_config.ProsperConfig(CONFIG_FILEPATH)
 LOGGER = p_logging.DEFAULT_LOGGER
