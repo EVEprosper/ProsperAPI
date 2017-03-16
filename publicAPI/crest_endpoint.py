@@ -8,7 +8,6 @@ from enum import Enum
 import ujson as json
 from flask import Flask, Response, jsonify
 from flask_restful import reqparse, Api, Resource, request
-from flask_mysqldb import MySQL
 
 import publicAPI.forecast_utils as forecast_utils
 import publicAPI.crest_utils as crest_utils
@@ -28,7 +27,6 @@ TEST = forecast_utils.LOGGER
 ## Flask Handles ##
 #APP = Flask(__name__)
 API = Api()
-MYSQL = None
 
 class AcceptedDataFormat(Enum):
     """enum for handling format support"""
@@ -94,7 +92,7 @@ class OHLC_endpoint(Resource):
     def get(self, return_type):
         """GET data from CREST and send out OHLC info"""
         args = self.reqparse.parse_args()
-        LOGGER.error(
+        LOGGER.info(
             'OHLC?regionID={0}&typeID={1}'.format(
                 args.get('regionID'), args.get('typeID')
         ))
@@ -193,13 +191,10 @@ class ProphetEndpoint(Resource):
         forecast_range = DEFAULT_RANGE
         ## Fetch CREST ##
         #TODO: error piping
-        try:
-            curr = MYSQL.connection.cursor()
-            data = forecast_utils.fetch_extended_history(
-                args.get('regionID'),
-                args.get('typeID'),
-                curr
-            )
+        data = forecast_utils.fetch_extended_history(
+            args.get('regionID'),
+            args.get('typeID')
+        )
         except Exception as err:
             LOGGER.warning(
                 'Unable to fetch data from archive',

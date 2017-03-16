@@ -42,9 +42,7 @@ def create_app(
             HERE,
             local_configs
         )
-        if app.debug:
-            log_builder.configure_debug_logger()
-        else:
+        if not app.debug:
             log_builder.configure_discord_logger()
 
     if log_builder:

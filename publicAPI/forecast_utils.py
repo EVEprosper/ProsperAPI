@@ -23,7 +23,6 @@ CREST_RANGE = 365
 def fetch_extended_history(
         region_id,
         type_id,
-        db_cursor,
         raise_on_short=False,
         data_range=DEFAULT_RANGE,
         logger=LOGGER
@@ -33,7 +32,6 @@ def fetch_extended_history(
     Args:
         region_id (int): EVE Online regionID: https://crest-tq.eveonline.com/regions/
         type_id (int): EVE Online typeID: https://crest-tq.eveonline.com/types/
-        db_cursor (:obj:`MySQL.cursor`): database cursor for querying,
         raise_on_short (bool, optional): raise exception if <365 entries found
         data_range (int, optional): how far back to fetch data
         logger (:obj:`logging.logger`): logging handle

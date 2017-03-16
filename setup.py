@@ -105,7 +105,6 @@ setup(
     install_requires=[
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
-        'flask-mysqldb~=0.2.0',     #mac install issue http://stackoverflow.com/a/12621216
         'flask-script~=2.0.5',
         'requests~=2.13.0',
         'pandas~=0.19.2',
