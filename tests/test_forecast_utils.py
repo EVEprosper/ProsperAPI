@@ -1,6 +1,7 @@
 from os import path
 from datetime import datetime
 import pandas as pd
+import requests
 
 import pytest
 
@@ -50,6 +51,24 @@ def test_fetch_emd_history(config=CONFIG):
                 config.get('TEST', 'history_count')
         ))
 
+def test_fetch_emd_history_fail(config=CONFIG):
+    """happypath test for `fetch_market_history_emd`"""
+    with pytest.raises(requests.exceptions.HTTPError):
+        data = forecast_utils.fetch_market_history_emd(
+            region_id=config.get('TEST', 'region_id'),
+            type_id=config.get('TEST', 'type_id'),
+            data_range=config.get('TEST', 'history_count'),
+            config=config,
+            endpoint_addr='http://www.eveprosper.com/noendpoint'
+        )
+
+    with pytest.raises(forecast_utils.NoDataReturned):
+        data = forecast_utils.fetch_market_history_emd(
+            region_id=config.get('TEST', 'region_id'),
+            type_id=config.get('TEST', 'bad_typeid'),
+            data_range=config.get('TEST', 'history_count'),
+            config=config
+        )
 DEMO_DATA = {
     'version': 2,
     'currentTime': datetime.now().isoformat(),

@@ -82,8 +82,12 @@ def fetch_market_history_emd(
     req.raise_for_status()
     data = req.json()['emd']
 
+    if not data['result']:
+        raise NoDataReturned()
+
 
     return data
+
 def parse_emd_data(data_result):
     """condition data to collapse 'row' keys
 
@@ -159,7 +163,7 @@ class EMDDataException(ForecastException):
 class UnableToFetchData(EMDDataException):
     """http error getting EMD data"""
     pass
-class IncompleteHistoryData(EMDDataException):
+class NoDataReturned(EMDDataException):
     """missing data in EMD data"""
     pass
 
