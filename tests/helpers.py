@@ -1,7 +1,11 @@
 """helpers.py: a collection of helpful utilities for tests"""
 from os import path
 import configparser
+from datetime import datetime, timedelta
 
+import pymysql.cursors
+
+CONN = None
 def get_config(config_filename):
     """parse test config file
 
@@ -27,3 +31,84 @@ def get_config(config_filename):
         config.read_file(file)
 
     return config
+
+def check_db_values(
+        region_id,
+        type_id,
+        data_range,
+        config
+):
+    """check prosperdb for validation
+
+    Args:
+        region_id (int): EVE Online region identifier
+        type_id (int): EVE Online type/item identifier
+        date_range (int): number of days to fetch
+        config (:obj:`configparser.ConfigParser`): db info
+
+    Returns:
+        (:obj:`list`) data from db (or None if no creds)
+
+    """
+    try:
+        con = pymysql.connect(
+            host=config.get('DB', 'host'),
+            user=config.get('DB', 'user'),
+            port=int(config.get('DB', 'port')),
+            password=config.get('DB', 'password'),
+            db=config.get('DB', 'schema')
+        )
+    except Exception:
+        return None
+
+    query_date = datetime.today() - timedelta(days=int(data_range))
+
+    query = \
+    """SELECT *
+    FROM {history_table}
+    WHERE itemid = {type_id}
+    AND regionid = {region_id}
+    AND price_date > '{query_date}'
+    ORDER BY price_date ASC""".format(
+        history_table=config.get('DB', 'history_table'),
+        type_id=type_id,
+        region_id=region_id,
+        query_date=query_date.strftime('%Y-%m-%d')
+
+    )
+
+    data = None
+    try:
+        with con.cursor() as cur:
+            cur.execute(query)
+            data = cur.fetchall()
+    finally:
+        con.close()
+
+    return data
+
+def compare_dates(
+        rest_data,
+        db_data
+    ):
+    """compare dates between two data sets
+
+    Args:
+        rest_data (:obj:`list`): data from the internet
+        db_data (:obj:`list`): data from database
+
+    Returns:
+        (:obj:`list`) mismatched values
+
+    """
+    rest_dates = []
+    for row in rest_data:
+        rest_dates.append(row['row']['date'])
+
+    db_dates = []
+    for row in db_data:
+        db_dates.append(row[0].strftime('%Y-%m-%d'))
+
+    mismatch = set(rest_dates) - set(db_dates)
+
+    return list(mismatch)

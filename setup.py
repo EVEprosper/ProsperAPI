@@ -121,7 +121,8 @@ setup(
     tests_require=[
         'pytest~=3.0.0',
         'pytest_cov~=2.4.0',
-        'pytest-flask~=0.10.0'
+        'pytest-flask~=0.10.0',
+        'pymysql~=0.7.10'
     ],
     cmdclass={
         'test':PyTest
