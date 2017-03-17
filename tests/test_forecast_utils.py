@@ -42,9 +42,9 @@ def test_fetch_emd_history(config=CONFIG):
             db_data
         )
         assert len(mismatch_dates) <= int(config.get('TEST', 'miss_budget'))
-    #expected_count = int(config.get('TEST', 'history_count'))
-    #if not (
-    #        len(data['result']) == expected_count or
-    #        len(data['result']) == expected_count - 1
-    #):
-    #    pytest.xfail('EMD endpoint not complete: {0}'.format(len(data['result'])))
+    else:
+        pytest.xfail(
+            'Unable to validate date counts: {0}/{1}'.format(
+                len(data['result']),
+                config.get('TEST', 'history_count')
+        ))
