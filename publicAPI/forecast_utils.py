@@ -84,6 +84,23 @@ def fetch_market_history_emd(
 
 
     return data
+def parse_emd_data(data_result):
+    """condition data to collapse 'row' keys
+
+    Args:
+        data_result (:obj:`list`): data['result'] collection of row data
+
+    Returns:
+        (:obj:`pandas.DataFrame`): processed row data in table form
+
+    """
+    clean_data = []
+    for row in data_result:
+        clean_data.append(row['row'])
+
+    table_data = pd.DataFrame(clean_data)
+
+    return table_data
 
 def build_forecast(
         data,
