@@ -38,7 +38,9 @@ def include_all_subfiles(*args):
 
         for file in listdir(local_path):
             file_abspath = path.join(local_path, file)
-            if path.isdir(file_abspath):    #do not include sub folders
+            if path.isdir(file_abspath):        #do not include sub folders
+                continue
+            if '_local.cfg' in file_abspath:    #do not include secret configs
                 continue
             file_list.append(path_included + '/' + file)
 
