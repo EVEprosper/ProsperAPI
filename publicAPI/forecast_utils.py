@@ -12,7 +12,7 @@ import requests
 requests.models.json = json
 
 import publicAPI.crest_utils as crest_utils
-import publicAPI.config as config
+import publicAPI.config as api_config
 import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
@@ -48,7 +48,7 @@ def fetch_market_history_emd(
         type_id,
         data_range,
         endpoint_addr=EMD_MARKET_HISTORY,
-        config=config.CONFIG
+        config=api_config.CONFIG
     ):
     """use EMD endpoint to fetch data instead of MySQL
 
@@ -84,7 +84,6 @@ def fetch_market_history_emd(
 
     if not data['result']:
         raise NoDataReturned()
-
 
     return data
 
