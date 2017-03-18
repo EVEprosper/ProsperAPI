@@ -156,7 +156,8 @@ def test_build_forecast(config=CONFIG):
 
     expected_prediction = pd.read_csv(TEST_PREDICT_PATH)
     expected_prediction['date'] = pd.to_datetime(expected_prediction['date'])
-    predict_data.to_csv('predict_live.csv')
+    float_limit = float(config.get('TEST', 'float_limit'))
+
     for key in expected_rows:
         print(key)
         print(predict_data[key].dtype)
@@ -164,6 +165,24 @@ def test_build_forecast(config=CONFIG):
         if predict_data[key].dtype == np.float64:
             unique_vals = predict_data[key] - expected_prediction[key]
             for val in unique_vals.values:
-                assert (abs(val) < 0.1) or (np.isnan(val)) #fucking floats
+                assert (abs(val) < float_limit) or (np.isnan(val)) #fucking floats
         else:
             assert predict_data[key].equals(expected_prediction[key])
+
+def test_forecast_truncate(config=CONFIG):
+    """make sure truncate functionality works"""
+    test_data = pd.read_csv(TEST_DATA_PATH)
+    test_data['date'] = pd.to_datetime(test_data['date'])
+    max_date = test_data['date'].max()
+
+    truncate_range = int(config.get('TEST', 'truncate_range'))
+    predict_data = forecast_utils.build_forecast(
+        test_data,
+        int(config.get('TEST', 'forecast_range')),
+        truncate_range
+    )
+
+    expected_min_date = max_date - timedelta(days=truncate_range-1)
+    actual_min_date = predict_data['date'].min()
+
+    assert expected_min_date == actual_min_date

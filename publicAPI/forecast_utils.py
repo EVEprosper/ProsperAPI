@@ -161,8 +161,6 @@ def build_forecast(
 
     return report
 
-
-
 def data_to_format(
         data,
         format_type,
