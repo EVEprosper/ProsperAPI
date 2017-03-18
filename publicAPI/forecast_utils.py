@@ -12,6 +12,7 @@ requests.models.json = json
 
 import publicAPI.crest_utils as crest_utils
 import publicAPI.config as api_config
+import publicAPI.exceptions as exceptions
 import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
@@ -48,7 +49,7 @@ def fetch_market_history_emd(
         data_range,
         endpoint_addr=EMD_MARKET_HISTORY,
         config=api_config.CONFIG
-    ):
+):
     """use EMD endpoint to fetch data instead of MySQL
 
     Args:
@@ -82,7 +83,7 @@ def fetch_market_history_emd(
     data = req.json()['emd']
 
     if not data['result']:
-        raise NoDataReturned()
+        raise exceptions.NoDataReturned()
 
     return data
 
@@ -107,8 +108,7 @@ def parse_emd_data(data_result):
 def build_forecast(
         data,
         forecast_range,
-        truncate_range=0,
-        logger=LOGGER
+        truncate_range=0
 ):
     """build a forecast for publishing
 
@@ -141,9 +141,8 @@ def build_forecast(
     predict_df = pd.merge(
         predict_df, model.predict(future),
         on='ds',
-        how='right')
-
-    #print(predict_df.tail())
+        how='right'
+    )
 
     ## Build report for endpoint ##
     report = pd.DataFrame()
@@ -177,28 +176,6 @@ def data_to_format(
         (`list` or `dict`) processed output
 
     """
-    pass
-
-class ForecastException(Exception):
-    """base class for Forecast exceptions"""
-    pass
-class NoDataFoundInDB(ForecastException):
-    """exception for empty db string found"""
-    pass
-class NotEnoughDataInDB(ForecastException):
-    """exception for `raise_on_short` behavior"""
-    pass
-class UnsupportedFormat(ForecastException):
-    """exception for data_to_format failure"""
-    pass
-class EMDDataException(ForecastException):
-    """collection of exceptions around EMD data"""
-    pass
-class UnableToFetchData(EMDDataException):
-    """http error getting EMD data"""
-    pass
-class NoDataReturned(EMDDataException):
-    """missing data in EMD data"""
     pass
 
 if __name__ == '__main__':

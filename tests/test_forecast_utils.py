@@ -7,6 +7,7 @@ import requests
 import pytest
 
 import publicAPI.forecast_utils as forecast_utils
+import publicAPI.exceptions as exceptions
 import helpers
 
 HERE = path.abspath(path.dirname(__file__))
@@ -62,7 +63,7 @@ def test_fetch_emd_history_fail(config=CONFIG):
             endpoint_addr='http://www.eveprosper.com/noendpoint'
         )
 
-    with pytest.raises(forecast_utils.NoDataReturned):
+    with pytest.raises(exceptions.NoDataReturned):
         data = forecast_utils.fetch_market_history_emd(
             region_id=config.get('TEST', 'region_id'),
             type_id=config.get('TEST', 'bad_typeid'),
