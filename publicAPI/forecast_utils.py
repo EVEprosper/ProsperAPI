@@ -177,21 +177,3 @@ def data_to_format(
 
     """
     pass
-
-if __name__ == '__main__':
-    import prosper.common.prosper_config as p_config
-    CONFIG_FILE = path.join(HERE, 'publicAPI.cfg')
-    CONFIG = p_config.ProsperConfig(CONFIG_FILE)
-
-    data = fetch_market_history_emd(
-        region_id=10000002,
-        type_id=40,
-        data_range=720,
-        config=CONFIG
-    )
-    df = parse_emd_data(data['result'])
-    forecast = build_forecast(
-        df,
-        60,
-        200
-    )
