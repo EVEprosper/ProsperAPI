@@ -156,7 +156,7 @@ def build_forecast(
     report.loc[report.date > filter_date, 'prediction'] = True
 
     if truncate_range > 0:
-        cut_date = datetime.utcnow() - timedelta(days=truncate_range)
+        cut_date = filter_date - timedelta(days=truncate_range)
         report = report.loc[report.date > cut_date]
 
     return report
