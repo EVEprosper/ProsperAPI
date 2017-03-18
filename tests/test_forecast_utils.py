@@ -15,7 +15,6 @@ CONFIG_FILENAME = path.join(HERE, 'test_config.cfg')
 
 CONFIG = helpers.get_config(CONFIG_FILENAME)
 
-
 def test_fetch_emd_history(config=CONFIG):
     """happypath test for `fetch_market_history_emd`"""
     data = forecast_utils.fetch_market_history_emd(
@@ -126,3 +125,26 @@ def test_parse_emd_data_fail():
     """make sure behavior is expected for failure"""
     with pytest.raises(TypeError):
         data = forecast_utils.parse_emd_data(DEMO_DATA)
+
+TEST_DATA_PATH = path.join(HERE, 'sample_emd_data.csv')
+def test_build_forecast(config=CONFIG):
+    """try to build a forecast"""
+    test_data = pd.read_csv(TEST_DATA_PATH)
+
+    expected_rows = [
+        'date',
+        'avgPrice',
+        'yhat',
+        'yhat_low',
+        'yhat_high',
+        'prediction'
+    ]
+    predict_data = forecast_utils.build_forecast(
+        test_data,
+        int(config.get('TEST', 'forecast_range'))
+    )
+
+    headers = list(predict_data.columns.values)
+    assert set(expected_rows) == set(headers)
+
+
