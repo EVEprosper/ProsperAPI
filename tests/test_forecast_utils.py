@@ -1,6 +1,7 @@
 from os import path
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
+import numpy as np
 import requests
 
 import pytest
@@ -127,9 +128,12 @@ def test_parse_emd_data_fail():
         data = forecast_utils.parse_emd_data(DEMO_DATA)
 
 TEST_DATA_PATH = path.join(HERE, 'sample_emd_data.csv')
+TEST_PREDICT_PATH = path.join(HERE, 'sample_emd_predict.csv')
 def test_build_forecast(config=CONFIG):
     """try to build a forecast"""
     test_data = pd.read_csv(TEST_DATA_PATH)
+    test_data['date'] = pd.to_datetime(test_data['date'])
+    max_date = test_data['date'].max()
 
     expected_rows = [
         'date',
@@ -147,4 +151,19 @@ def test_build_forecast(config=CONFIG):
     headers = list(predict_data.columns.values)
     assert set(expected_rows) == set(headers)
 
+    assert predict_data['date'].max() == \
+        max_date + timedelta(days=int(config.get('TEST', 'forecast_range')))
 
+    expected_prediction = pd.read_csv(TEST_PREDICT_PATH)
+    expected_prediction['date'] = pd.to_datetime(expected_prediction['date'])
+    predict_data.to_csv('predict_live.csv')
+    for key in expected_rows:
+        print(key)
+        print(predict_data[key].dtype)
+
+        if predict_data[key].dtype == np.float64:
+            unique_vals = predict_data[key] - expected_prediction[key]
+            for val in unique_vals.values:
+                assert (abs(val) < 0.1) or (np.isnan(val)) #fucking floats
+        else:
+            assert predict_data[key].equals(expected_prediction[key])
