@@ -1,7 +1,6 @@
 """forecast_utils.py: collection of tools for forecasting future performance"""
-import sys
 from os import path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import ujson as json
 import pandas as pd
@@ -108,7 +107,7 @@ def parse_emd_data(data_result):
 def build_forecast(
         data,
         forecast_range,
-        truncate_range=False,
+        truncate_range=0,
         logger=LOGGER
 ):
     """build a forecast for publishing
@@ -124,7 +123,45 @@ def build_forecast(
             ['date', 'avgPrice', 'yhat', 'yhat_low', 'yhat_high', 'prediction']
 
     """
-    pass
+    data['date'] = pd.to_datetime(data['date'])
+    filter_date = data['date'].max()
+
+    ## Build DataFrame ##
+    predict_df = pd.DataFrame()
+    predict_df['ds'] = data['date']
+    predict_df['y'] = data['avgPrice']
+
+    ## Run prediction ##
+    # https://facebookincubator.github.io/prophet/docs/quick_start.html#python-api
+    model = Prophet()
+    model.fit(predict_df)
+    future = model.make_future_dataframe(periods=forecast_range)
+    tst = model.predict(future)
+    model.plot(tst)
+    predict_df = pd.merge(
+        predict_df, model.predict(future),
+        on='ds',
+        how='right')
+
+    #print(predict_df.tail())
+
+    ## Build report for endpoint ##
+    report = pd.DataFrame()
+    report['date'] = pd.to_datetime(predict_df['ds'], format='%Y-%m-%d')
+    report['avgPrice'] = predict_df['y']
+    report['yhat'] = predict_df['yhat']
+    report['yhat_low'] = predict_df['yhat_lower']
+    report['yhat_high'] = predict_df['yhat_upper']
+    report['prediction'] = False
+    report.loc[report.date > filter_date, 'prediction'] = True
+
+    if truncate_range > 0:
+        cut_date = datetime.utcnow() - timedelta(days=truncate_range)
+        report = report.loc[report.date > cut_date]
+
+    return report
+
+
 
 def data_to_format(
         data,
@@ -166,3 +203,20 @@ class NoDataReturned(EMDDataException):
     """missing data in EMD data"""
     pass
 
+if __name__ == '__main__':
+    import prosper.common.prosper_config as p_config
+    CONFIG_FILE = path.join(HERE, 'publicAPI.cfg')
+    CONFIG = p_config.ProsperConfig(CONFIG_FILE)
+
+    data = fetch_market_history_emd(
+        region_id=10000002,
+        type_id=40,
+        data_range=720,
+        config=CONFIG
+    )
+    df = parse_emd_data(data['result'])
+    forecast = build_forecast(
+        df,
+        60,
+        200
+    )
