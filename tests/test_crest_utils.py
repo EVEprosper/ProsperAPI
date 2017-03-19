@@ -7,6 +7,7 @@ import requests
 import pytest
 
 import publicAPI.crest_utils as crest_utils
+import publicAPI.exceptions as exceptions
 import helpers
 
 HERE = path.abspath(path.dirname(__file__))
@@ -71,3 +72,26 @@ def test_validate_crest_fetcher(config=CONFIG):
     for key in market_keys:
         assert key in market_data.keys()
     assert len(market_data['items']) == market_data['totalCount']
+
+def test_crest_fetcher_errors(config=CONFIG):
+    """validate errors thrown by fetch_crest_endpoint"""
+    with pytest.raises(exceptions.UnsupportedCrestEndpoint):
+        data = crest_utils.fetch_crest_endpoint(
+            'butts',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
+
+    with pytest.raises(exceptions.CrestAddressError):
+        data = crest_utils.fetch_crest_endpoint(
+            'inventory_types',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
+
+    with pytest.raises(exceptions.CrestAddressError):
+        data = crest_utils.fetch_crest_endpoint(
+            'market_history',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
