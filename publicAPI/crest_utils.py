@@ -11,7 +11,8 @@ from pandas.io.json import json_normalize
 
 requests.models.json = json
 
-import publicAPI.config as config
+import publicAPI.exceptions as exceptions
+import publicAPI.config as api_config
 import prosper.common.prosper_logging as p_logging
 
 LOGGER = p_logging.DEFAULT_LOGGER
@@ -36,12 +37,11 @@ def setup_cache_file(
     """
     pass
 
-CREST_BASE = 'https://crest-tq.eveonline.com/'
+
 def validate_id(
         endpoint_name,
         item_id,
         cache_buster=False,
-        crest_base=CREST_BASE,
         logger=LOGGER
 ):
     """Check EVE Online CREST as source-of-truth for id lookup
@@ -50,7 +50,6 @@ def validate_id(
         endpoint_name (str): desired endpoint for data lookup
         item_id (int): id value to look up at endpoint (NOTE: only SDE replacement)
         cache_buster (bool, optional): skip caching, fetch from internet
-        crest_base (str, optional): test-hook, override for crest base address
         logger (:obj:`logging.logger`, optional): logging handle
 
     Returns:
@@ -59,12 +58,53 @@ def validate_id(
     """
     pass
 
-HISTORY_ENDPOINT = ''
+CREST_BASE = 'https://crest-tq.eveonline.com/'
+def fetch_crest_endpoint(
+        endpoint_name,
+        crest_base=CREST_BASE,
+        config=api_config.CONFIG,
+        **kwargs
+):
+    """Fetch payload from EVE Online's CREST service
+
+    Args:
+        endpoint_name (str): name of endpoint (in config)
+        config (`configparser.ConfigParser`, optional): override for config obj
+        **kwargs (:obj:`dict`): key/values to overwrite in query
+
+    Returns:
+        (:obj:`dict`): JSON object returned by endpoint
+
+    """
+    try:
+        crest_url = crest_base + config.get('RESOURCES', endpoint_name)
+    except KeyError:
+        raise exceptions.UnsupportedCrestEndpoint(
+            'No {0} found in [RESOURCES]'.format(endpoint_name))
+
+    try:
+        crest_url = crest_url.format(**kwargs)
+    except KeyError as err_msg:
+        raise exceptions.CrestAddressError(repr(err_msg))
+
+    headers = {
+        'User-Agent': config.get('GLOBAL', 'useragent')
+    }
+
+    # no try-except, catch in caller
+    # done to make logging path easier
+    req = requests.get(
+        crest_url,
+        headers=headers
+    )
+    req.raise_for_status()
+    data = req.json()
+
+    return data
+
 def fetch_market_history(
         region_id,
         type_id,
-        endpoint_name=HISTORY_ENDPOINT,
-        crest_base=CREST_BASE,
         logger=LOGGER
 ):
     """Get market history data from EVE Online CREST endpoint
@@ -72,8 +112,6 @@ def fetch_market_history(
     Args:
         region_id (int): (validated) regionID value for CREST lookup
         type_id (int): (validated) typeID value for CREST lookup
-        endpoint_name (str, optional): test-hook, override crest endpoint lookup
-        crest_base (str, optional): test-hook, override for crest base address
         logger (:obj:`logging.logger`, optional): logging handle
 
     Returns:
@@ -98,17 +136,4 @@ def OHLC_to_format(
         (`list` or `dict`) processed output
 
     """
-    pass
-
-class CrestException(Exception):
-    """base class for CREST exceptions"""
-    pass
-class CacheSetupFailure(CrestException):
-    """unable to set up cache file"""
-    pass
-class UnsupportedCrestEndpoint(CrestException):
-    """don't know how to parse requested endpoint"""
-    pass
-class UnsupportedFormat(CrestException):
-    """exception for data_to_format failure"""
     pass

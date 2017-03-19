@@ -1,11 +1,29 @@
 """exceptions.py: collection of exceptions for publicAPI"""
 class ValidatorException(Exception):
     """base class for various validators"""
-    def __init__(self):
-        self.status = 0
-        self.message = ''
+    def __init__(self, status=0, message=''):
+        self.status = status
+        self.message = message
         Exception.__init__(self)
+class UnsupportedFormat(ValidatorException):
+    """exception for data_to_format failure"""
+    pass
 
+## crest_utils ##
+class CrestException(Exception):
+    """base class for CREST exceptions"""
+    pass
+class CacheSetupFailure(CrestException):
+    """unable to set up cache file"""
+    pass
+class UnsupportedCrestEndpoint(CrestException):
+    """don't know how to parse requested endpoint"""
+    pass
+class CrestAddressError(CrestException):
+    """unable to format request url"""
+    pass
+
+## forecast_utils ##
 class ForecastException(Exception):
     """base class for Forecast exceptions"""
     pass
@@ -14,9 +32,6 @@ class NoDataFoundInDB(ForecastException):
     pass
 class NotEnoughDataInDB(ForecastException):
     """exception for `raise_on_short` behavior"""
-    pass
-class UnsupportedFormat(ForecastException):
-    """exception for data_to_format failure"""
     pass
 class EMDDataException(ForecastException):
     """collection of exceptions around EMD data"""
