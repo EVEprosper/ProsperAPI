@@ -95,3 +95,10 @@ def test_crest_fetcher_errors(config=CONFIG):
             region_id=config.get('TEST', 'region_id'),
             config=ROOT_CONFIG
         )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        data = crest_utils.fetch_crest_endpoint(
+            'inventory_types',
+            type_id=config.get('TEST', 'bad_typeid'),
+            config=ROOT_CONFIG
+        )
