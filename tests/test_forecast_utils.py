@@ -1,5 +1,6 @@
 from os import path
 from datetime import datetime, timedelta
+import platform
 import pandas as pd
 import numpy as np
 import requests
@@ -70,6 +71,7 @@ def test_fetch_emd_history_fail(config=CONFIG):
             data_range=config.get('TEST', 'history_count'),
             config=config
         )
+
 DEMO_DATA = {
     'version': 2,
     'currentTime': datetime.now().isoformat(),
@@ -132,6 +134,9 @@ TEST_DATA_PATH = path.join(HERE, 'sample_emd_data.csv')
 TEST_PREDICT_PATH = path.join(HERE, 'sample_emd_predict.csv')
 def test_build_forecast(config=CONFIG):
     """try to build a forecast"""
+    if platform.system() == 'Darwin':
+        pytest.xfail('Unable to run fbprophet on mac')
+
     test_data = pd.read_csv(TEST_DATA_PATH)
     test_data['date'] = pd.to_datetime(test_data['date'])
     max_date = test_data['date'].max()
@@ -172,6 +177,9 @@ def test_build_forecast(config=CONFIG):
 
 def test_forecast_truncate(config=CONFIG):
     """make sure truncate functionality works"""
+    if platform.system() == 'Darwin':
+        pytest.xfail('Unable to run fbprophet on mac')
+
     test_data = pd.read_csv(TEST_DATA_PATH)
     test_data['date'] = pd.to_datetime(test_data['date'])
     max_date = test_data['date'].max()
