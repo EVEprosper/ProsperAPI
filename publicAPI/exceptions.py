@@ -8,6 +8,9 @@ class ValidatorException(Exception):
 class UnsupportedFormat(ValidatorException):
     """exception for data_to_format failure"""
     pass
+class IDValidationError(ValidatorException):
+    """exception when you can't resolve CREST id query"""
+    pass
 
 ## crest_utils ##
 class CrestException(Exception):

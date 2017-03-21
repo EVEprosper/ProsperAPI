@@ -2,6 +2,7 @@
 
 from os import path, makedirs
 from datetime import datetime
+import pytz
 import configparser
 
 import ujson as json
@@ -25,7 +26,6 @@ makedirs(CACHE_PATH, exist_ok=True)
 def setup_cache_file(
         cache_filename,
         cache_path=CACHE_PATH,
-        logger=LOGGER
 ):
     """build tinyDB handle to cache file
 
@@ -38,20 +38,55 @@ def setup_cache_file(
         (:obj:`TinyDB.TinyDB`): cache db
 
     """
-    pass
+    db_filename = path.join(cache_path, cache_filename + '.json')
+    return TinyDB(db_filename)
 
+def write_cache_entry(
+        tinydb_handle,
+        index_key,
+        data_payload
+):
+    """write data to tinydb
+
+    Args:
+        tinydb_handle (:obj:`tinydb.TinyDB`): database to write to
+        index_key (any, int): index key value
+        data_payload (:obj:`dict`): object to save to cache
+
+    Returns:
+        None
+
+    """
+    if tinydb_handle.search(Query().index_key == index_key):
+        tinydb_handle.update(
+            {
+                'cache_datetime': datetime.utcnow().timestamp(),
+                'payload': data_payload
+            },
+            Query().index_key == index_key
+        )
+    else:
+        tinydb_handle.insert(
+            {
+                'cache_datetime': datetime.utcnow().timestamp(),
+                'payload': data_payload,
+                'index_key': index_key
+
+            }
+        )
 
 def validate_id(
         endpoint_name,
-        item_id,
+        type_id,
         cache_buster=False,
+        config=api_config.CONFIG,
         logger=LOGGER
 ):
     """Check EVE Online CREST as source-of-truth for id lookup
 
     Args:
         endpoint_name (str): desired endpoint for data lookup
-        item_id (int): id value to look up at endpoint (NOTE: only SDE replacement)
+        type_id (int): id value to look up at endpoint (NOTE: only SDE replacement)
         cache_buster (bool, optional): skip caching, fetch from internet
         logger (:obj:`logging.logger`, optional): logging handle
 
@@ -59,7 +94,76 @@ def validate_id(
         (int): HTTP status code for error validation
 
     """
-    pass
+    ## Check local cache for value ##
+    if not cache_buster:
+        logger.info('--searching cache for type_id: {0}'.format(type_id))
+        logger.debug('endpoint_name={0}'.format(endpoint_name))
+        logger.debug('type_id={0}'.format(type_id))
+
+        try:
+            db_handle = setup_cache_file(endpoint_name)
+            cache_time = datetime.utcnow().timestamp() - \
+                int(config.get('CACHING', 'sde_cache_limit'))
+            cache_val = db_handle.find(
+                Query().cache_datetime >= cache_time &
+                Query().index_key == type_id
+            )
+        except Exception as err_msg:
+            logger.error(
+                'ERROR: unable to connect to local tinyDB cache' +
+                '\n\tendpoint_name: {0}'.format(endpoint_name) +
+                '\n\tcache_path: {0}'.format(CACHE_PATH),
+                exc_info=True
+            )
+            pass #OK if no cache, continue
+
+        if cache_val:
+            logger.info('--found type_id cache for type_id: {0}'.format(type_id))
+            logger.debug(cache_val)
+            return cache_val    #skip CREST
+
+
+    ## Request info from CREST ##
+    try:
+        logger.info('--fetching CREST ID information')
+        logger.debug('endpoint_name={0}'.format(endpoint_name))
+        logger.debug('type_id={0}'.format(type_id))
+        type_info = fetch_crest_endpoint(
+            endpoint_name,
+            #TODO: index_key to key/val pair
+        )
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: unable to connect to CREST' +
+            '\n\tendpoint_name: {0}'.format(endpoint_name) +
+            '\n\ttype_id: {0}'.format(type_id),
+            exc_info=True
+        )
+        raise exceptions.IDValidationError(
+            status=404,
+            message='Unable to validate {0}:{1}'.format(
+                endpoint_name,
+                type_id
+            )
+        )
+
+    ## Update cache ##
+    logger.info('--updating cache')
+    try:
+        write_cache_entry(
+            db_handle,
+            type_id,
+            type_info
+        )
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: unable to write to cache',
+            exc_info=True
+        )
+
+        pass
+
+    return type_info
 
 CREST_BASE = 'https://crest-tq.eveonline.com/'
 def fetch_crest_endpoint(
