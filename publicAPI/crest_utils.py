@@ -38,7 +38,7 @@ def setup_cache_file(
         (:obj:`TinyDB.TinyDB`): cache db
 
     """
-    if not path.isdir(CACHE_PATH):  #pragma: no cover
+    if not path.isdir(CACHE_PATH):
         makedirs(CACHE_PATH)
 
     db_filename = path.join(CACHE_PATH, cache_filename + '.json')
@@ -109,7 +109,6 @@ def validate_id(
         endpoint_name,
         type_id,
         cache_buster=False,
-        cache_path=CACHE_PATH,
         config=api_config.CONFIG,
         logger=LOGGER
 ):
@@ -128,7 +127,7 @@ def validate_id(
     ## Check local cache for value ##
     try:
         db_handle = setup_cache_file(endpoint_name)
-    except Exception as err_msg:
+    except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to connect to local tinyDB cache' +
             '\n\tendpoint_name: {0}'.format(endpoint_name) +
@@ -191,9 +190,11 @@ def validate_id(
             type_id,
             type_info
         )
-    except Exception as err_msg:
+    except Exception as err_msg:    #pragma: no cover
         logger.error(
-            'ERROR: unable to write to cache',
+            'ERROR: unable to write to cache' +
+            '\n\ttype_id: {0}'.format(type_id) +
+            '\n\ttype_info: {0}'.format(type_info),
             exc_info=True
         )
 

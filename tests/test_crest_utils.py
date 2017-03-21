@@ -185,6 +185,7 @@ class TestValidateID:
     """collection of tests for `validate_id` testing"""
     type_id = int(CONFIG.get('TEST', 'type_id'))
     region_id = int(CONFIG.get('TEST', 'region_id'))
+    bad_typeid = int(CONFIG.get('TEST', 'bad_typeid'))
 
     def test_clear_cachefiles(self):
         """init test, clean up paths before test"""
@@ -228,7 +229,47 @@ class TestValidateID:
         assert path.isfile(path.join(TEST_CACHE_PATH, 'inventory_types.json'))
         assert path.isfile(path.join(TEST_CACHE_PATH, 'map_regions.json'))
 
-    def test_validate_types_cache(self):
-        """make sure values are in cache"""
-        pass
+    def test_validate_bad_ids(self):
+        """check behavior with bad id's"""
+        with pytest.raises(exceptions.IDValidationError):
+            data = crest_utils.validate_id(
+                'inventory_types',
+                self.bad_typeid,
+                config=ROOT_CONFIG
+            )
 
+        try:
+            data = crest_utils.validate_id(
+                'inventory_types',
+                self.bad_typeid,
+                config=ROOT_CONFIG
+            )
+        except exceptions.IDValidationError as err_msg:
+            assert err_msg.status == 404
+            assert isinstance(err_msg.message, str)
+
+    def test_validate_types_cache(self):
+        """make sure cachebuster and stash agree"""
+        type_info = crest_utils.validate_id(
+            'inventory_types',
+            self.type_id,
+            config=ROOT_CONFIG,
+            cache_buster=True,
+        )
+        tdb_handle = crest_utils.setup_cache_file('inventory_types')
+        type_cache = tdb_handle.search(Query().index_key == self.type_id)[0]
+
+        assert type_info == type_cache['payload']
+
+    def test_validate_region_cache(self):
+        """make sure cachebuster and stash agree"""
+        type_info = crest_utils.validate_id(
+            'map_regions',
+            self.region_id,
+            config=ROOT_CONFIG,
+            cache_buster=True,
+        )
+        tdb_handle = crest_utils.setup_cache_file('map_regions')
+        type_cache = tdb_handle.search(Query().index_key == self.region_id)[0]
+
+        assert type_info == type_cache['payload']
