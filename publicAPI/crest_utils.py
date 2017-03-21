@@ -75,6 +75,33 @@ def write_cache_entry(
             }
         )
 
+def endpoint_to_kwarg(
+        endpoint_name,
+        type_id
+):
+    """recast endpoint_name to **kwarg pair
+
+    TODO: this is kinda hacky, move to class/enum?
+    Args:
+        endpoint_name (str): name of endpoint
+        type_id (int): EVE Online ID
+
+    Returns:
+        (:obj:`dict`) kwarg pair
+
+    """
+    kwarg_pair = {}
+    if endpoint_name == 'inventory_types':
+        kwarg_pair = {'type_id': type_id}
+    elif endpoint_name =='map_regions':
+        kwarg_pair = {'region_id': type_id}
+    else:
+        raise exceptions.UnsupportedCrestEndpoint(
+            'No configuration for ' + str(endpoint_name)
+        )
+
+    return kwarg_pair
+
 def validate_id(
         endpoint_name,
         type_id,
@@ -122,14 +149,18 @@ def validate_id(
             logger.debug(cache_val)
             return cache_val    #skip CREST
 
-
     ## Request info from CREST ##
     try:
         logger.info('--fetching CREST ID information')
         logger.debug('endpoint_name={0}'.format(endpoint_name))
         logger.debug('type_id={0}'.format(type_id))
+        kwarg_pair = endpoint_to_kwarg(
+            endpoint_name,
+            type_id
+        )
         type_info = fetch_crest_endpoint(
             endpoint_name,
+            **kwarg_pair
             #TODO: index_key to key/val pair
         )
     except Exception as err_msg:
