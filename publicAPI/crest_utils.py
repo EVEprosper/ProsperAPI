@@ -136,7 +136,7 @@ def validate_id(
         )
 
     if not cache_buster:
-        logger.info('--searching cache for type_id: {0}'.format(type_id))
+        logger.info('--searching cache for id: {0}'.format(type_id))
         logger.debug('endpoint_name={0}'.format(endpoint_name))
         logger.debug('type_id={0}'.format(type_id))
 
@@ -148,7 +148,7 @@ def validate_id(
 
 
         if cache_val:
-            logger.info('--found type_id cache for type_id: {0}'.format(type_id))
+            logger.info('--found type_id cache for id: {0}'.format(type_id))
             logger.debug(cache_val)
             return cache_val[0]['payload']    #skip CREST
 
@@ -263,7 +263,7 @@ def fetch_market_history(
         (:obj:`pandas.data_frame`) pandas collection of data
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
-    logger.info('--fetching data from crest')
+    logger.info('--fetching market data from crest')
     logger.debug('region_id: {0}'.format(region_id))
     logger.debug('type_id: {0}'.format(type_id))
     try:
@@ -292,7 +292,7 @@ def fetch_market_history(
     logger.debug(raw_data['items'][:5])
     try:
         return_data = pd.DataFrame(raw_data['items'])
-    except Exception as err_msg:
+    except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to parse CREST history data' +
             '\n\ttype_id: {0}'.format(type_id) +
