@@ -11,8 +11,9 @@ from flask_restful import reqparse, Api, Resource, request
 
 import publicAPI.forecast_utils as forecast_utils
 import publicAPI.crest_utils as crest_utils
+import publicAPI.exceptions as exceptions
+import publicAPI.config as api_config
 
-import publicAPI.config as config
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
@@ -100,23 +101,47 @@ class OHLC_endpoint(Resource):
 
         ## Validate inputs ##
         #TODO: error piping
-        status = crest_utils.validate_id(
-            'regions',
-            args.get('regionID')
-        )
-        status = crest_utils.validate_id(
-            'types',
-            args.get('typeID')
-        )
-        #TODO: validate range
-        #TODO: validate API key
+        try:
+            crest_utils.validate_id(
+                'map_regions',
+                args.get('regionID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
+            crest_utils.validate_id(
+                'inventory_types',
+                args.get('typeID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
+        except Exception as err:
+            LOGGER.warning(
+                'ERROR: unable to validate type/region ids',
+                exc_info=True
+            )
+            if isinstance(err, exceptions.ValidatorException):
+                return err.message, err.status
+            else:
+                return 'UNHANDLED EXCEPTION', 500
 
         ## Fetch CREST ##
         #TODO: error piping
-        data = crest_utils.fetch_market_history(
-            args.get('regionID'),
-            args.get('typeID')
-        )
+        try:
+            data = crest_utils.fetch_market_history(
+                args.get('regionID'),
+                args.get('typeID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
+        except Exception as err:
+            LOGGER.warning(
+                'ERROR: unable to parse CREST data',
+                exc_info=True
+            )
+            if isinstance(err, exceptions.ValidatorException):
+                return err.message, err.status
+            else:
+                return 'UNHANDLED EXCEPTION', 500
 
         ## Format output ##
         message = crest_utils.OHLC_to_format(
