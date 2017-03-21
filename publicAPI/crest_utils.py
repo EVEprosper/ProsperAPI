@@ -1,6 +1,6 @@
 """crest_utils.py collection of tools for handling crest endpoint APIs"""
 
-from os import path
+from os import path, makedirs
 from datetime import datetime
 import configparser
 
@@ -20,6 +20,8 @@ LOGGER = p_logging.DEFAULT_LOGGER
 HERE = path.abspath(path.dirname(__file__))
 
 CACHE_PATH = path.join(HERE, 'cache')
+makedirs(CACHE_PATH, exist_ok=True)
+
 def setup_cache_file(
         cache_filename,
         cache_path=CACHE_PATH,
