@@ -11,6 +11,12 @@ class UnsupportedFormat(ValidatorException):
 class IDValidationError(ValidatorException):
     """exception when you can't resolve CREST id query"""
     pass
+class CRESTBadMarketData(ValidatorException):
+    """exception when you can't pull `market_history` endpoint"""
+    pass
+class CRESTParseError(ValidatorException):
+    """exception when you can't parse CREST data correctly"""
+    pass
 
 ## crest_utils ##
 class CrestException(Exception):

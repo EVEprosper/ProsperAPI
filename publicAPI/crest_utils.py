@@ -153,10 +153,10 @@ def validate_id(
             return cache_val[0]['payload']    #skip CREST
 
     ## Request info from CREST ##
+    logger.info('--fetching CREST ID information')
+    logger.debug('endpoint_name={0}'.format(endpoint_name))
+    logger.debug('type_id={0}'.format(type_id))
     try:
-        logger.info('--fetching CREST ID information')
-        logger.debug('endpoint_name={0}'.format(endpoint_name))
-        logger.debug('type_id={0}'.format(type_id))
         kwarg_pair = endpoint_to_kwarg(
             endpoint_name,
             type_id
@@ -197,8 +197,6 @@ def validate_id(
             '\n\ttype_info: {0}'.format(type_info),
             exc_info=True
         )
-
-        pass
 
     db_handle.close()
 
@@ -251,6 +249,7 @@ def fetch_crest_endpoint(
 def fetch_market_history(
         region_id,
         type_id,
+        config=api_config.CONFIG,
         logger=LOGGER
 ):
     """Get market history data from EVE Online CREST endpoint
@@ -264,7 +263,48 @@ def fetch_market_history(
         (:obj:`pandas.data_frame`) pandas collection of data
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
-    pass
+    logger.info('--fetching data from crest')
+    logger.debug('region_id: {0}'.format(region_id))
+    logger.debug('type_id: {0}'.format(type_id))
+    try:
+        raw_data = fetch_crest_endpoint(
+            'market_history',
+            region_id=region_id,
+            type_id=type_id,
+            config=config
+        )
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: unable to fetch market history from CREST' +
+            '\n\ttype_id: {0}'.format(type_id) +
+            '\n\tregion_id: {0}'.format(region_id),
+            exc_info=True
+        )
+        raise exceptions.CRESTBadMarketData(
+            status=404,
+            message='Unable to fetch CREST data for {0}@{1}'.format(
+                type_id,
+                region_id
+            )
+        )
+
+    logger.info('--pushing data into pandas')
+    logger.debug(raw_data['items'][:5])
+    try:
+        return_data = pd.DataFrame(raw_data['items'])
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: unable to parse CREST history data' +
+            '\n\ttype_id: {0}'.format(type_id) +
+            '\n\tregion_id: {0}'.format(region_id),
+            exc_info=True
+        )
+        raise exceptions.CRESTParseError(
+            status=500,
+            message='Unable to parse CREST data from CCP'
+        )
+
+    return return_data
 
 def OHLC_to_format(
         data,
