@@ -24,8 +24,8 @@ CACHE_PATH = path.join(HERE, 'cache')
 makedirs(CACHE_PATH, exist_ok=True)
 
 def setup_cache_file(
-        cache_filename,
-        cache_path=CACHE_PATH,
+        cache_filename#,
+        #cache_path=CACHE_PATH,
 ):
     """build tinyDB handle to cache file
 
@@ -38,7 +38,10 @@ def setup_cache_file(
         (:obj:`TinyDB.TinyDB`): cache db
 
     """
-    db_filename = path.join(cache_path, cache_filename + '.json')
+    if not path.isdir(CACHE_PATH):  #pragma: no cover
+        makedirs(CACHE_PATH)
+
+    db_filename = path.join(CACHE_PATH, cache_filename + '.json')
     return TinyDB(db_filename)
 
 def write_cache_entry(
@@ -106,6 +109,7 @@ def validate_id(
         endpoint_name,
         type_id,
         cache_buster=False,
+        cache_path=CACHE_PATH,
         config=api_config.CONFIG,
         logger=LOGGER
 ):
@@ -122,32 +126,32 @@ def validate_id(
 
     """
     ## Check local cache for value ##
+    try:
+        db_handle = setup_cache_file(endpoint_name)
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: unable to connect to local tinyDB cache' +
+            '\n\tendpoint_name: {0}'.format(endpoint_name) +
+            '\n\tcache_path: {0}'.format(CACHE_PATH),
+            exc_info=True
+        )
+
     if not cache_buster:
         logger.info('--searching cache for type_id: {0}'.format(type_id))
         logger.debug('endpoint_name={0}'.format(endpoint_name))
         logger.debug('type_id={0}'.format(type_id))
 
-        try:
-            db_handle = setup_cache_file(endpoint_name)
-            cache_time = datetime.utcnow().timestamp() - \
-                int(config.get('CACHING', 'sde_cache_limit'))
-            cache_val = db_handle.find(
-                Query().cache_datetime >= cache_time &
-                Query().index_key == type_id
-            )
-        except Exception as err_msg:
-            logger.error(
-                'ERROR: unable to connect to local tinyDB cache' +
-                '\n\tendpoint_name: {0}'.format(endpoint_name) +
-                '\n\tcache_path: {0}'.format(CACHE_PATH),
-                exc_info=True
-            )
-            pass #OK if no cache, continue
+        cache_time = datetime.utcnow().timestamp() - int(config.get('CACHING', 'sde_cache_limit'))
+        cache_val = db_handle.search(
+            (Query().cache_datetime >= cache_time) &
+            (Query().index_key == type_id)
+        )
+
 
         if cache_val:
             logger.info('--found type_id cache for type_id: {0}'.format(type_id))
             logger.debug(cache_val)
-            return cache_val    #skip CREST
+            return cache_val[0]['payload']    #skip CREST
 
     ## Request info from CREST ##
     try:
@@ -160,7 +164,8 @@ def validate_id(
         )
         type_info = fetch_crest_endpoint(
             endpoint_name,
-            **kwarg_pair
+            **kwarg_pair,
+            config=config
             #TODO: index_key to key/val pair
         )
     except Exception as err_msg:
@@ -193,6 +198,8 @@ def validate_id(
         )
 
         pass
+
+    db_handle.close()
 
     return type_info
 
