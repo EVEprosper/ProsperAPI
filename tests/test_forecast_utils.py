@@ -1,9 +1,11 @@
-from os import path
+from os import path, makedirs
+from shutil import rmtree
 from datetime import datetime, timedelta
 import platform
 import pandas as pd
 import numpy as np
 import requests
+from tinydb import TinyDB, Query
 
 import pytest
 
@@ -195,3 +197,69 @@ def test_forecast_truncate(config=CONFIG):
     actual_min_date = predict_data['date'].min()
 
     assert expected_min_date == actual_min_date
+
+@pytest.mark.incremental
+class TestPredictCache:
+    """test cache tools in Prediction toolset"""
+    cache_path = path.join(HERE, 'cache')
+    cache_file = 'prophet.json'
+    cache_filepath = path.join(cache_path, cache_file)
+    type_id = int(CONFIG.get('TEST', 'type_id'))
+    region_id = int(CONFIG.get('TEST', 'region_id'))
+
+    def test_clear_existing_cache(self):
+        """clean up cache path before testing"""
+        rmtree(self.cache_path)
+        makedirs(self.cache_path)
+
+    def test_empty_cache(self):
+        """test un-cached behavior"""
+        data = forecast_utils.check_prediction_cache(
+            self.region_id,
+            self.type_id,
+            cache_path=self.cache_path
+        )
+        assert data is None
+
+        assert path.isfile(self.cache_filepath)
+
+        tdb = TinyDB(self.cache_filepath)
+
+        assert tdb.all() == []
+
+        tdb.close()
+
+    def test_write_first_cache(self):
+        """test write behavior on first pass (cache-buster mode)"""
+        self.test_clear_existing_cache()    #blowup existing cache again
+
+        dummy_data = forecast_utils.parse_emd_data(DEMO_DATA['result'])
+
+        forecast_utils.write_prediction_cache(
+            self.region_id,
+            self.type_id,
+            dummy_data,
+            cache_path=self.cache_path
+        )
+
+        assert path.isfile(self.cache_filepath)
+
+        tdb = TinyDB(self.cache_filepath)
+
+        data = tdb.all()[0]
+
+        keys_list = [
+            'cache_date',
+            'region_id',
+            'type_id',
+            'lastWrite',
+            'prediction'
+        ]
+        assert set(keys_list) == set(data.keys())
+
+        #cached_data = pd.DataFrame(data['prediction'])
+
+        assert data['prediction'] == dummy_data.to_json(date_format='iso', orient='records')
+
+        tdb.close()
+

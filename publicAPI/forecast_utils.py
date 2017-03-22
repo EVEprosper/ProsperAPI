@@ -47,12 +47,12 @@ def check_prediction_cache(
         (Query().cache_date == utc_today) &
         (Query().region_id == region_id) &
         (Query().type_id == type_id)
-    )[0]
+    )
 
     prediction_db.close()
 
     if raw_data:
-        panda_data = pd.DataFrame(raw_data['prediction'])
+        panda_data = pd.DataFrame(raw_data[0]['prediction'])
         return panda_data
     else:
         return None
@@ -89,12 +89,16 @@ def write_prediction_cache(
     )
 
     ## Prepare new entry for cache ##
+    cleaned_data = prediction_data.to_json(
+        date_format='iso',
+        orient='records'
+    )
     data = {
         'cache_date': utc_today,
         'region_id': region_id,
         'type_id': type_id,
         'lastWrite': datetime.utcnow().timestamp(),
-        'prediction':{prediction_data}
+        'prediction':cleaned_data
     }
 
     prediction_db.insert(data)
