@@ -209,7 +209,7 @@ class ProphetEndpoint(Resource):
             location=['args', 'headers']
         )
 
-    def get(self):
+    def get(self, return_type):
         args = self.reqparse.parse_args()
         LOGGER.info(
             'prophet?regionID={0}&typeID={1}&range={2}'.format(
@@ -231,6 +231,7 @@ class ProphetEndpoint(Resource):
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
+            #TODO: validate_range
         except Exception as err:
             LOGGER.warning(
                 'ERROR: unable to validate type/region ids',
@@ -241,27 +242,47 @@ class ProphetEndpoint(Resource):
             else:
                 return 'UNHANDLED EXCEPTION', 500
 
-        #TODO: validate range
         forecast_range = DEFAULT_RANGE
-        ## Fetch CREST ##
-        #TODO: error piping
+        ## check cache ##
+        cache_data = forecast_utils.check_prediction_cache(
+            args.get('regionID'),
+            args.get('typeID'),
+        )
+        if cache_data:
+            message = forecast_utils.data_to_format(
+                cache_data,
+                return_type
+            )
+            return message
+
+        ## No cache, get data ##
         try:
             data = forecast_utils.fetch_extended_history(
                 args.get('regionID'),
-                args.get('typeID')
+                args.get('typeID'),
+                data_range=forecast_range,
+                config=api_config.CONFIG,
+                logger=LOGGER
             )
-        except Exception as err:
+            data = forecast_utils.build_forecast(
+                data,
+                forecast_range
+            )
+        except Exception as err_msg:
             LOGGER.warning(
-                'Unable to fetch data from archive',
+                'ERROR: unable to generate history plot',
                 exc_info=True
             )
-            data = crest_utils.fetch_market_history(
-                args.get('regionID'),
-                args.get('typeID')
-            )
-        data = forecast_utils.build_forecast(
-            data,
-            forecast_range
+            if isinstance(err, exceptions.ValidatorException):
+                return err.message, err.status
+            else:
+                return 'UNHANDLED EXCEPTION', 500
+
+        ## Update cache ##
+        forecast_utils.write_prediction_cache(
+            args.get('regionID'),
+            args.get('typeID'),
+            data
         )
         ## Format output ##
         message = forecast_utils.data_to_format(
@@ -270,6 +291,7 @@ class ProphetEndpoint(Resource):
         )
 
         return message
+
 ## Flask Endpoints ##
 API.add_resource(
     OHLC_endpoint,
