@@ -118,7 +118,8 @@ setup(
         'ProsperCommon~=0.5.0',     #--extra-index-url=https://repo.fury.io/lockefox/
         'tinydb~=3.2.2',
         'ujson~=1.35',
-        'plumbum~=1.6.3'
+        'plumbum~=1.6.3',
+        'shortuuid~=0.5.0'
     ],
     tests_require=[
         'pytest~=3.0.0',

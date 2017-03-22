@@ -219,6 +219,7 @@ class ProphetEndpoint(Resource):
 
         ## Validate inputs ##
         try:
+            #TODO: validate API key
             crest_utils.validate_id(
                 'map_regions',
                 args.get('regionID'),
@@ -292,6 +293,7 @@ class ProphetEndpoint(Resource):
 
         return message
 
+
 ## Flask Endpoints ##
 API.add_resource(
     OHLC_endpoint,
@@ -311,4 +313,62 @@ class BadStatus(CrestEndpointException):
     """unexpected status raised"""
     pass
 
+class CreateAPI(Resource):
+    """Add API keys to db"""
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'User-Agent',
+            type=str,
+            required=True,
+            help='User-Agent required',
+            location=['headers']
+        )
+        self.reqparse.add_argument(
+            'secret',
+            type=str,
+            required=True,
+            help='API key for tracking requests',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'owner',
+            type=str,
+            required=True,
+            help='ID information about API key owner',
+            location=['args', 'headers']
+        )
 
+    def post(self):
+        """create api keys in archive"""
+        pass
+
+class RemoveAPI(Resource):
+    """remove API keys from db"""
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'User-Agent',
+            type=str,
+            required=True,
+            help='User-Agent required',
+            location=['headers']
+        )
+        self.reqparse.add_argument(
+            'secret',
+            type=str,
+            required=True,
+            help='secret for authentication',
+            location=['args', 'headers']
+        )
+        self.reqparse.add_argument(
+            'api',
+            type=str,
+            required=True,
+            help='API key to delete',
+            location=['args', 'headers']
+        )
+
+    def post(self):
+        """remove api keys from archive"""
+        pass
