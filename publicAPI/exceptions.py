@@ -17,6 +17,12 @@ class CRESTBadMarketData(ValidatorException):
 class CRESTParseError(ValidatorException):
     """exception when you can't parse CREST data correctly"""
     pass
+class EMDBadMarketData(ValidatorException):
+    """exception when you can't get EMD data correctly"""
+    pass
+class ProphetNotEnoughData(ValidatorException):
+    """exception when there isn't enough data to make a prediction"""
+    pass
 
 ## crest_utils ##
 class CrestException(Exception):
@@ -35,12 +41,6 @@ class CrestAddressError(CrestException):
 ## forecast_utils ##
 class ForecastException(Exception):
     """base class for Forecast exceptions"""
-    pass
-class NoDataFoundInDB(ForecastException):
-    """exception for empty db string found"""
-    pass
-class NotEnoughDataInDB(ForecastException):
-    """exception for `raise_on_short` behavior"""
     pass
 class EMDDataException(ForecastException):
     """collection of exceptions around EMD data"""

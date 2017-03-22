@@ -43,10 +43,26 @@ def return_supported_types():
 
     return supported_types
 
-def raise_for_status(
-        status_value
+def collect_stats(
+        endpoint_name,
+        args_payload,
+        additional_data=None,
+        db_name='CREST_stats.json',
+        logger=DEFAULT_LOGGER
 ):
-    """raise exception for non-good status"""
+    """save request information for later processing
+
+    Args:
+        endpoint_name (str): name of endpoint collecting data
+        args_payload (:obj:`dict`): args provided
+        additional_data (:obj:`dict`, optional): additional info to save
+        db_name (str, optional): tinyDB filename
+        logger (:obj:`logging.logger`, optional): logging handle for progress
+
+    Returns:
+        None
+
+    """
     pass
 
 ## Flask Endpoints ##
@@ -196,21 +212,34 @@ class ProphetEndpoint(Resource):
     def get(self):
         args = self.reqparse.parse_args()
         LOGGER.info(
-            'OHLC?regionID={0}&typeID={1}'.format(
-                args.get('regionID'), args.get('typeID')
+            'prophet?regionID={0}&typeID={1}&range={2}'.format(
+                args.get('regionID'), args.get('typeID'), args.get('range')
         ))
         LOGGER.debug(args)
 
         ## Validate inputs ##
-        #TODO: error piping
-        status = crest_utils.validate_id(
-            'regions',
-            args.get('regionID')
-        )
-        status = crest_utils.validate_id(
-            'types',
-            args.get('typeID')
-        )
+        try:
+            crest_utils.validate_id(
+                'map_regions',
+                args.get('regionID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
+            crest_utils.validate_id(
+                'inventory_types',
+                args.get('typeID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
+        except Exception as err:
+            LOGGER.warning(
+                'ERROR: unable to validate type/region ids',
+                exc_info=True
+            )
+            if isinstance(err, exceptions.ValidatorException):
+                return err.message, err.status
+            else:
+                return 'UNHANDLED EXCEPTION', 500
 
         #TODO: validate range
         forecast_range = DEFAULT_RANGE

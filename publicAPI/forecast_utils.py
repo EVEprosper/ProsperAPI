@@ -20,10 +20,13 @@ LOGGER = p_logging.DEFAULT_LOGGER
 
 DEFAULT_RANGE = 700
 CREST_RANGE = 365
+MAX_PREDICT_RANGE = 180
+MIN_DATA = 60
 def fetch_extended_history(
         region_id,
         type_id,
-        raise_on_short=False,
+        cache_buster=False,
+        config=api_config.CONFIG,
         data_range=DEFAULT_RANGE,
         logger=LOGGER
 ):
@@ -32,13 +35,95 @@ def fetch_extended_history(
     Args:
         region_id (int): EVE Online regionID: https://crest-tq.eveonline.com/regions/
         type_id (int): EVE Online typeID: https://crest-tq.eveonline.com/types/
-        raise_on_short (bool, optional): raise exception if <365 entries found
+        cache_buster (bool, optional): skip cache, fetch new data
         data_range (int, optional): how far back to fetch data
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
         (:obj:`pandas.data_frame`): collection of data from database
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
+    """
+    if not cache_buster:
+        logger.info('--checking prophet cache')
+
+        cached_prediction = None
+        if cached_prediction:
+            logger.info('--using cached prediction')
+            return cached_prediction
+        #TODO: cached prophet results
+
+    logger.info('--fetching history data')
+    try:
+        raw_data = fetch_market_history_emd(
+            region_id,
+            type_id,
+            data_range,
+            config=config
+        )
+        logger.debug(raw_data['result'][:5])
+        data = parse_emd_data(raw_data['result'])
+    except Exception as err_msg:
+        logger.error(
+            'ERROR: trouble getting data from EMD' +
+            '\n\tregion_id={0}'.format(region_id) +
+            '\n\ttype_id={0}'.format(type_id) +
+            '\n\tdata_range={0}'.format(data_range),
+            exc_info=True
+        )
+        data = []
+
+    if len(data) < CREST_RANGE:
+        logger.info('--Not enough data found, fetching CREST data')
+
+        try:
+            data = crest_utils.fetch_market_history(
+                region_id,
+                type_id,
+                config=config,
+                logger=logger
+            )
+        except Exception as err_msg:
+            logger.error(
+                'ERROR: trouble getting data from CREST' +
+                '\n\tregion_id={0}'.format(region_id) +
+                '\n\ttype_id={0}'.format(type_id),
+                exc_info=True
+            )
+            raise exceptions.EMDBadMarketData(
+                status=500,
+                message='Unable to fetch historical data'
+            )
+
+    if len(data) < MIN_DATA:
+        logger.warning(
+            'Not enough data to seed prediction' +
+            '\n\tregion_id={0}'.format(region_id) +
+            '\n\ttype_id={0}'.format(type_id) +
+            '\n\tlen(data)={0}'.format(len(data))
+        )
+        raise exceptions.ProphetNotEnoughData(
+            status=500,
+            message='Not enough data to build a prediction'
+        )
+
+
+def trim_prediction(
+        data,
+        history_days,
+        prediction_days,
+        logger=LOGGER
+):
+    """trim predicted dataframe into shape for results
+
+    Args:
+        data (:obj:`pandas.DataFrame`): data reported
+        history_days (int): number of days BACK to report
+        prediction_days (int): number of days FORWARD to report
+        logger (:obj:`logging.logger`, optional): logging hooks for progress
+
+    Returns:
+        (:obj:`pandas.DataFrame`): same shape as original dataframe, but with days removed
+
     """
     pass
 
