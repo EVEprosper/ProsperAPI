@@ -256,10 +256,12 @@ class TestPredictCache:
             'prediction'
         ]
         assert set(keys_list) == set(data.keys())
+        dummy_str_data = dummy_data.to_json(
+            date_format='iso',
+            orient='records'
+        )
+        cached_data = pd.read_json(data['prediction'])
 
-        #cached_data = pd.DataFrame(data['prediction'])
-
-        assert data['prediction'] == dummy_data.to_json(date_format='iso', orient='records')
-
+        assert data['prediction'] == dummy_str_data
         tdb.close()
 

@@ -52,7 +52,7 @@ def check_prediction_cache(
     prediction_db.close()
 
     if raw_data:
-        panda_data = pd.DataFrame(raw_data[0]['prediction'])
+        panda_data = pd.read_json(raw_data[0]['prediction'])
         return panda_data
     else:
         return None
@@ -92,7 +92,7 @@ def write_prediction_cache(
     cleaned_data = prediction_data.to_json(
         date_format='iso',
         orient='records'
-    )
+        )
     data = {
         'cache_date': utc_today,
         'region_id': region_id,
