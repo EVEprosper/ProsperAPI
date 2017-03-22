@@ -1,5 +1,5 @@
 """forecast_utils.py: collection of tools for forecasting future performance"""
-from os import path
+from os import path, makedirs
 from datetime import datetime, timedelta
 
 import ujson as json
@@ -7,6 +7,7 @@ import pandas as pd
 from pandas.io.json import json_normalize
 from fbprophet import Prophet
 import requests
+from tinydb import TinyDB, Query
 
 requests.models.json = json
 
@@ -17,6 +18,88 @@ import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
 LOGGER = p_logging.DEFAULT_LOGGER
+
+CACHE_PATH = path.join(HERE, 'cache')
+makedirs(CACHE_PATH, exist_ok=True)
+def check_prediction_cache(
+        region_id,
+        type_id,
+        cache_path=CACHE_PATH,
+        db_filename='prophet.json'
+):
+    """check tinyDB for cached predictions
+
+    Args:
+        region_id (int): EVE Online region ID
+        type_id (int): EVE Online type ID
+        cache_path (str, optional): path to caches
+        db_filename (str, optional): name of tinydb
+
+    Returns:
+        (:obj:`pandas.DataFrame`): cached prediction
+
+    """
+    utc_today = datetime.utcnow().strftime('%Y-%m-%d')
+
+    prediction_db = TinyDB(path.join(cache_path, db_filename))
+
+    raw_data = prediction_db.search(
+        (Query().cache_date == utc_today) &
+        (Query().region_id == region_id) &
+        (Query().type_id == type_id)
+    )[0]
+
+    prediction_db.close()
+
+    if raw_data:
+        panda_data = pd.DataFrame(raw_data['prediction'])
+        return panda_data
+    else:
+        return None
+
+def write_prediction_cache(
+        region_id,
+        type_id,
+        prediction_data,
+        cache_path=CACHE_PATH,
+        db_filename='prophet.json'
+):
+    """update tinydb latest prediction
+
+    Args:
+        region_id (int): EVE Online region ID
+        type_id (int): EVE Online type ID
+        prediction_data (:obj:`pandas.DataFrame`): data to write to cache
+        cache_path (str, optional): path to caches
+        db_filename (str, optional): name of tinydb
+
+    Returns:
+        None
+
+    """
+    utc_today = datetime.utcnow().strftime('%Y-%m-%d')
+
+    prediction_db = TinyDB(path.join(cache_path, db_filename))
+
+    ## clear previous cache ##
+    prediction_db.remove(
+        (Query().cache_date <= utc_today) &
+        (Query().region_id == region_id) &
+        (Query().type_id == type_id)
+    )
+
+    ## Prepare new entry for cache ##
+    data = {
+        'cache_date': utc_today,
+        'region_id': region_id,
+        'type_id': type_id,
+        'lastWrite': datetime.utcnow().timestamp(),
+        'prediction':{prediction_data}
+    }
+
+    prediction_db.insert(data)
+
+    prediction_db.close()
 
 DEFAULT_RANGE = 700
 CREST_RANGE = 365

@@ -48,7 +48,7 @@ def collect_stats(
         args_payload,
         additional_data=None,
         db_name='CREST_stats.json',
-        logger=DEFAULT_LOGGER
+        logger=LOGGER
 ):
     """save request information for later processing
 
@@ -69,7 +69,7 @@ def collect_stats(
 @API.representation('text/csv')
 def output_csv(data, status, headers=None):
     """helper for sending out CSV instead of JSON"""
-    resp = APP.make_response(data)
+    resp = API.make_response(data)
     resp.headers['Content-Type'] = 'text/csv'
     return resp
 
