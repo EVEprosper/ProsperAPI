@@ -52,3 +52,25 @@ def test_bad_key():
     bad_key = shortuuid.uuid()
 
     assert api_utils.check_key(bad_key) is False
+
+def test_bad_key_raises():
+    """validate failed key logic"""
+    if not DO_API_TESTS:
+        pytest.xfail('Unable to test without test keys')
+
+    bad_key = shortuuid.uuid()
+
+    with pytest.raises(exceptions.APIKeyInvalid):
+        authorized = api_utils.check_key(
+            bad_key,
+            throw_on_fail=True
+        )
+
+    try:
+        authorized = api_utils.check_key(
+            bad_key,
+            throw_on_fail=True
+        )
+    except Exception as err_msg:
+        assert err_msg.status == 401
+        assert isinstance(err_msg.message, str)
