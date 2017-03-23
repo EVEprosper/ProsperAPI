@@ -34,6 +34,7 @@ def test_good_key():
     tdb = TinyDB(CACHE_PATH)
     new_vals = tdb.search(Query().api_key == test_key)
 
+    #TODO: fails on virgin key
     old_time = datetime.strptime(
         vals[0]['last_accessed'],
         '%Y-%m-%dT%H:%M:%S.%f').timestamp()
