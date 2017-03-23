@@ -25,6 +25,11 @@ Additionally, for windows, required [VS2015 C++ binaries]() and to build from so
 # How To Build
 ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html).  This should wrap up the project into a .deb file for easy installing/deploying
 
+## Before You Start
+The [Prophet]() endpoint relies on API keys to gate access.  Roll new ones for users with `scripts/manage_api.py` and don't forget to back up `publicAPI/cache/apikeys.json` for best results.
+
+The build will automatically snatch up the new keys and build them into its installer.  **DO BACKUP -- INSTALLER WILL SMASH RELEASED APIKEYS.JSON FILE ON INSTALL**
+
 ## Prereqs
 * Debian system (tested on Ubuntu 16)
 * Python 3.x (developed for Python 3.5)
@@ -38,11 +43,6 @@ ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/
     * fbprophet
 * dpkg
 * [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html) v1.0
-* mysql-server installed on build system
-```
-sudo apt-get install mysql-server
-sudo apt-get install libmysqlclient-dev
-```
 
 ## Building the Package
 
@@ -63,5 +63,5 @@ sudo apt-get install libmysqlclient-dev
 ## Notes
 Deploys a virgin virtualenv for code to run in.  Does not adjust production python on machine.
 
-`source /usr/share/python/prosper-api/bin/activate`
-`sudo /usr/share/python/prosper-api/bin/python` <-- for running python directly
+`source /opt/venvs/prosper-api/bin/activate`
+`sudo /opt/venvs/prosper-api/bin/python` <-- for running python directly
