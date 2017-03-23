@@ -311,6 +311,30 @@ def fetch_market_history(
     )
     return return_data
 
+def data_to_ohlc(
+        data
+):
+    """recast CREST data to OHLC shape
+
+    Args:
+        data (:obj:`pandas.DataFrame`): data to recast
+
+    Returns:
+        (:obj:`pandas.DataFrame`): OHLC format
+            ['date', 'open', 'high', 'low', 'close', 'volume']
+
+    """
+    ohlc = pd.DataFrame({
+        'date'  : data['date'],
+        'open'  : data['avgPrice'],
+        'high'  : data['highPrice'],
+        'low'   : data['lowPrice'],
+        'close' : data['avgPrice'].shift(1),
+        'volume': data['volume']
+    })
+
+    return ohlc
+
 def OHLC_to_format(
         data,
         format_type,

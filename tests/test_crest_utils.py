@@ -179,7 +179,6 @@ class TestTinyDBHelp:
         assert new_data[0]['index_key'] == 999
         assert new_data[0]['payload'] == dummy_data
 
-
 @pytest.mark.incremental
 class TestValidateID:
     """collection of tests for `validate_id` testing"""
@@ -297,3 +296,14 @@ def test_fetch_market_history(config=CONFIG):
     ]
     for key in expected_cols:
         assert key in data.columns.values
+
+
+    ohlc = crest_utils.data_to_ohlc(data)
+
+    assert ohlc['date'].equals(data['date'])
+    assert ohlc['open'].equals(data['avgPrice'])
+    assert ohlc['high'].equals(data['highPrice'])
+    assert ohlc['low'].equals(data['lowPrice'])
+    assert ohlc['volume'].equals(data['volume'])
+
+    assert data['avgPrice'].shift(1).equals(ohlc['close'])
