@@ -1,5 +1,6 @@
 """manage_api.py: tool for adding/removing API keys"""
 from os import path
+from datetime import datetime
 
 from tinydb import TinyDB, Query
 from plumbum import cli
@@ -22,6 +23,11 @@ class ManageAPI(cli.Application):
         help='debug mode: do not write to live database'
     )
 
+    force = cli.Flag(
+        ['f', '--force'],
+        help='force new api key'
+    )
+
     @cli.switch(
         ['v', '--verbose'],
         help='Enable verbose messaging'
@@ -32,7 +38,7 @@ class ManageAPI(cli.Application):
 
     cache_path = path.join(ROOT, 'publicAPI', 'apikeys.json')
     @cli.switch(
-        ['f', '--db'],
+        ['c', '--db'],
         str,
         help='path to alternate API database'
     )
@@ -59,5 +65,56 @@ class ManageAPI(cli.Application):
 
         LOGGER.info('making key for {0}:{1}'.format(username, id_info))
 
+
+        api_db = TinyDB(self.cache_path)
+
+        current_key = api_db.search(
+            Query().user_name == username
+        )
+        if current_key:
+            key_msg = \
+            'user already has a key' + \
+            '\n\tapi_key={0}'.format(current_key[0]['api_key']) + \
+            '\n\tuser_name={0}'.format(current_key[0]['user_name']) + \
+            '\n\tuser_info={0}'.format(current_key[0]['user_info']) + \
+            '\n\tkey_generated={0}'.format(current_key[0]['key_generated']) + \
+            '\n\tlast_accessed={0}'.format(current_key[0]['last_accessed'])
+
+            print(key_msg)
+            if not self.debug:
+                LOGGER.info(key_msg)
+
+            if not self.force:
+                exit()
+
+        if current_key and not self.debug:
+            api_db.remove(
+                Query().user_name == username
+            )
+
+        api_key_entry = {
+            'api_key': shortuuid.uuid(),
+            'user_name': username,
+            'user_info': id_info,
+            'key_generated': datetime.now().isoformat(),
+            'last_accessed': None
+        }
+
+        if not self.debug:
+            api_db.insert(api_key_entry)
+
+        check_key = api_db.search(
+            Query().user_name == username
+        )
+
+        if self.debug:
+            api_msg = 'Key generated for {0}: {1}'.format(username, api_key_entry['api_key'])
+        else:
+            api_msg = 'Key generated for {0}: {1}'.\
+                format(check_key[0]['user_name'], check_key[0]['api_key'])
+
+        print(api_msg)
+        if not self.debug:
+            LOGGER.info(api_msg)
 if __name__ == '__main__':
     ManageAPI.run()
