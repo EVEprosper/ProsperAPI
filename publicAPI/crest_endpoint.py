@@ -11,6 +11,7 @@ from flask_restful import reqparse, Api, Resource, request
 
 import publicAPI.forecast_utils as forecast_utils
 import publicAPI.crest_utils as crest_utils
+import publicAPI.api_utils as api_utils
 import publicAPI.exceptions as exceptions
 import publicAPI.config as api_config
 
@@ -219,7 +220,11 @@ class ProphetEndpoint(Resource):
 
         ## Validate inputs ##
         try:
-            #TODO: validate API key
+            api_utils.check_key(
+                args.get('api'),
+                throw_on_fail=True,
+                logger=LOGGER
+            )
             crest_utils.validate_id(
                 'map_regions',
                 args.get('regionID'),
@@ -304,71 +309,3 @@ API.add_resource(
     ProphetEndpoint,
     CONFIG.get('ENDPOINTS', 'prophet') + '.<return_type>'
 )
-
-
-class CrestEndpointException(Exception):
-    """baseclass for crest_endpoint exceptions"""
-    pass
-class BadStatus(CrestEndpointException):
-    """unexpected status raised"""
-    pass
-
-class CreateAPI(Resource):
-    """Add API keys to db"""
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument(
-            'User-Agent',
-            type=str,
-            required=True,
-            help='User-Agent required',
-            location=['headers']
-        )
-        self.reqparse.add_argument(
-            'secret',
-            type=str,
-            required=True,
-            help='API key for tracking requests',
-            location=['args', 'headers']
-        )
-        self.reqparse.add_argument(
-            'owner',
-            type=str,
-            required=True,
-            help='ID information about API key owner',
-            location=['args', 'headers']
-        )
-
-    def post(self):
-        """create api keys in archive"""
-        pass
-
-class RemoveAPI(Resource):
-    """remove API keys from db"""
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument(
-            'User-Agent',
-            type=str,
-            required=True,
-            help='User-Agent required',
-            location=['headers']
-        )
-        self.reqparse.add_argument(
-            'secret',
-            type=str,
-            required=True,
-            help='secret for authentication',
-            location=['args', 'headers']
-        )
-        self.reqparse.add_argument(
-            'api',
-            type=str,
-            required=True,
-            help='API key to delete',
-            location=['args', 'headers']
-        )
-
-    def post(self):
-        """remove api keys from archive"""
-        pass
