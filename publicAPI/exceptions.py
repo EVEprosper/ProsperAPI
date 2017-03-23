@@ -26,6 +26,9 @@ class ProphetNotEnoughData(ValidatorException):
 class APIKeyInvalid(ValidatorException):
     """exception when user doesn't have a valid API key"""
     pass
+class InvalidRangeRequested(ValidatorException):
+    """exception when data_range is too high"""
+    pass
 
 ## crest_utils ##
 class CrestException(Exception):

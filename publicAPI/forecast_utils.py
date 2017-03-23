@@ -62,7 +62,8 @@ def write_prediction_cache(
         type_id,
         prediction_data,
         cache_path=CACHE_PATH,
-        db_filename='prophet.json'
+        db_filename='prophet.json',
+        logger=LOGGER
 ):
     """update tinydb latest prediction
 
@@ -77,6 +78,7 @@ def write_prediction_cache(
         None
 
     """
+    logger.info('--caching result')
     utc_today = datetime.utcnow().strftime('%Y-%m-%d')
 
     prediction_db = TinyDB(path.join(cache_path, db_filename))
@@ -100,15 +102,43 @@ def write_prediction_cache(
         'lastWrite': datetime.utcnow().timestamp(),
         'prediction':cleaned_data
     }
-
+    logger.debug(data)
     prediction_db.insert(data)
 
     prediction_db.close()
 
 DEFAULT_RANGE = 700
-CREST_RANGE = 365
+CREST_RANGE = 400
 MAX_PREDICT_RANGE = 180
 MIN_DATA = 60
+def check_requested_range(
+        requested_range,
+        max_range=MAX_PREDICT_RANGE,
+        raise_for_status=False
+):
+    """cap requested range to avoid crazy forecasts
+
+    Args:
+        requested_range (int): number of days to forecast
+        max_range (int, optional): capped days (no more than this)
+        raise_for_status (bool, optional): raise exception if request too much
+
+    Returns:
+        (int): requested_range
+
+    """
+
+    if requested_range <= max_range:
+        return requested_range
+
+    else:
+        if raise_for_status:
+            raise exceptions.InvalidRangeRequested(
+                status=413,
+                message='Invalid range requested.  Max range={0}'.format(max_range)
+            )
+        return max_range
+
 def fetch_extended_history(
         region_id,
         type_id,
@@ -196,8 +226,8 @@ def fetch_extended_history(
 
 def trim_prediction(
         data,
-        history_days,
         prediction_days,
+        history_days=CREST_RANGE,
         logger=LOGGER
 ):
     """trim predicted dataframe into shape for results
@@ -335,6 +365,7 @@ def build_forecast(
 def data_to_format(
         data,
         format_type,
+        forecast_range,
         logger=LOGGER
 ):
     """reformat pandas dataframe to desired format (and recast keys if required)
@@ -348,4 +379,8 @@ def data_to_format(
         (`list` or `dict`) processed output
 
     """
-    pass
+    report_data = trim_prediction(
+        data,
+        forecast_range
+    )
+

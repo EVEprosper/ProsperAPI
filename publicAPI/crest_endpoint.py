@@ -237,7 +237,11 @@ class ProphetEndpoint(Resource):
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
-            #TODO: validate_range
+            forecast_range = forecast_utils.check_requested_range(
+                args.get('range'),
+                max_range=MAX_RANGE,
+                raise_for_status=True
+            )
         except Exception as err:
             LOGGER.warning(
                 'ERROR: unable to validate type/region ids',
@@ -248,15 +252,15 @@ class ProphetEndpoint(Resource):
             else:
                 return 'UNHANDLED EXCEPTION', 500
 
-        forecast_range = DEFAULT_RANGE
         ## check cache ##
         cache_data = forecast_utils.check_prediction_cache(
             args.get('regionID'),
-            args.get('typeID'),
+            args.get('typeID')
         )
         if cache_data:
             message = forecast_utils.data_to_format(
                 cache_data,
+                forecast_range,
                 return_type
             )
             return message
@@ -266,17 +270,17 @@ class ProphetEndpoint(Resource):
             data = forecast_utils.fetch_extended_history(
                 args.get('regionID'),
                 args.get('typeID'),
-                data_range=forecast_range,
+                data_range=MAX_RANGE,
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
             data = forecast_utils.build_forecast(
                 data,
-                forecast_range
+                MAX_RANGE
             )
         except Exception as err_msg:
             LOGGER.warning(
-                'ERROR: unable to generate history plot',
+                'ERROR: unable to generate forecast',
                 exc_info=True
             )
             if isinstance(err, exceptions.ValidatorException):
@@ -288,12 +292,14 @@ class ProphetEndpoint(Resource):
         forecast_utils.write_prediction_cache(
             args.get('regionID'),
             args.get('typeID'),
-            data
+            data,
+            logger=LOGGER
         )
         ## Format output ##
         message = forecast_utils.data_to_format(
             data,
-            return_type
+            return_type,
+            forecast_range
         )
 
         return message
