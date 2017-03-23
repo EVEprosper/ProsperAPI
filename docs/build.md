@@ -3,7 +3,6 @@ To help deploy Prosper API services, a .deb builder/installer has been developed
 
 # Notes
 
-(need to figure out something for the prosperAPI_local.cfg)
 ### [fbprophet](https://facebookincubator.github.io/prophet/docs/installation.html)
 [Prophet](https://facebookincubator.github.io/prophet/docs/installation.html) is a troublesome library to install.  Required build-from-source to get working with dh-virtualenv.  
 
@@ -20,15 +19,22 @@ cd prophet/python
 python setup.py install
 ```
 
-Additionally, for windows, required [VS2015 C++ binaries]() and to build from source.  See `wheels/` for precompiled windows packages.
+Additionally, for windows, required [VS2015 C++ binaries](http://landinghub.visualstudio.com/visual-cpp-build-tools) and to build from source.  See `wheels/` for precompiled windows packages.  Also, Prophet will not work on mac systems.
+
+### API Keys
+The [Prophet](https://github.com/EVEprosper/ProsperAPI/blob/master/docs/crest_endpoint.md#prophet) endpoint relies on API keys to gate access.  Roll new ones for users with `scripts/manage_api.py` and don't forget to back up `publicAPI/cache/apikeys.json` for best results.
+
+The build will automatically snatch up the new keys and build them into its installer.  **DO BACKUP -- INSTALLER WILL SMASH RELEASED APIKEYS.JSON FILE ON INSTALL**
+
+### Discord Monitoring
+```
+[LOGGING]
+   discord_webhook = #SECRET
+```
+Configure the `discord_webhook` value in `scripts/app.cfg` to enable [Discord Logging](https://github.com/EVEprosper/ProsperCommon/blob/master/docs/prosper_logging.md#configure_discord_logger).  Service has already been built-in with python logging handlers to help alert if/when something goes catastrophically wrong.  
 
 # How To Build
 ProsperAPI is set up to use [dh-virtualenv](http://dh-virtualenv.readthedocs.io/en/latest/index.html).  This should wrap up the project into a .deb file for easy installing/deploying
-
-## Before You Start
-The [Prophet]() endpoint relies on API keys to gate access.  Roll new ones for users with `scripts/manage_api.py` and don't forget to back up `publicAPI/cache/apikeys.json` for best results.
-
-The build will automatically snatch up the new keys and build them into its installer.  **DO BACKUP -- INSTALLER WILL SMASH RELEASED APIKEYS.JSON FILE ON INSTALL**
 
 ## Prereqs
 * Debian system (tested on Ubuntu 16)
