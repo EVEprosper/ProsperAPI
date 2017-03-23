@@ -273,7 +273,7 @@ def fetch_market_history(
             type_id=type_id,
             config=config
         )
-    except Exception as err_msg:
+    except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to fetch market history from CREST' +
             '\n\ttype_id: {0}'.format(type_id) +

@@ -273,3 +273,27 @@ class TestValidateID:
         type_cache = tdb_handle.search(Query().index_key == self.region_id)[0]
 
         assert type_info == type_cache['payload']
+
+def test_fetch_market_history(config=CONFIG):
+    """test `fetch_market_history` utility"""
+
+    data = crest_utils.fetch_market_history(
+        config.get('TEST', 'region_id'),
+        config.get('TEST', 'type_id'),
+        config=ROOT_CONFIG
+    )
+
+    assert isinstance(data, pd.DataFrame)
+    expected_cols = [
+        'date',
+        'avgPrice',
+        'highPrice',
+        'lowPrice',
+        'volume',
+        'orderCount'
+        #extra keys:
+        #'volume_str',
+        #'orderCountStr'
+    ]
+    for key in expected_cols:
+        assert key in data.columns.values
