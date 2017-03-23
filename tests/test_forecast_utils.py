@@ -265,3 +265,16 @@ class TestPredictCache:
         assert data['prediction'] == dummy_str_data
         tdb.close()
 
+def test_check_requested_range():
+    """validate `check_requested_range()` func"""
+    assert forecast_utils.check_requested_range(10) == 10
+    assert forecast_utils.check_requested_range(1000, max_range=180) == 180
+
+    with pytest.raises(exceptions.InvalidRangeRequested):
+        data = forecast_utils.check_requested_range(1000, max_range=180, raise_for_status=True)
+
+    try:
+        data = forecast_utils.check_requested_range(1000, max_range=180, raise_for_status=True)
+    except Exception as err_msg:
+        assert err_msg.status == 413
+        assert isinstance(err_msg.message, str)
