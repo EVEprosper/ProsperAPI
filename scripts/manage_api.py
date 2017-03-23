@@ -1,5 +1,5 @@
 """manage_api.py: tool for adding/removing API keys"""
-from os import path
+from os import path, makedirs
 from datetime import datetime
 
 from tinydb import TinyDB, Query
@@ -11,6 +11,8 @@ HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
 
 LOGGER = p_logging.DEFAULT_LOGGER
+CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
+makedirs(CACHE_PATH, exist_ok=True)
 
 class ManageAPI(cli.Application):
     """Manager for Prosper API keys (manual)"""
@@ -36,7 +38,7 @@ class ManageAPI(cli.Application):
         """toggle verbose logger"""
         self.__log_builder.configure_debug_logger()
 
-    cache_path = path.join(ROOT, 'publicAPI', 'apikeys.json')
+    cache_path = path.join(CACHE_PATH, 'apikeys.json')
     @cli.switch(
         ['c', '--db'],
         str,
