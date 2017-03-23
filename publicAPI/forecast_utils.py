@@ -142,7 +142,8 @@ def check_requested_range(
 def fetch_extended_history(
         region_id,
         type_id,
-        cache_buster=False,
+        min_data=MIN_DATA,
+        crest_range=CREST_RANGE,
         config=api_config.CONFIG,
         data_range=DEFAULT_RANGE,
         logger=LOGGER
@@ -160,15 +161,6 @@ def fetch_extended_history(
         (:obj:`pandas.data_frame`): collection of data from database
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
-    if not cache_buster:
-        logger.info('--checking prophet cache')
-
-        cached_prediction = None
-        if cached_prediction:
-            logger.info('--using cached prediction')
-            return cached_prediction
-        #TODO: cached prophet results
-
     logger.info('--fetching history data')
     try:
         raw_data = fetch_market_history_emd(
@@ -179,7 +171,7 @@ def fetch_extended_history(
         )
         logger.debug(raw_data['result'][:5])
         data = parse_emd_data(raw_data['result'])
-    except Exception as err_msg:
+    except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: trouble getting data from EMD' +
             '\n\tregion_id={0}'.format(region_id) +
@@ -189,7 +181,7 @@ def fetch_extended_history(
         )
         data = []
 
-    if len(data) < CREST_RANGE:
+    if len(data) < crest_range:
         logger.info('--Not enough data found, fetching CREST data')
 
         try:
@@ -199,7 +191,7 @@ def fetch_extended_history(
                 config=config,
                 logger=logger
             )
-        except Exception as err_msg:
+        except Exception as err_msg:    #pragma: no cover
             logger.error(
                 'ERROR: trouble getting data from CREST' +
                 '\n\tregion_id={0}'.format(region_id) +
@@ -211,7 +203,7 @@ def fetch_extended_history(
                 message='Unable to fetch historical data'
             )
 
-    if len(data) < MIN_DATA:
+    if len(data) < min_data:
         logger.warning(
             'Not enough data to seed prediction' +
             '\n\tregion_id={0}'.format(region_id) +

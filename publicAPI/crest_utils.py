@@ -304,6 +304,11 @@ def fetch_market_history(
             message='Unable to parse CREST data from CCP'
         )
 
+    logger.info('--fixing column names')
+    return_data.rename(
+        columns={'orderCount': 'orders'},
+        inplace=True
+    )
     return return_data
 
 def OHLC_to_format(

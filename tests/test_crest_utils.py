@@ -290,7 +290,7 @@ def test_fetch_market_history(config=CONFIG):
         'highPrice',
         'lowPrice',
         'volume',
-        'orderCount'
+        'orders'
         #extra keys:
         #'volume_str',
         #'orderCountStr'
