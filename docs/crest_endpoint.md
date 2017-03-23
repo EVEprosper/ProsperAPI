@@ -8,7 +8,7 @@ As of writing this (2017-03-10), CCP is working to replace CREST/XML API's with 
 ## OHLC
 |  |  |
 | --- | --- |
-| **Path** | /api/OHLC.*\<return_format\>* (csv, json) |
+| **Path** | /api/CREST/OHLC.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
 | **Args** | `typeID` <br /> `regionID` <br /> `api` (unused) |
 | **Headers** | User-Agent |
@@ -27,7 +27,7 @@ OHLC endpoint transposes the [market history endpoint](http://eveonline-third-pa
 ## prophet
 |  |  |
 | --- | --- |
-| **Path** | /api/prophet.*\<return_format\>* (csv, json) |
+| **Path** | /api/CREST/prophet.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
 | **Args** | `typeID` <br /> `regionID` <br /> `api` <br /> `range` optional |
 | **Headers** | User-Agent |
@@ -39,6 +39,9 @@ More info on forecasts can be found on [our blog](https://eve-prosper.blogspot.c
 
 **NOTES**
 
+* Endpoint cached: will only render forecast once-per-day for a type/region pair.
+* API key required.  Contact to get API key
+* Please be courteous: heavy throughput and multi-threading are not supported
 * **VERY NAIVE FORECASTING**.  This is a science experiment, not a fool-proof forecast of future events
 * Does not understand CCP dev cycle.  Will approximate cycles with [changepoint prediction](https://facebookincubator.github.io/prophet/docs/trend_changepoints.html) but only uses requested item to guess cycles
 * **PROVIDED WITHOUT WARANTY**.  *Seriously, don't trade what you can't afford to lose, this thing is just a cartoon, don't go all Russian on my house*
