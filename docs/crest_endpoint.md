@@ -1,6 +1,8 @@
 # CREST APIs
 As a public service, we provide some tools for transforming and extending EVE Online's [CREST API](http://eveonline-third-party-documentation.readthedocs.io/en/latest/crest/index.html).  This project is an exercise in Flask and REST design/deployment.
 
+All services in this collection run without DB connections.  [tinyDB](https://tinydb.readthedocs.io/en/latest/) is used as a cache layer, but the service is designed to be easy to deploy anywhere without extra dependencies.  Build & install is designed/tested on Ubuntu16 systems.
+
 ### Note:
 As of writing this (2017-03-10), CCP is working to replace CREST/XML API's with [ESI](https://esi.tech.ccp.is/latest/).  We will review replacing the CREST request structure with an ESI one, but worry about ESI/oAuth scoping for a reasonably simple app.
 
@@ -8,7 +10,7 @@ As of writing this (2017-03-10), CCP is working to replace CREST/XML API's with 
 ## OHLC
 |  |  |
 | --- | --- |
-| **Path** | /api/CREST/OHLC.*\<return_format\>* (csv, json) |
+| **Path** | /CREST/OHLC.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
 | **Args** | `typeID` <br /> `regionID` <br /> `api` (unused) |
 | **Headers** | User-Agent |
@@ -27,7 +29,7 @@ OHLC endpoint transposes the [market history endpoint](http://eveonline-third-pa
 ## prophet
 |  |  |
 | --- | --- |
-| **Path** | /api/CREST/prophet.*\<return_format\>* (csv, json) |
+| **Path** | /CREST/prophet.*\<return_format\>* (csv, json) |
 | **Methods** | GET |
 | **Args** | `typeID` <br /> `regionID` <br /> `api` <br /> `range` optional |
 | **Headers** | User-Agent |
