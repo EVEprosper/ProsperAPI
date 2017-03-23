@@ -44,7 +44,7 @@ def check_key(
                 api_value[0]['user_info']
             )
         )
-        logger.debug('api_key: {0}'.format(api_value[0]['api_key']))
+        logger.debug(api_value[0])
 
         api_db.update(
             {'last_accessed': datetime.now().isoformat()},
