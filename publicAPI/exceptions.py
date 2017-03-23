@@ -23,6 +23,9 @@ class EMDBadMarketData(ValidatorException):
 class ProphetNotEnoughData(ValidatorException):
     """exception when there isn't enough data to make a prediction"""
     pass
+class APIKeyInvalid(ValidatorException):
+    """exception when user doesn't have a valid API key"""
+    pass
 
 ## crest_utils ##
 class CrestException(Exception):
