@@ -97,12 +97,8 @@ setup(
     ],
     package_data={
         'publicAPI':[
-            'publicAPI.cfg'
+            'cache/apikeys.json'    #including key file for installer
         ]
-        #'prosper':[
-        #    'publicAPI/prosperAPI.cfg',
-        #    'publicAPI/prosperAPI_local.cfg'
-        #]
     },
     install_requires=[
         'Flask~=0.12',
