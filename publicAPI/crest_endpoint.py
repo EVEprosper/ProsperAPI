@@ -110,6 +110,7 @@ class OHLC_endpoint(Resource):
     def get(self, return_type):
         """GET data from CREST and send out OHLC info"""
         args = self.reqparse.parse_args()
+        #TODO: info archive
         LOGGER.info(
             'OHLC?regionID={0}&typeID={1}'.format(
                 args.get('regionID'), args.get('typeID')
@@ -132,13 +133,18 @@ class OHLC_endpoint(Resource):
                 logger=LOGGER
             )
         except Exception as err:
-            LOGGER.warning(
-                'ERROR: unable to validate type/region ids',
-                exc_info=True
-            )
             if isinstance(err, exceptions.ValidatorException):
+                LOGGER.warning(
+                    'ERROR: unable to validate type/region ids',
+                    exc_info=True
+                )
                 return err.message, err.status
             else:
+                LOGGER.error(
+                    'ERROR: unable to validate type/region ids' +
+                    'args={0}'.format(args),
+                    exc_info=True
+                )
                 return 'UNHANDLED EXCEPTION', 500
 
         ## Fetch CREST ##
@@ -150,14 +156,20 @@ class OHLC_endpoint(Resource):
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
-        except Exception as err:
-            LOGGER.warning(
-                'ERROR: unable to parse CREST data',
-                exc_info=True
-            )
+            data = crest_utils.data_to_ohlc(data)
+        except Exception as err:    #pragma: no cover
             if isinstance(err, exceptions.ValidatorException):
+                LOGGER.warning(
+                    'ERROR: unable to parse CREST data',
+                    exc_info=True
+                )
                 return err.message, err.status
             else:
+                LOGGER.error(
+                    'ERROR: unhandled issue in parsing CREST data' +
+                    'args={0}'.format(args),
+                    exc_info=True
+                )
                 return 'UNHANDLED EXCEPTION', 500
 
         ## Format output ##
@@ -243,13 +255,18 @@ class ProphetEndpoint(Resource):
                 raise_for_status=True
             )
         except Exception as err:
-            LOGGER.warning(
-                'ERROR: unable to validate type/region ids',
-                exc_info=True
-            )
             if isinstance(err, exceptions.ValidatorException):
+                LOGGER.warning(
+                    'ERROR: unable to validate type/region ids',
+                    exc_info=True
+                )
                 return err.message, err.status
             else:
+                LOGGER.error(
+                    'ERROR: unable to validate type/region ids' +
+                    'args={0}'.format(args),
+                    exc_info=True
+                )
                 return 'UNHANDLED EXCEPTION', 500
 
         ## check cache ##
@@ -258,6 +275,7 @@ class ProphetEndpoint(Resource):
             args.get('typeID')
         )
         if cache_data:
+            LOGGER.info('returning cached forecast')
             message = forecast_utils.data_to_format(
                 cache_data,
                 forecast_range,
@@ -279,13 +297,18 @@ class ProphetEndpoint(Resource):
                 MAX_RANGE
             )
         except Exception as err_msg:
-            LOGGER.warning(
-                'ERROR: unable to generate forecast',
-                exc_info=True
-            )
             if isinstance(err, exceptions.ValidatorException):
+                LOGGER.warning(
+                    'ERROR: unable to generate forecast',
+                    exc_info=True
+                )
                 return err.message, err.status
             else:
+                LOGGER.error(
+                    'ERROR: unable to generate forecast' +
+                    'args={0}'.format(args),
+                    exc_info=True
+                )
                 return 'UNHANDLED EXCEPTION', 500
 
         ## Update cache ##
