@@ -175,9 +175,11 @@ class TestTinyDBHelp:
         time.sleep(1)
         new_data = tdb_handle.search(Query().index_key == 999)
         assert len(new_data) == 1
-        assert new_data[0]['cache_datetime'] > cache_datetime
+        assert new_data[0]['cache_datetime'] >= cache_datetime
         assert new_data[0]['index_key'] == 999
         assert new_data[0]['payload'] == dummy_data
+
+        tdb_handle.close()
 
 @pytest.mark.incremental
 class TestValidateID:
