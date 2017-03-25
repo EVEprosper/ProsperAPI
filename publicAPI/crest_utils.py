@@ -334,21 +334,3 @@ def data_to_ohlc(
     })
 
     return ohlc
-
-def OHLC_to_format(
-        data,
-        format_type,
-        logger=LOGGER
-):
-    """reformat pandas dataframe to desired format (and recast keys if required)
-
-    Args:
-        data (:obj:`pandas.data_frame`): data to format for release
-        format_type(:enum:`AcceptedDataFormat`): desired data type
-        logger (:obj:`logging.logger`, optional): logging handle
-
-    Returns:
-        (`list` or `dict`) processed output
-
-    """
-    pass

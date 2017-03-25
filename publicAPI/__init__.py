@@ -34,6 +34,7 @@ def create_app(
         app.config.update(settings)
 
     crest_endpoint.API.init_app(app)
+    crest_endpoint.APP_HACK = app
 
     if not log_builder:
         ## build default logging objects ##

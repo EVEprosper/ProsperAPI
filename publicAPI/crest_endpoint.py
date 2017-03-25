@@ -29,11 +29,11 @@ TEST = forecast_utils.LOGGER
 ## Flask Handles ##
 #APP = Flask(__name__)
 API = Api()
-
+APP_HACK = Flask(__name__)  #flask-restful CSV writer sucks
 class AcceptedDataFormat(Enum):
     """enum for handling format support"""
-    CSV = 0
-    JSON = 1
+    CSV = 'csv'
+    JSON = 'json'
 
 def return_supported_types():
     """parse AccpetedDataFormat.__dict__ for accepted types"""
@@ -70,7 +70,8 @@ def collect_stats(
 @API.representation('text/csv')
 def output_csv(data, status, headers=None):
     """helper for sending out CSV instead of JSON"""
-    resp = API.make_response(data)
+    resp = APP_HACK.make_response(data)
+
     resp.headers['Content-Type'] = 'text/csv'
     return resp
 
@@ -173,10 +174,36 @@ class OHLC_endpoint(Resource):
                 return 'UNHANDLED EXCEPTION', 500
 
         ## Format output ##
-        message = crest_utils.OHLC_to_format(
-            data,
-            return_type
-        )
+        if return_type == AcceptedDataFormat.JSON.value:
+            LOGGER.info('rolling json response')
+            data_str = data.to_json(
+                path_or_buf=None,
+                orient='records'
+            )
+            message = json.loads(data_str)
+        elif return_type == AcceptedDataFormat.CSV.value:
+            LOGGER.info('rolling csv response')
+            data_str = data.to_csv(
+                path_or_buf=None,
+                header=True,
+                index=False,
+                columns=[
+                    'date',
+                    'open',
+                    'high',
+                    'low',
+                    'close',
+                    'volume'
+                ]
+            )
+            message = output_csv(data_str, 200)
+        else:
+            LOGGER.error(
+                'invalid format requested' +
+                '\n\targs={0}'.format(args) +
+                '\n\treturn_type={0}'.format(return_type)
+            )
+            return 'UNSUPPORTED FORMAT', 500
 
         return message
 
