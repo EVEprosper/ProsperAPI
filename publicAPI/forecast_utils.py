@@ -181,7 +181,7 @@ def fetch_extended_history(
         )
         data = []
 
-    if len(data) < crest_range:
+    if len(data) < crest_range: #pragma: no cover
         logger.info('--Not enough data found, fetching CREST data')
 
         try:
@@ -203,7 +203,7 @@ def fetch_extended_history(
                 message='Unable to fetch historical data'
             )
 
-    if len(data) < min_data:
+    if len(data) < min_data:    #pragma: no cover
         logger.warning(
             'Not enough data to seed prediction' +
             '\n\tregion_id={0}'.format(region_id) +
