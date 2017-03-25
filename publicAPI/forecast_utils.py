@@ -128,7 +128,7 @@ def check_requested_range(
 
     """
 
-    if requested_range <= max_range:
+    if int(requested_range) <= int(max_range):
         return requested_range
 
     else:
@@ -215,12 +215,12 @@ def fetch_extended_history(
             message='Not enough data to build a prediction'
         )
 
+    return data
 
 def trim_prediction(
         data,
         prediction_days,
-        history_days=CREST_RANGE,
-        logger=LOGGER
+        history_days=CREST_RANGE
 ):
     """trim predicted dataframe into shape for results
 
@@ -234,7 +234,16 @@ def trim_prediction(
         (:obj:`pandas.DataFrame`): same shape as original dataframe, but with days removed
 
     """
-    pass
+    back_date = datetime.utcnow() - timedelta(days=history_days)
+    forward_date = datetime.utcnow() + timedelta(days=prediction_days)
+
+    back_date_str = back_date.strftime('%Y-%m-%d')
+    forward_date_str = forward_date.strftime('%Y-%m-%d')
+
+    trim_data = data.loc[data.date >= back_date_str]
+    trim_data = trim_data.loc[trim_data.date <= forward_date_str]
+
+    return trim_data
 
 EMD_MARKET_HISTORY = 'http://eve-marketdata.com/api/item_history2.json'
 def fetch_market_history_emd(
@@ -353,26 +362,4 @@ def build_forecast(
         report = report.loc[report.date > cut_date]
 
     return report
-
-def data_to_format(
-        data,
-        format_type,
-        forecast_range,
-        logger=LOGGER
-):
-    """reformat pandas dataframe to desired format (and recast keys if required)
-
-    Args:
-        data (:obj:`pandas.data_frame`): data to format for release
-        format_type(:enum:`AcceptedDataFormat`): desired data type
-        logger (:obj:`logging.logger`, optional): logging handle
-
-    Returns:
-        (`list` or `dict`) processed output
-
-    """
-    report_data = trim_prediction(
-        data,
-        forecast_range
-    )
 

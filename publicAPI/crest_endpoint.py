@@ -112,14 +112,12 @@ class OHLC_endpoint(Resource):
         """GET data from CREST and send out OHLC info"""
         args = self.reqparse.parse_args()
         #TODO: info archive
-        LOGGER.info(
-            'OHLC?regionID={0}&typeID={1}'.format(
-                args.get('regionID'), args.get('typeID')
-        ))
-        LOGGER.debug(args)
+        LOGGER.info('OHLC {0} Request: {1}'.format(return_type, args))
+
+        if return_type not in return_supported_types():
+            return 'INVALID RETURN FORMAT', 405
 
         ## Validate inputs ##
-        #TODO: error piping
         try:
             crest_utils.validate_id(
                 'map_regions',
@@ -149,7 +147,6 @@ class OHLC_endpoint(Resource):
                 return 'UNHANDLED EXCEPTION', 500
 
         ## Fetch CREST ##
-        #TODO: error piping
         try:
             data = crest_utils.fetch_market_history(
                 args.get('regionID'),
@@ -208,7 +205,7 @@ class OHLC_endpoint(Resource):
         return message
 
 DEFAULT_RANGE = CONFIG.get('CREST', 'prophet_range')
-MAX_RANGE = CONFIG.get('CREST', 'prophet_max')
+MAX_RANGE = int(CONFIG.get('CREST', 'prophet_max'))
 class ProphetEndpoint(Resource):
     """Handle calls on Prophet endpoint"""
     def __init__(self):
@@ -245,17 +242,16 @@ class ProphetEndpoint(Resource):
             'range',
             type=int,
             required=False,
-            help='Range for forecasting: default=' + DEFAULT_RANGE + ' max=' + MAX_RANGE,
+            help='Range for forecasting: default={0} max={1}'.format(DEFAULT_RANGE, MAX_RANGE),
             location=['args', 'headers']
         )
 
     def get(self, return_type):
         args = self.reqparse.parse_args()
-        LOGGER.info(
-            'prophet?regionID={0}&typeID={1}&range={2}'.format(
-                args.get('regionID'), args.get('typeID'), args.get('range')
-        ))
-        LOGGER.debug(args)
+        LOGGER.info('Prophet {0} Request: {1}'.format(return_type, args))
+
+        if return_type not in return_supported_types():
+            return 'INVALID RETURN FORMAT', 405
 
         ## Validate inputs ##
         try:
@@ -301,13 +297,16 @@ class ProphetEndpoint(Resource):
             args.get('regionID'),
             args.get('typeID')
         )
-        if cache_data:
+        LOGGER.debug(cache_data)
+        if cache_data is not None:
             LOGGER.info('returning cached forecast')
-            message = forecast_utils.data_to_format(
+            message = forecast_reporter(
                 cache_data,
                 forecast_range,
-                return_type
+                return_type,
+                LOGGER
             )
+
             return message
 
         ## No cache, get data ##
@@ -324,7 +323,7 @@ class ProphetEndpoint(Resource):
                 MAX_RANGE
             )
         except Exception as err_msg:
-            if isinstance(err, exceptions.ValidatorException):
+            if isinstance(err_msg, exceptions.ValidatorException):
                 LOGGER.warning(
                     'ERROR: unable to generate forecast',
                     exc_info=True
@@ -345,15 +344,75 @@ class ProphetEndpoint(Resource):
             data,
             logger=LOGGER
         )
-        ## Format output ##
-        message = forecast_utils.data_to_format(
-            data,
-            return_type,
-            forecast_range
-        )
-
+        try:
+            message = forecast_reporter(
+                data,
+                forecast_range,
+                return_type,
+                LOGGER
+            )
+        except Exception as err_msg:
+            LOGGER.error(
+                'invalid format requested' +
+                '\n\targs={0}'.format(args) +
+                '\n\treturn_type={0}'.format(return_type)
+            )
+            return 'UNABLE TO GENERATE REPORT', 500
         return message
 
+def forecast_reporter(
+        data,
+        forecast_range,
+        return_type,
+        logger=LOGGER
+):
+    """prepares forecast response for Flask
+
+    Args:
+        data (:obj:`pandas.DataFrame`): Prediction data to report
+        forecast_range (int): range requested for return
+        return_type (:enum:`AcceptedDataFormat`): format of return
+        logger (:obj:`logging.logger`, optional): logging handle
+
+    Returns:
+        Flask-ready return object
+
+    """
+    report_data = forecast_utils.trim_prediction(
+        data,
+        forecast_range
+    )
+    print(report_data)
+    if return_type == AcceptedDataFormat.JSON.value:
+        LOGGER.info('rolling json response')
+        data_str = report_data.to_json(
+            path_or_buf=None,
+            orient='records'
+        )
+        message = json.loads(data_str)
+    elif return_type == AcceptedDataFormat.CSV.value:
+        LOGGER.info('rolling csv response')
+        data_str = report_data.to_csv(
+            path_or_buf=None,
+            header=True,
+            index=False,
+            columns=[
+                'date',
+                'avgPrice',
+                'yhat',
+                'yhat_low',
+                'yhat_high',
+                'prediction'
+            ]
+        )
+        message = output_csv(data_str, 200)
+    else:
+        raise exceptions.UnsupportedFormat(
+            status=500,
+            message='UNABLE TO GENERATE REPORT'
+        )
+
+    return message
 
 ## Flask Endpoints ##
 API.add_resource(
