@@ -384,14 +384,14 @@ def forecast_reporter(
     )
     print(report_data)
     if return_type == AcceptedDataFormat.JSON.value:
-        LOGGER.info('rolling json response')
+        logger.info('rolling json response')
         data_str = report_data.to_json(
             path_or_buf=None,
             orient='records'
         )
         message = json.loads(data_str)
     elif return_type == AcceptedDataFormat.CSV.value:
-        LOGGER.info('rolling csv response')
+        logger.info('rolling csv response')
         data_str = report_data.to_csv(
             path_or_buf=None,
             header=True,
