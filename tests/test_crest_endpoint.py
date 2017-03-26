@@ -208,7 +208,6 @@ class TestProphetcsv:
 
     def test_prophet_happypath_cached(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
@@ -226,7 +225,6 @@ class TestProphetcsv:
 
     def test_prophet_bad_regionid(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
@@ -241,7 +239,6 @@ class TestProphetcsv:
 
     def test_prophet_bad_typeid(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
@@ -256,7 +253,6 @@ class TestProphetcsv:
 
     def test_prophet_bad_api(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
@@ -271,7 +267,6 @@ class TestProphetcsv:
 
     def test_prophet_bad_range(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
@@ -286,7 +281,6 @@ class TestProphetcsv:
 
     def test_prophet_bad_format(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='butts') +
@@ -336,7 +330,6 @@ class TestProphetjson:
 
     def test_prophet_happypath_cached(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
@@ -354,7 +347,6 @@ class TestProphetjson:
 
     def test_prophet_bad_regionid(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
@@ -369,7 +361,6 @@ class TestProphetjson:
 
     def test_prophet_bad_typeid(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
@@ -384,7 +375,6 @@ class TestProphetjson:
 
     def test_prophet_bad_api(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
@@ -399,7 +389,6 @@ class TestProphetjson:
 
     def test_prophet_bad_range(self):
         """exercise `collect_stats`"""
-        global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
