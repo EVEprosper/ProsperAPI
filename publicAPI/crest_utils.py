@@ -168,7 +168,7 @@ def validate_id(
             #TODO: index_key to key/val pair
         )
     except Exception as err_msg:
-        logger.error(
+        logger.warning(
             'ERROR: unable to connect to CREST' +
             '\n\tendpoint_name: {0}'.format(endpoint_name) +
             '\n\ttype_id: {0}'.format(type_id),
