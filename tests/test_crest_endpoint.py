@@ -105,6 +105,17 @@ class TestODBCcsv:
         )
         assert req._status_code == 404
 
+    def test_odbc_bad_format(self):
+        """make sure expected errors happen on bad typeid"""
+        req = self.client.get(
+            url_for('ohlc_endpoint', return_type='butts') +
+            '?typeID={type_id}&regionID={region_id}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id')
+            )
+        )
+        assert req._status_code == 405
+
 @pytest.mark.usefixtures('client_class')
 class TestODBCjson:
     """test framework for collecting endpoint stats"""
@@ -268,10 +279,25 @@ class TestProphetcsv:
                 type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=CONFIG.get('TEST', 'api_key'),
-                range=9000
+                range=9001
             )
         )
         assert req._status_code == 413
+
+    def test_prophet_bad_format(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='butts') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 405
 
 @pytest.mark.usefixtures('client_class')
 class TestProphetjson:
