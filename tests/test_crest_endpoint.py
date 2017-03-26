@@ -40,7 +40,6 @@ class TestODBCcsv:
     """test framework for collecting endpoint stats"""
     def test_odbc_happypath(self):
         """exercise `collect_stats`"""
-        #print(url_for('ohlc_endpoint', return_type='csv'))
         global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
@@ -111,7 +110,6 @@ class TestODBCjson:
     """test framework for collecting endpoint stats"""
     def test_odbc_happypath(self):
         """exercise `collect_stats`"""
-        #print(url_for('ohlc_endpoint', return_type='csv'))
         global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
@@ -123,10 +121,6 @@ class TestODBCjson:
         )
         fetch_end = time.time()
         VIRGIN_RUNTIME = fetch_end - fetch_start
-        #print(req.__dict__)
-        #data = None
-        #with io.StringIO(req.data.decode()) as buff:
-        #    data = pd.read_csv(buff)
 
         raw_data = json.loads(req.data.decode())
         data = pd.DataFrame(raw_data)
@@ -146,7 +140,7 @@ class TestODBCjson:
     def test_odbc_bad_typeid(self):
         """make sure expected errors happen on bad typeid"""
         req = self.client.get(
-            url_for('ohlc_endpoint', return_type='csv') +
+            url_for('ohlc_endpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}'.format(
                 type_id=CONFIG.get('TEST', 'bad_typeid'),
                 region_id=CONFIG.get('TEST', 'region_id')
@@ -157,10 +151,237 @@ class TestODBCjson:
     def test_odbc_bad_regionid(self):
         """make sure expected errors happen on bad typeid"""
         req = self.client.get(
-            url_for('ohlc_endpoint', return_type='csv') +
+            url_for('ohlc_endpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}'.format(
                 type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid')
             )
         )
         assert req._status_code == 404
+
+@pytest.mark.usefixtures('client_class')
+class TestProphetcsv:
+    """test framework for collecting endpoint stats"""
+    def test_prophet_happypath(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        fetch_end = time.time()
+        VIRGIN_RUNTIME = fetch_end - fetch_start
+
+        data = None
+        with io.StringIO(req.data.decode()) as buff:
+            data = pd.read_csv(buff)
+
+        assert req._status_code == 200
+        expected_headers = [
+            'date',
+            'avgPrice',
+            'yhat',
+            'yhat_low',
+            'yhat_high',
+            'prediction'
+        ]
+
+        assert set(expected_headers) == set(data.columns.values)
+        ##TODO: validate ranges?
+
+    def test_prophet_happypath_cached(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        fetch_end = time.time()
+        runtime = fetch_end - fetch_start
+        if runtime > VIRGIN_RUNTIME/1.5:
+            pytest.xfail('cached performance slower than expected')
+
+    def test_prophet_bad_regionid(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'bad_regionid'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 404
+
+    def test_prophet_bad_typeid(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'bad_typeid'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 404
+
+    def test_prophet_bad_api(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key='IMAHUGEBUTT',
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 401
+
+    def test_prophet_bad_range(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=9000
+            )
+        )
+        assert req._status_code == 413
+
+@pytest.mark.usefixtures('client_class')
+class TestProphetjson:
+    """test framework for collecting endpoint stats"""
+    def test_prophet_happypath(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        fetch_end = time.time()
+        VIRGIN_RUNTIME = fetch_end - fetch_start
+
+        raw_data = json.loads(req.data.decode())
+        data = pd.DataFrame(raw_data)
+
+        assert req._status_code == 200
+        expected_headers = [
+            'date',
+            'avgPrice',
+            'yhat',
+            'yhat_low',
+            'yhat_high',
+            'prediction'
+        ]
+
+        assert set(expected_headers) == set(data.columns.values)
+        ##TODO: validate ranges?
+
+    def test_prophet_happypath_cached(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        fetch_end = time.time()
+        runtime = fetch_end - fetch_start
+        if runtime > VIRGIN_RUNTIME/1.5:
+            pytest.xfail('cached performance slower than expected')
+
+    def test_prophet_bad_regionid(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'bad_regionid'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 404
+
+    def test_prophet_bad_typeid(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'bad_typeid'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 404
+
+    def test_prophet_bad_api(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key='IMAHUGEBUTT',
+                range=CONFIG.get('TEST', 'forecast_range')
+            )
+        )
+        assert req._status_code == 401
+
+    def test_prophet_bad_range(self):
+        """exercise `collect_stats`"""
+        global VIRGIN_RUNTIME
+        fetch_start = time.time()
+        req = self.client.get(
+            url_for('prophetendpoint', return_type='json') +
+            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+                type_id=CONFIG.get('TEST', 'type_id'),
+                region_id=CONFIG.get('TEST', 'region_id'),
+                api_key=CONFIG.get('TEST', 'api_key'),
+                range=9000
+            )
+        )
+        assert req._status_code == 413
