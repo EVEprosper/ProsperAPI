@@ -1,4 +1,5 @@
 from os import path, listdir, remove
+import platform
 import io
 from datetime import datetime, timedelta
 import time
@@ -175,6 +176,9 @@ class TestProphetcsv:
     """test framework for collecting endpoint stats"""
     def test_prophet_happypath(self):
         """exercise `collect_stats`"""
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
@@ -208,7 +212,9 @@ class TestProphetcsv:
 
     def test_prophet_happypath_cached(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -225,7 +231,9 @@ class TestProphetcsv:
 
     def test_prophet_bad_regionid(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -239,7 +247,8 @@ class TestProphetcsv:
 
     def test_prophet_bad_typeid(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -253,7 +262,8 @@ class TestProphetcsv:
 
     def test_prophet_bad_api(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -267,7 +277,8 @@ class TestProphetcsv:
 
     def test_prophet_bad_range(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -281,7 +292,8 @@ class TestProphetcsv:
 
     def test_prophet_bad_format(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
         req = self.client.get(
             url_for('prophetendpoint', return_type='butts') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -298,6 +310,9 @@ class TestProphetjson:
     """test framework for collecting endpoint stats"""
     def test_prophet_happypath(self):
         """exercise `collect_stats`"""
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
@@ -330,7 +345,9 @@ class TestProphetjson:
 
     def test_prophet_happypath_cached(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -347,7 +364,9 @@ class TestProphetjson:
 
     def test_prophet_bad_regionid(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -361,7 +380,9 @@ class TestProphetjson:
 
     def test_prophet_bad_typeid(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -375,7 +396,9 @@ class TestProphetjson:
 
     def test_prophet_bad_api(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -389,7 +412,9 @@ class TestProphetjson:
 
     def test_prophet_bad_range(self):
         """exercise `collect_stats`"""
-        fetch_start = time.time()
+        if platform.system() == 'Darwin':
+            pytest.xfail('Unable to run fbprophet on mac')
+
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
