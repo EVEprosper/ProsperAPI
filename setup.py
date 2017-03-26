@@ -58,6 +58,7 @@ class PyTest(TestCommand):
         TestCommand.initialize_options(self)
         self.pytest_args = [
             'Tests',
+            '-x',
             '--cov=publicAPI/',
             '--cov-report=term-missing'
         ]    #load defaults here
@@ -101,7 +102,7 @@ setup(
         ]
     },
     install_requires=[
-        'Flask~=0.12',
+        #'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
         'requests~=2.13.0',

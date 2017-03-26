@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture
 def app():
-    app = create_app()
+    app = create_app({'PORT':8000})
     return app
 
 def pytest_runtest_makereport(item, call):
