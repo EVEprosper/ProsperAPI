@@ -215,6 +215,7 @@ class TestProphetcsv:
         if platform.system() == 'Darwin':
             pytest.xfail('Unable to run fbprophet on mac')
 
+        fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
@@ -348,6 +349,7 @@ class TestProphetjson:
         if platform.system() == 'Darwin':
             pytest.xfail('Unable to run fbprophet on mac')
 
+        fetch_start = time.time()
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(

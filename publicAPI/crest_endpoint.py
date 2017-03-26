@@ -19,17 +19,16 @@ import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
-CONFIG_FILEPATH = path.join(HERE, 'publicAPI.cfg')
 
-CONFIG = p_config.ProsperConfig(CONFIG_FILEPATH)
+CONFIG = api_config.CONFIG
 LOGGER = p_logging.DEFAULT_LOGGER
 DEBUG = False
 
 TEST = forecast_utils.LOGGER
 ## Flask Handles ##
-#APP = Flask(__name__)
 API = Api()
 APP_HACK = Flask(__name__)  #flask-restful CSV writer sucks
+
 class AcceptedDataFormat(Enum):
     """enum for handling format support"""
     CSV = 'csv'
@@ -205,8 +204,6 @@ class OHLC_endpoint(Resource):
 
         return message
 
-DEFAULT_RANGE = CONFIG.get('CREST', 'prophet_range')
-MAX_RANGE = int(CONFIG.get('CREST', 'prophet_max'))
 class ProphetEndpoint(Resource):
     """Handle calls on Prophet endpoint"""
     def __init__(self):
@@ -243,7 +240,8 @@ class ProphetEndpoint(Resource):
             'range',
             type=int,
             required=False,
-            help='Range for forecasting: default={0} max={1}'.format(DEFAULT_RANGE, MAX_RANGE),
+            help='Range for forecasting: default={0} max={1}'.\
+                format(api_config.DEFAULT_RANGE, api_config.MAX_RANGE),
             location=['args', 'headers']
         )
 
@@ -254,6 +252,9 @@ class ProphetEndpoint(Resource):
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
+        forecast_range = api_config.DEFAULT_RANGE
+        if 'range' in args:
+            forecast_range = args.get('range')
         ## Validate inputs ##
         try:
             api_utils.check_key(
@@ -274,8 +275,8 @@ class ProphetEndpoint(Resource):
                 logger=LOGGER
             )
             forecast_range = forecast_utils.check_requested_range(
-                args.get('range'),
-                max_range=MAX_RANGE,
+                forecast_range,
+                max_range=api_config.MAX_RANGE,
                 raise_for_status=True
             )
         except Exception as err:
@@ -315,13 +316,13 @@ class ProphetEndpoint(Resource):
             data = forecast_utils.fetch_extended_history(
                 args.get('regionID'),
                 args.get('typeID'),
-                data_range=MAX_RANGE,
+                data_range=api_config.MAX_RANGE,
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
             data = forecast_utils.build_forecast(
                 data,
-                MAX_RANGE
+                api_config.MAX_RANGE
             )
         except Exception as err_msg:    #pragma: no cover
             if isinstance(err_msg, exceptions.ValidatorException):
@@ -418,10 +419,10 @@ def forecast_reporter(
 ## Flask Endpoints ##
 API.add_resource(
     OHLC_endpoint,
-    CONFIG.get('ENDPOINTS', 'OHLC') + '.<return_type>'
+    '/CREST/OHLC.<return_type>'
 )
 
 API.add_resource(
     ProphetEndpoint,
-    CONFIG.get('ENDPOINTS', 'prophet') + '.<return_type>'
+    '/CREST/prophet.<return_type>'
 )

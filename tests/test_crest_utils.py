@@ -19,7 +19,7 @@ ROOT = path.dirname(HERE)
 CONFIG_FILENAME = path.join(HERE, 'test_config.cfg')
 CONFIG = helpers.get_config(CONFIG_FILENAME)
 ROOT_CONFIG = helpers.get_config(
-    path.join(ROOT, 'publicAPI', 'publicAPI.cfg'))
+    path.join(ROOT, 'scripts', 'app.cfg'))
 
 def test_validate_crest_fetcher(config=CONFIG):
     """exercise fetch_crest_endpoint"""

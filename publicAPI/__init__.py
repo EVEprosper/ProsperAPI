@@ -7,15 +7,12 @@ import publicAPI.crest_endpoint as crest_endpoint
 import publicAPI.config as config
 
 import prosper.common.prosper_logging as p_logging
-import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
-CONFIG_FILE = path.join(HERE, 'publicAPI.cfg')
-CONFIG = p_config.ProsperConfig(CONFIG_FILE)
 
 def create_app(
         settings=None,
-        local_configs=CONFIG,
+        local_configs=None,
 ):
     """create Flask application (ROOT)
 
@@ -50,7 +47,8 @@ def create_app(
             app.logger.addHandler(handle)
 
         config.LOGGER = log_builder.get_logger()
-    config.CONFIG = CONFIG
 
+    config.CONFIG = local_configs
+    config.load_globals(local_configs)
     crest_endpoint.LOGGER = app.logger
     return app

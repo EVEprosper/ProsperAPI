@@ -28,14 +28,14 @@ MANAGER.add_command(
     'runserver',
     Server(
         host='0.0.0.0',
-        port=SETTINGS['PORT']
+        #port=SETTINGS['PORT']
     )
 )
 MANAGER.add_command(
     'debug',
     Server(
         use_debugger=True,
-        port=SETTINGS['PORT']
+        #port=SETTINGS['PORT']
     )
 )
 

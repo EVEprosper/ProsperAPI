@@ -107,10 +107,10 @@ def write_prediction_cache(
 
     prediction_db.close()
 
-DEFAULT_RANGE = 700
-CREST_RANGE = 400
-MAX_PREDICT_RANGE = 180
-MIN_DATA = 60
+DEFAULT_RANGE = api_config.DEFAULT_HISTORY_RANGE
+CREST_RANGE = api_config.EXPECTED_CREST_RANGE
+MAX_PREDICT_RANGE = api_config.MAX_RANGE
+MIN_DATA = api_config.DEFAULT_RANGE
 def check_requested_range(
         requested_range,
         max_range=MAX_PREDICT_RANGE,
