@@ -138,7 +138,7 @@ class OHLC_endpoint(Resource):
                     exc_info=True
                 )
                 return err.message, err.status
-            else:
+            else:   #pragma: no cover
                 LOGGER.error(
                     'ERROR: unable to validate type/region ids' +
                     'args={0}'.format(args),
@@ -194,7 +194,8 @@ class OHLC_endpoint(Resource):
                 ]
             )
             message = output_csv(data_str, 200)
-        else:
+        else:   #pragma: no cover
+            #TODO: CUT?
             LOGGER.error(
                 'invalid format requested' +
                 '\n\targs={0}'.format(args) +
@@ -284,7 +285,7 @@ class ProphetEndpoint(Resource):
                     exc_info=True
                 )
                 return err.message, err.status
-            else:
+            else:   #pragma: no cover
                 LOGGER.error(
                     'ERROR: unable to validate type/region ids' +
                     'args={0}'.format(args),
@@ -322,7 +323,7 @@ class ProphetEndpoint(Resource):
                 data,
                 MAX_RANGE
             )
-        except Exception as err_msg:
+        except Exception as err_msg:    #pragma: no cover
             if isinstance(err_msg, exceptions.ValidatorException):
                 LOGGER.warning(
                     'ERROR: unable to generate forecast',
@@ -406,7 +407,7 @@ def forecast_reporter(
             ]
         )
         message = output_csv(data_str, 200)
-    else:
+    else:   #pragma: no cover
         raise exceptions.UnsupportedFormat(
             status=500,
             message='UNABLE TO GENERATE REPORT'
