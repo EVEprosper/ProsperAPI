@@ -16,7 +16,6 @@ CONFIG = p_config.ProsperConfig(CONFIG_FILE)
 def create_app(
         settings=None,
         local_configs=CONFIG,
-        log_builder=None
 ):
     """create Flask application (ROOT)
 
@@ -36,15 +35,15 @@ def create_app(
     crest_endpoint.API.init_app(app)
     crest_endpoint.APP_HACK = app
 
-    if not log_builder:
-        ## build default logging objects ##
-        log_builder = p_logging.ProsperLogger(
-            'publicAPI',
-            HERE,
-            local_configs
-        )
-        if not app.debug:
-            log_builder.configure_discord_logger()
+    log_builder = p_logging.ProsperLogger(
+        'publicAPI',
+        HERE,
+        local_configs
+    )
+    if not app.debug:
+        log_builder.configure_discord_logger()
+    else:
+        log_builder.configure_debug_logger()
 
     if log_builder:
         for handle in log_builder:
