@@ -8,6 +8,8 @@ from pandas.io.json import json_normalize
 from fbprophet import Prophet
 import requests
 from tinydb import TinyDB, Query
+import matplotlib
+matplotlib.use('Agg')
 
 requests.models.json = json
 
