@@ -8,8 +8,6 @@ from pandas.io.json import json_normalize
 from fbprophet import Prophet
 import requests
 from tinydb import TinyDB, Query
-import matplotlib
-matplotlib.use('Agg')
 
 requests.models.json = json
 
@@ -342,7 +340,7 @@ def build_forecast(
     model.fit(predict_df)
     future = model.make_future_dataframe(periods=forecast_range)
     tst = model.predict(future)
-    model.plot(tst)
+
     predict_df = pd.merge(
         predict_df, model.predict(future),
         on='ds',
