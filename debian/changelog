@@ -5,10 +5,10 @@ prosper-api (1.0.0) stable; urgency=high
   * adding test suite
   * adding overrides for fbprophet use
 
- -- John Purcell <jpurcell.ee@gmail.com>
+ -- John Purcell <jpurcell.ee@gmail.com>  Sun, 26 Mar 2017 19:32:54 -0700
 
 prosper-api (0.2.0) stable; urgency=high
 
   * Adding debian installer to package
 
- -- John Purcell <jpurcell.ee@gmail.com>
+ -- John Purcell <jpurcell.ee@gmail.com>  Mon, 17 Oct 2016 19:00:00 -0700
