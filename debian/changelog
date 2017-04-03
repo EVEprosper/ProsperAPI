@@ -1,8 +1,12 @@
+prosper-api (1.0.2) stable; urgency=low
+  * reducing logging level on EMD failure
+ -- John Purcell <jpurcell.ee@gmail.com> Mon, Apr 03 2017 10:00:00 -0700
+
 prosper-api (1.0.1) stable; urgency=low
   * fixing logging messages
   * fixing test suite flask app generation
   * adding args to endpoint exceptions
- -- John Purcell <jpurcell.ee@gmail.com> Mon, Apr 03 21017 08:00:00 -0700
+ -- John Purcell <jpurcell.ee@gmail.com> Mon, Apr 03 2017 08:00:00 -0700
 
 prosper-api (1.0.0) stable; urgency=high
 
