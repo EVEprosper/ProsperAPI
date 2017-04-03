@@ -133,7 +133,8 @@ class OHLC_endpoint(Resource):
         except Exception as err:
             if isinstance(err, exceptions.ValidatorException):
                 LOGGER.warning(
-                    'ERROR: unable to validate type/region ids',
+                    'ERROR: unable to validate type/region ids' +
+                    '\n\targs={0}'.format(args),
                     exc_info=True
                 )
                 return err.message, err.status
@@ -157,7 +158,8 @@ class OHLC_endpoint(Resource):
         except Exception as err:    #pragma: no cover
             if isinstance(err, exceptions.ValidatorException):
                 LOGGER.warning(
-                    'ERROR: unable to parse CREST data',
+                    'ERROR: unable to parse CREST data' +
+                    '\n\targs={0}'.format(args),
                     exc_info=True
                 )
                 return err.message, err.status
@@ -282,7 +284,8 @@ class ProphetEndpoint(Resource):
         except Exception as err:
             if isinstance(err, exceptions.ValidatorException):
                 LOGGER.warning(
-                    'ERROR: unable to validate type/region ids',
+                    'ERROR: unable to validate type/region ids' +
+                    '\n\targs={0}'.format(args),
                     exc_info=True
                 )
                 return err.message, err.status
@@ -324,17 +327,18 @@ class ProphetEndpoint(Resource):
                 data,
                 api_config.MAX_RANGE
             )
-        except Exception as err_msg:    #pragma: no cover
-            if isinstance(err_msg, exceptions.ValidatorException):
+        except Exception as err:    #pragma: no cover
+            if isinstance(err, exceptions.ValidatorException):
                 LOGGER.warning(
-                    'ERROR: unable to generate forecast',
+                    'ERROR: unable to generate forecast' +
+                    '\n\targs={0}'.format(args),
                     exc_info=True
                 )
                 return err.message, err.status
             else:
                 LOGGER.error(
                     'ERROR: unable to generate forecast' +
-                    'args={0}'.format(args),
+                    '\n\targs={0}'.format(args),
                     exc_info=True
                 )
                 return 'UNHANDLED EXCEPTION', 500
