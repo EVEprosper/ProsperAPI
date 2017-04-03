@@ -12,12 +12,12 @@ ROOT = path.dirname(HERE)
 
 @pytest.fixture
 def app():
-    app = create_app(
+    my_app = create_app(
         local_configs=p_config.ProsperConfig(
             path.join(ROOT, 'scripts', 'app.cfg')
         )
     )
-    return app
+    return my_app
 
 def pytest_runtest_makereport(item, call):
     if "incremental" in item.keywords:
