@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/EVEprosper/ProsperAPI.svg?branch=master)](https://travis-ci.org/EVEprosper/ProsperAPI)
 # ProsperAPI
 A collection of API resources for the general public to leverage [EVE Prosper](http://www.eveprosper.com/)'s [EVE Online](https://www.eveonline.com/) market data.
 
