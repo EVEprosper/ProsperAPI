@@ -201,7 +201,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -236,7 +236,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -255,7 +255,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -270,7 +270,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'bad_typeid'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -300,7 +300,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=9001
             )
         )
@@ -315,7 +315,7 @@ class TestProphetcsv:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -336,7 +336,7 @@ class TestProphetjson:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -370,7 +370,7 @@ class TestProphetjson:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -389,7 +389,7 @@ class TestProphetjson:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'alt_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -405,7 +405,7 @@ class TestProphetjson:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'bad_typeid'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
             )
         )
@@ -437,7 +437,7 @@ class TestProphetjson:
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
                 type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=CONFIG.get('TEST', 'api_key'),
+                api_key=TEST_API_KEY,
                 range=9000
             )
         )
