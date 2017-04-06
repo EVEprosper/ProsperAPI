@@ -29,7 +29,10 @@ class ManageAPI(cli.Application):
         ['f', '--force'],
         help='force new api key'
     )
-
+    testkey = cli.Flag(
+        ['t', '--testkey'],
+        help='generate key without user input'
+    )
     @cli.switch(
         ['v', '--verbose'],
         help='Enable verbose messaging'
@@ -57,16 +60,18 @@ class ManageAPI(cli.Application):
         LOGGER = self.__log_builder.logger
 
         LOGGER.info('hello world')
-
-        username = cli.terminal.readline(
-            message='Username for key: '
-        ).rstrip()
-        id_info = cli.terminal.readline(
-            message='Info about user: '
-        ).rstrip()
+        if not self.testkey:
+            username = cli.terminal.readline(
+                message='Username for key: '
+            ).rstrip()
+            id_info = cli.terminal.readline(
+                message='Info about user: '
+            ).rstrip()
+        else:
+            username = 'travis_test_user'
+            id_info = 'automated test key'
 
         LOGGER.info('making key for {0}:{1}'.format(username, id_info))
-
 
         api_db = TinyDB(self.cache_path)
 
