@@ -3,5 +3,5 @@ python:
   - "3.5"
   - "3.6"
 
-install: "pip install ."
+install: "pip install . --extra-index-url=https://repo.fury.io/lockefox/"
 script: "python setup.py test"
