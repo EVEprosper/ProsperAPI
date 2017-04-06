@@ -99,12 +99,15 @@ class ManageAPI(cli.Application):
                 Query().user_name == username
             )
 
+        last_accessed = None
+        if self.testkey:
+            last_accessed = datetime.now().isoformat()
         api_key_entry = {
             'api_key': shortuuid.uuid(),
             'user_name': username,
             'user_info': id_info,
             'key_generated': datetime.now().isoformat(),
-            'last_accessed': None
+            'last_accessed': last_accessed
         }
 
         if not self.debug:

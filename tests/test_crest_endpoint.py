@@ -5,12 +5,11 @@ from datetime import datetime, timedelta
 import time
 import json
 import pandas as pd
-#from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query
 
 import pytest
 from flask import url_for
 
-#import publicAPI.crest_endpoint as crest_endpoint
 import publicAPI.exceptions as exceptions
 import helpers
 
@@ -20,9 +19,10 @@ ROOT = path.dirname(HERE)
 CONFIG_FILENAME = path.join(HERE, 'test_config.cfg')
 CONFIG = helpers.get_config(CONFIG_FILENAME)
 ROOT_CONFIG = helpers.get_config(
-    #path.join(ROOT, 'publicAPI', 'publicAPI.cfg'))
-    path.join(ROOT, 'scripts', 'app.cfg'))
+    path.join(ROOT, 'scripts', 'app.cfg')
+)
 TEST_CACHE_PATH = path.join(HERE, 'cache')
+CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache', 'apikeys.json')
 
 BASE_URL = 'http://localhost:8000'
 def test_clear_caches():
@@ -171,6 +171,20 @@ class TestODBCjson:
         )
         assert req._status_code == 404
 
+TEST_API_KEY = ''
+def test_get_api_key():
+    """fetch api key from cache for testing"""
+    global TEST_API_KEY
+    tdb = TinyDB(CACHE_PATH)
+    vals = tdb.all()
+
+    if not vals:
+        pytest.xfail('Unable to test without test keys')
+
+    test_key = vals[0]['api_key']
+
+    TEST_API_KEY = test_key
+
 @pytest.mark.usefixtures('client_class')
 class TestProphetcsv:
     """test framework for collecting endpoint stats"""
@@ -179,6 +193,7 @@ class TestProphetcsv:
         if platform.system() == 'Darwin':
             pytest.xfail('Unable to run fbprophet on mac')
 
+        assert TEST_API_KEY != ''
         global VIRGIN_RUNTIME
         fetch_start = time.time()
         req = self.client.get(
