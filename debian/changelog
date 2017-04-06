@@ -1,4 +1,4 @@
-prosper-api (1.0.3) stable; urgency=low
+prosper-api (1.1.0) stable; urgency=low
   * adding travis.ci support
  -- John Purcell <jpurcell.ee@gmail.com> Wed, Apr 5 22:00:00 -0700
 

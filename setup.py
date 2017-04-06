@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.0.3'
+__version__ = '1.1.0'
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
