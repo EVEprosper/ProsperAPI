@@ -1,5 +1,5 @@
 # Building Prosper API
-To help deploy Prosper API services, a .deb builder/installer has been developed
+To help deploy Prosper API services, a .deb builder/installer has been developed.
 
 # Notes
 
