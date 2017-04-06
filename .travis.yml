@@ -2,6 +2,8 @@ language: python
 python:
   - "3.5"
   - "3.6"
-
-install: "pip install . --extra-index-url=https://repo.fury.io/lockefox/"
+install: 
+  - "pip install cython"
+  - "pip install numpy"
+  - "pip install . --extra-index-url=https://repo.fury.io/lockefox/"
 script: "python setup.py test"
