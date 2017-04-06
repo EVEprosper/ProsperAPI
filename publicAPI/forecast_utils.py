@@ -172,7 +172,7 @@ def fetch_extended_history(
         logger.debug(raw_data['result'][:5])
         data = parse_emd_data(raw_data['result'])
     except Exception as err_msg:    #pragma: no cover
-        logger.error(
+        logger.warning(
             'ERROR: trouble getting data from EMD' +
             '\n\tregion_id={0}'.format(region_id) +
             '\n\ttype_id={0}'.format(type_id) +
