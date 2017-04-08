@@ -72,7 +72,6 @@ class PyTest(TestCommand):
         errno = pytest.main(pytest_commands)
         exit(errno)
 
-
 setup(
     name='ProsperAPI',
     author='John Purcell',
@@ -85,7 +84,6 @@ setup(
         'Programming Language :: Python :: 3.5'
     ],
     keywords='prosper eveonline api CREST',
-    #packages=hack_find_packages('prosper'),
     packages=find_packages(),
     data_files=[
         ('services', include_all_subfiles('services')),
@@ -99,6 +97,7 @@ setup(
         ]
     },
     install_requires=[
+        'ProsperCommon',
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
@@ -109,7 +108,6 @@ setup(
         'matplotlib~=2.0.0',        #required for building fbprophet
         'pystan~=2.14.0',
         'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
-        'ProsperCommon~=0.5.0',     #--extra-index-url=https://repo.fury.io/lockefox/
         'tinydb~=3.2.2',
         'ujson~=1.35',
         'plumbum~=1.6.3',
