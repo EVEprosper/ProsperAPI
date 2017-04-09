@@ -3,6 +3,7 @@
 from os import path, listdir
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
+from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
 __version__ = '1.1.0'
@@ -72,6 +73,9 @@ class PyTest(TestCommand):
         errno = pytest.main(pytest_commands)
         exit(errno)
 
+with open('README.rst', 'r', 'utf-8') as f:
+    readme = f.read()
+
 setup(
     name='ProsperAPI',
     author='John Purcell',
@@ -92,6 +96,7 @@ setup(
         ('scripts', include_all_subfiles('scripts'))
     ],
     package_data={
+        '': ['LICENSE', 'README.rst'],
         'publicAPI':[
             'cache/apikeys.json'    #including key file for installer
         ]
