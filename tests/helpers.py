@@ -61,7 +61,7 @@ def check_db_values(
             db=config.get_option('DB', 'schema')
         )
     except Exception:
-        return None
+        raise
 
     query_date = datetime.today() - timedelta(days=int(data_range))
 
