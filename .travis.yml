@@ -8,3 +8,6 @@ install:
 script: 
   - "python scripts/manage_api.py --testkey"
   - "python setup.py test"
+branches:
+  only:
+  - master
