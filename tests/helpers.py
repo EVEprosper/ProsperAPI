@@ -54,11 +54,11 @@ def check_db_values(
     """
     try:
         con = pymysql.connect(
-            host=config.get('DB', 'host'),
-            user=config.get('DB', 'user'),
-            port=int(config.get('DB', 'port')),
-            password=config.get('DB', 'password'),
-            db=config.get('DB', 'schema')
+            host=config.get_option('DB', 'host'),
+            user=config.get_option('DB', 'user'),
+            port=int(config.get_option('DB', 'port')),
+            password=config.get_option('DB', 'password'),
+            db=config.get_option('DB', 'schema')
         )
     except Exception:
         return None
