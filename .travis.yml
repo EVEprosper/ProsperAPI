@@ -5,7 +5,7 @@ python:
 install: 
   - "pip install cython"
   - "pip install numpy"
-  - "pip install . --extra-index-url=https://repo.fury.io/lockefox/"
+  - "pip install . "
 script: 
   - "python scripts/manage_api.py --testkey"
   - "python setup.py test"

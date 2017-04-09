@@ -222,7 +222,7 @@ def fetch_crest_endpoint(
     """
     try:
         crest_url = crest_base + config.get('RESOURCES', endpoint_name)
-    except configparser.NoOptionError:
+    except (configparser.NoOptionError, KeyError):
         raise exceptions.UnsupportedCrestEndpoint(
             'No {0} found in [RESOURCES]'.format(endpoint_name))
 

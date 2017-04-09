@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 import pymysql.cursors
 
+import prosper.common.prosper_config as p_config
 CONN = None
 def get_config(config_filename):
     """parse test config file
@@ -16,19 +17,20 @@ def get_config(config_filename):
         (:obj:`configparser.ConfigParser`)
 
     """
-    config = configparser.ConfigParser(
-        interpolation=configparser.ExtendedInterpolation(),
-        allow_no_value=True,
-        delimiters=('='),
-        inline_comment_prefixes=('#')
-    )
-
-    local_filename = config_filename.replace('.cfg', '_local.cfg')
-    if path.isfile(local_filename):
-        config_filename = local_filename
-
-    with open(config_filename, 'r') as file:
-        config.read_file(file)
+    config = p_config.ProsperConfig(config_filename)
+    #config = configparser.ConfigParser(
+    #    interpolation=configparser.ExtendedInterpolation(),
+    #    allow_no_value=True,
+    #    delimiters=('='),
+    #    inline_comment_prefixes=('#')
+    #)
+#
+    #local_filename = config_filename.replace('.cfg', '_local.cfg')
+    #if path.isfile(local_filename):
+    #    config_filename = local_filename
+#
+    #with open(config_filename, 'r') as file:
+    #    config.read_file(file)
 
     return config
 
