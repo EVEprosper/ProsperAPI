@@ -106,6 +106,102 @@ def test_crest_fetcher_errors(config=CONFIG):
             config=ROOT_CONFIG
         )
 
+def test_validate_esi_fetcher(config=CONFIG):
+    """exercise fetch_crest_endpoint"""
+    region_data = crest_utils.fetch_esi_endpoint(
+        'map_regions',
+        region_id=config.get('TEST', 'region_id'),
+        config=ROOT_CONFIG
+    )
+    region_keys = [ #not all keys, just important ones
+        'name',
+        'region_id',
+        'description',
+        'constellations'
+    ]
+    for key in region_keys:
+        assert key in region_data.keys()
+    assert region_data['name'] == 'The Forge'
+
+    types_data = crest_utils.fetch_esi_endpoint(
+        'inventory_types',
+        type_id=config.get('TEST', 'type_id'),
+        config=ROOT_CONFIG
+    )
+    type_keys = [ #not all keys, just important ones
+        'capacity',
+        'description',
+        'icon_id',
+        'portion_size',
+        'volume',
+        #'dogma',
+        'radius',
+        'published',
+        'mass',
+        'type_id',
+        'name'
+    ]
+    for key in type_keys:
+        assert key in types_data.keys()
+    assert types_data['name'] == 'Tritanium'
+
+    market_data = crest_utils.fetch_esi_endpoint(
+        'market_history',
+        type_id=config.get('TEST', 'type_id'),
+        region_id=config.get('TEST', 'region_id'),
+        config=ROOT_CONFIG
+    )
+    market_item = market_data[0]
+    row_keys = [
+        'date',
+        'order_count',
+        'volume',
+        'highest',
+        'lowest',
+        'average'
+    ]
+    for key in row_keys:
+        assert key in market_item.keys()
+    assert len(market_data) == 404
+    #market_keys = [ #not all keys, just important ones
+    #    'items',
+    #    'pageCount',
+    #    'totalCount'
+    #]
+    #for key in market_keys:
+    #    assert key in market_data.keys()
+    #assert len(market_data['items']) == market_data['totalCount']
+
+def test_esi_fetcher_errors(config=CONFIG):
+    """validate errors thrown by fetch_crest_endpoint"""
+    with pytest.raises(exceptions.UnsupportedCrestEndpoint):
+        data = crest_utils.fetch_esi_endpoint(
+            'butts',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
+
+    with pytest.raises(exceptions.CrestAddressError):
+        data = crest_utils.fetch_esi_endpoint(
+            'inventory_types',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
+
+    with pytest.raises(exceptions.CrestAddressError):
+        data = crest_utils.fetch_esi_endpoint(
+            'market_history',
+            region_id=config.get('TEST', 'region_id'),
+            config=ROOT_CONFIG
+        )
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        data = crest_utils.fetch_esi_endpoint(
+            'inventory_types',
+            type_id=config.get('TEST', 'bad_typeid'),
+            config=ROOT_CONFIG
+        )
+
 def test_endpoint_to_kwarg():
     """validate `endpoint_to_kwarg` behavior"""
     type_pair = crest_utils.endpoint_to_kwarg(
