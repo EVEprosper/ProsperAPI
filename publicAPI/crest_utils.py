@@ -246,6 +246,53 @@ def fetch_crest_endpoint(
 
     return data
 
+ESI_BASE = 'https://esi.tech.ccp.is/latest/'
+def fetch_esi_endpoint(
+        endpoint_name,
+        esi_base=ESI_BASE,
+        config=api_config.CONFIG,
+        **kwargs
+):
+    """Fetch payload from EVE Online's ESI service
+
+    Notes:
+        Only works on unauth'd endpoints
+
+    Args:
+        endpoint_name (str): name of endpoint (in config)
+        config (`configparser.ConfigParser`, optional): override for config obj
+        **kwargs (:obj:`dict`): key/values to overwrite in query
+
+    Returns:
+        (:obj:`dict`): JSON object returned by endpoint
+
+    """
+    try:
+        esi_url = esi_base + config.get('ESI_RESOURCES', endpoint_name)
+    except (configparser.NoOptionError, KeyError):
+        raise exceptions.UnsupportedCrestEndpoint(
+            'No {0} found in [ESI_RESOURCES]'.format(endpoint_name))
+
+    try:
+        esi_url = esi_url.format(**kwargs)
+    except KeyError as err_msg:
+        raise exceptions.CrestAddressError(repr(err_msg))
+
+    headers = {
+        'User-Agent': config.get('GLOBAL', 'useragent')
+    }
+
+    # no try-except, catch in caller
+    # done to make logging path easier
+    req = requests.get(
+        esi_url,
+        headers=headers
+    )
+    req.raise_for_status()
+    data = req.json()
+
+    return data
+
 def fetch_market_history(
         region_id,
         type_id,
