@@ -3,7 +3,7 @@
 	dh $@ --with python-virtualenv
 
 override_dh_virtualenv:
-	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/ 
+	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib  
 
 override_dh_strip:
 	dh_strip --exclude=numpy --exclude=pandas --exclude=matplotlib
