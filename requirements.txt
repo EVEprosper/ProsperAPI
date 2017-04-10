@@ -15,7 +15,7 @@ numpy==1.12.1
 packaging==16.8
 pandas==0.19.2
 plumbum==1.6.3
-ProsperCommon==0.5.0
+ProsperCommon
 pyparsing==2.2.0
 pystan==2.14.0.0
 python-dateutil==2.6.0
