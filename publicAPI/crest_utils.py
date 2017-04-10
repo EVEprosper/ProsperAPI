@@ -433,7 +433,7 @@ def data_to_ohlc(
 
     return ohlc
 
-SPLIT_DATE = datetime.strftime('%Y-%m-%d', '2017-05-09')
+SPLIT_DATE = datetime.strptime('2017-05-09', '%Y-%m-%d')
 def split_plex(
         data,
         type_id,
