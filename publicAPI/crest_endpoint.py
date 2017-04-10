@@ -205,7 +205,8 @@ class OHLC_endpoint(Resource):
             LOGGER.error(
                 'invalid format requested' +
                 '\n\targs={0}'.format(args) +
-                '\n\treturn_type={0}'.format(return_type)
+                '\n\treturn_type={0}'.format(return_type),
+                exc_info=True
             )
             return 'UNSUPPORTED FORMAT', 500
 
@@ -292,21 +293,20 @@ class ProphetEndpoint(Resource):
                 max_range=api_config.MAX_RANGE,
                 raise_for_status=True
             )
-        except Exception as err:
-            if isinstance(err, exceptions.ValidatorException):
-                LOGGER.warning(
-                    'ERROR: unable to validate type/region ids' +
-                    '\n\targs={0}'.format(args),
-                    exc_info=True
-                )
-                return err.message, err.status
-            else:   #pragma: no cover
-                LOGGER.error(
-                    'ERROR: unable to validate type/region ids' +
-                    'args={0}'.format(args),
-                    exc_info=True
-                )
-                return 'UNHANDLED EXCEPTION', 500
+        except exceptions.ValidatorException as err:
+            LOGGER.warning(
+                'ERROR: unable to validate type/region ids' +
+                '\n\targs={0}'.format(args),
+                exc_info=True
+            )
+            return err.message, err.status
+        except Exception: #pragma: no cover
+            LOGGER.error(
+                'ERROR: unable to validate type/region ids' +
+                'args={0}'.format(args),
+                exc_info=True
+            )
+            return 'UNHANDLED EXCEPTION', 500
 
         ## check cache ##
         cache_data = forecast_utils.check_prediction_cache(
@@ -339,21 +339,20 @@ class ProphetEndpoint(Resource):
                 data,
                 api_config.MAX_RANGE
             )
-        except Exception as err:    #pragma: no cover
-            if isinstance(err, exceptions.ValidatorException):
-                LOGGER.warning(
-                    'ERROR: unable to generate forecast' +
-                    '\n\targs={0}'.format(args),
-                    exc_info=True
-                )
-                return err.message, err.status
-            else:
-                LOGGER.error(
-                    'ERROR: unable to generate forecast' +
-                    '\n\targs={0}'.format(args),
-                    exc_info=True
-                )
-                return 'UNHANDLED EXCEPTION', 500
+        except exceptions.ValidatorException as err:
+            LOGGER.warning(
+                'ERROR: unable to generate forecast' +
+                '\n\targs={0}'.format(args),
+                exc_info=True
+            )
+            return err.message, err.status
+        except Exception: #pragma: no cover
+            LOGGER.error(
+                'ERROR: unable to generate forecast' +
+                '\n\targs={0}'.format(args),
+                exc_info=True
+            )
+            return 'UNHANDLED EXCEPTION', 500
 
         ## Update cache ##
         forecast_utils.write_prediction_cache(
@@ -369,11 +368,12 @@ class ProphetEndpoint(Resource):
                 return_type,
                 LOGGER
             )
-        except Exception as err_msg:
+        except Exception as err_msg:    #pragma: no cover
             LOGGER.error(
                 'invalid format requested' +
                 '\n\targs={0}'.format(args) +
-                '\n\treturn_type={0}'.format(return_type)
+                '\n\treturn_type={0}'.format(return_type),
+                exc_info=True
             )
             return 'UNABLE TO GENERATE REPORT', 500
         return message
