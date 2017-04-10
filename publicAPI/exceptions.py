@@ -43,6 +43,9 @@ class UnsupportedCrestEndpoint(CrestException):
 class CrestAddressError(CrestException):
     """unable to format request url"""
     pass
+class UnsupportedSource(CrestException):
+    """only support CREST/ESI for data sources"""
+    pass
 
 ## forecast_utils ##
 class ForecastException(Exception):

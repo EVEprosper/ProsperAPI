@@ -116,17 +116,22 @@ class OHLC_endpoint(Resource):
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
+        mode = crest_utils.SwitchCCPSource(
+            api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
+        )
         ## Validate inputs ##
         try:
             crest_utils.validate_id(
                 'map_regions',
                 args.get('regionID'),
+                mode=mode,
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
             crest_utils.validate_id(
                 'inventory_types',
                 args.get('typeID'),
+                mode=mode,
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
@@ -152,6 +157,7 @@ class OHLC_endpoint(Resource):
                 args.get('regionID'),
                 args.get('typeID'),
                 config=api_config.CONFIG,
+                mode=mode,
                 logger=LOGGER
             )
             data = crest_utils.data_to_ohlc(data)
