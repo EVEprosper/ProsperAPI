@@ -314,6 +314,7 @@ def fetch_esi_endpoint(
 def fetch_market_history(
         region_id,
         type_id,
+        mode=SwitchCCPSource.CREST,
         config=api_config.CONFIG,
         logger=LOGGER
 ):
@@ -332,12 +333,25 @@ def fetch_market_history(
     logger.debug('region_id: {0}'.format(region_id))
     logger.debug('type_id: {0}'.format(type_id))
     try:
-        raw_data = fetch_crest_endpoint(
-            'market_history',
-            region_id=region_id,
-            type_id=type_id,
-            config=config
-        )
+        if mode == SwitchCCPSource.CREST:
+            raw_data = fetch_crest_endpoint(
+                'market_history',
+                region_id=region_id,
+                type_id=type_id,
+                config=config
+            )
+            logger.debug(raw_data['items'][:5])
+        elif mode == SwitchCCPSource.ESI:
+            raw_data = fetch_esi_endpoint(
+                'market_history',
+                region_id=region_id,
+                type_id=type_id,
+                config=config
+            )
+            logger.debug(raw_data[:5])
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to fetch market history from CREST' +
@@ -347,16 +361,23 @@ def fetch_market_history(
         )
         raise exceptions.CRESTBadMarketData(
             status=404,
-            message='Unable to fetch CREST data for {0}@{1}'.format(
+            message='Unable to fetch {2} data for {0}@{1}'.format(
                 type_id,
-                region_id
+                region_id,
+                mode.name
             )
         )
 
     logger.info('--pushing data into pandas')
-    logger.debug(raw_data['items'][:5])
+
     try:
-        return_data = pd.DataFrame(raw_data['items'])
+        if mode == SwitchCCPSource.CREST:
+            return_data = pd.DataFrame(raw_data['items'])
+        elif mode == SwitchCCPSource.ESI:
+            return_data = pd.DataFrame(raw_data)
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to parse CREST history data' +
@@ -370,10 +391,22 @@ def fetch_market_history(
         )
 
     logger.info('--fixing column names')
-    return_data.rename(
-        columns={'orderCount': 'orders'},
-        inplace=True
-    )
+    if mode == SwitchCCPSource.CREST:
+        return_data.rename(
+            columns={'orderCount': 'orders'},
+            inplace=True
+        )
+    elif mode == SwitchCCPSource.ESI:
+        return_data.rename(
+            columns={
+                'lowest': 'lowPrice',
+                'highest': 'highPrice',
+                'average': 'avgPrice',
+                'order_count': 'orders'
+            },
+            inplace=True
+        )
+
     return return_data
 
 def data_to_ohlc(

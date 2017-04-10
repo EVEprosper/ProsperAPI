@@ -157,6 +157,7 @@ class OHLC_endpoint(Resource):
                 args.get('regionID'),
                 args.get('typeID'),
                 config=api_config.CONFIG,
+                mode=mode,
                 logger=LOGGER
             )
             data = crest_utils.data_to_ohlc(data)

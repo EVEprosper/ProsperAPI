@@ -415,6 +415,40 @@ def test_fetch_market_history(config=CONFIG):
     for key in expected_cols:
         assert key in data.columns.values
 
+    ohlc = crest_utils.data_to_ohlc(data)
+
+    assert ohlc['date'].equals(data['date'])
+    assert ohlc['open'].equals(data['avgPrice'])
+    assert ohlc['high'].equals(data['highPrice'])
+    assert ohlc['low'].equals(data['lowPrice'])
+    assert ohlc['volume'].equals(data['volume'])
+
+    assert data['avgPrice'].shift(1).equals(ohlc['close'])
+
+def test_fetch_market_history_esi(config=CONFIG):
+    """test `fetch_market_history` utility"""
+
+    data = crest_utils.fetch_market_history(
+        config.get('TEST', 'region_id'),
+        config.get('TEST', 'type_id'),
+        config=ROOT_CONFIG,
+        mode=crest_utils.SwitchCCPSource.ESI
+    )
+
+    assert isinstance(data, pd.DataFrame)
+    expected_cols = [
+        'date',
+        'avgPrice',
+        'highPrice',
+        'lowPrice',
+        'volume',
+        'orders'
+        #extra keys:
+        #'volume_str',
+        #'orderCountStr'
+    ]
+    for key in expected_cols:
+        assert key in data.columns.values
 
     ohlc = crest_utils.data_to_ohlc(data)
 
