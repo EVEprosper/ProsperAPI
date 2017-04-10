@@ -162,15 +162,7 @@ def test_validate_esi_fetcher(config=CONFIG):
     ]
     for key in row_keys:
         assert key in market_item.keys()
-    assert len(market_data) == 404
-    #market_keys = [ #not all keys, just important ones
-    #    'items',
-    #    'pageCount',
-    #    'totalCount'
-    #]
-    #for key in market_keys:
-    #    assert key in market_data.keys()
-    #assert len(market_data['items']) == market_data['totalCount']
+    assert len(market_data) >= 400
 
 def test_esi_fetcher_errors(config=CONFIG):
     """validate errors thrown by fetch_crest_endpoint"""
@@ -305,6 +297,22 @@ class TestValidateID:
         )
         assert type_info_retry == type_info
 
+        type_info_esi = crest_utils.validate_id(
+            'inventory_types',
+            self.type_id,
+            cache_buster=True,
+            config=ROOT_CONFIG,
+            mode=crest_utils.SwitchCCPSource.ESI
+        )
+
+        assert type_info_esi['name']        == type_info['name']
+        assert type_info_esi['description'] == type_info['description']
+        assert type_info_esi['published']   == type_info['published']
+        assert type_info_esi['radius']      == type_info['radius']
+        assert type_info_esi['icon_id']     == type_info['iconID']
+        assert type_info_esi['capacity']    == type_info['capacity']
+        assert type_info_esi['type_id']     == type_info['id']
+
     def test_happypath_regions(self):
         """make sure behavior is good for regions too"""
         region_info = crest_utils.validate_id(
@@ -320,6 +328,18 @@ class TestValidateID:
             config=ROOT_CONFIG
         )
         assert region_info_retry == region_info
+
+        region_info_esi = crest_utils.validate_id(
+            'map_regions',
+            self.region_id,
+            cache_buster=True,
+            config=ROOT_CONFIG,
+            mode=crest_utils.SwitchCCPSource.ESI
+        )
+
+        assert region_info_esi['name']        == region_info['name']
+        assert region_info_esi['region_id']   == region_info['id']
+        assert region_info_esi['description'] == region_info['description']
 
     def test_cache_files(self):
         """make sure cache files were generated"""

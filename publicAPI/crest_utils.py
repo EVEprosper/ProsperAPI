@@ -2,6 +2,7 @@
 
 from os import path, makedirs
 from datetime import datetime
+from enum import Enum
 import pytz
 import configparser
 
@@ -22,6 +23,11 @@ HERE = path.abspath(path.dirname(__file__))
 
 CACHE_PATH = path.join(HERE, 'cache')
 makedirs(CACHE_PATH, exist_ok=True)
+
+class SwitchCCPSource(Enum):
+    """enum for switching between crest/esi"""
+    ESI = 'ESI'
+    CREST = 'CREST'
 
 def setup_cache_file(
         cache_filename#,
@@ -108,6 +114,7 @@ def endpoint_to_kwarg(
 def validate_id(
         endpoint_name,
         type_id,
+        mode=SwitchCCPSource.CREST,
         cache_buster=False,
         config=api_config.CONFIG,
         logger=LOGGER
@@ -161,12 +168,23 @@ def validate_id(
             endpoint_name,
             type_id
         )
-        type_info = fetch_crest_endpoint(
-            endpoint_name,
-            **kwarg_pair,
-            config=config
-            #TODO: index_key to key/val pair
-        )
+        type_info = None
+        if mode == SwitchCCPSource.CREST:
+            type_info = fetch_crest_endpoint(
+                endpoint_name,
+                **kwarg_pair,
+                config=config
+                #TODO: index_key to key/val pair
+            )
+        elif mode == SwitchCCPSource.ESI:
+            type_info = fetch_esi_endpoint(
+                endpoint_name,
+                **kwarg_pair,
+                config=config
+            )
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:
         logger.warning(
             'ERROR: unable to connect to CREST' +
