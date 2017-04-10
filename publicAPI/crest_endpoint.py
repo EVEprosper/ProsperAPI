@@ -135,21 +135,20 @@ class OHLC_endpoint(Resource):
                 config=api_config.CONFIG,
                 logger=LOGGER
             )
-        except Exception as err:
-            if isinstance(err, exceptions.ValidatorException):
-                LOGGER.warning(
-                    'ERROR: unable to validate type/region ids' +
-                    '\n\targs={0}'.format(args),
-                    exc_info=True
-                )
-                return err.message, err.status
-            else:   #pragma: no cover
-                LOGGER.error(
-                    'ERROR: unable to validate type/region ids' +
-                    'args={0}'.format(args),
-                    exc_info=True
-                )
-                return 'UNHANDLED EXCEPTION', 500
+        except exceptions.ValidatorException as err:
+            LOGGER.warning(
+                'ERROR: unable to validate type/region ids' +
+                '\n\targs={0}'.format(args),
+                exc_info=True
+            )
+            return err.message, err.status
+        except Exception: #pragma: no cover
+            LOGGER.error(
+                'ERROR: unable to validate type/region ids' +
+                'args={0}'.format(args),
+                exc_info=True
+            )
+            return 'UNHANDLED EXCEPTION', 500
 
         ## Fetch CREST ##
         try:
@@ -161,21 +160,21 @@ class OHLC_endpoint(Resource):
                 logger=LOGGER
             )
             data = crest_utils.data_to_ohlc(data)
-        except Exception as err:    #pragma: no cover
-            if isinstance(err, exceptions.ValidatorException):
-                LOGGER.warning(
-                    'ERROR: unable to parse CREST data' +
-                    '\n\targs={0}'.format(args),
-                    exc_info=True
-                )
-                return err.message, err.status
-            else:
-                LOGGER.error(
-                    'ERROR: unhandled issue in parsing CREST data' +
-                    'args={0}'.format(args),
-                    exc_info=True
-                )
-                return 'UNHANDLED EXCEPTION', 500
+        except exceptions.ValidatorException as err:
+            LOGGER.warning(
+                'ERROR: unable to parse CREST data' +
+                '\n\targs={0}'.format(args),
+                exc_info=True
+            )
+            return err.message, err.status
+        except Exception: #pragma: no cover
+        #except Exception as err:    #pragma: no cover
+            LOGGER.error(
+                'ERROR: unhandled issue in parsing CREST data' +
+                'args={0}'.format(args),
+                exc_info=True
+            )
+            return 'UNHANDLED EXCEPTION', 500
 
         ## Format output ##
         if return_type == AcceptedDataFormat.JSON.value:

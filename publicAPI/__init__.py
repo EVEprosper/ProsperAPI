@@ -34,7 +34,7 @@ def create_app(
 
     log_builder = p_logging.ProsperLogger(
         'publicAPI',
-        HERE,
+        '/var/log/prosper/',
         local_configs
     )
     if not app.debug:
