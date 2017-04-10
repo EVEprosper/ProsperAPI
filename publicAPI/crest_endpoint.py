@@ -257,9 +257,13 @@ class ProphetEndpoint(Resource):
         args = self.reqparse.parse_args()
         LOGGER.info('Prophet {0} Request: {1}'.format(return_type, args))
 
+
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
+        mode = crest_utils.SwitchCCPSource(
+            api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
+        )
         forecast_range = api_config.DEFAULT_RANGE
         if 'range' in args:
             forecast_range = args.get('range')
@@ -274,12 +278,14 @@ class ProphetEndpoint(Resource):
                 'map_regions',
                 args.get('regionID'),
                 config=api_config.CONFIG,
+                mode=mode,
                 logger=LOGGER
             )
             crest_utils.validate_id(
                 'inventory_types',
                 args.get('typeID'),
                 config=api_config.CONFIG,
+                mode=mode,
                 logger=LOGGER
             )
             forecast_range = forecast_utils.check_requested_range(
@@ -325,6 +331,7 @@ class ProphetEndpoint(Resource):
             data = forecast_utils.fetch_extended_history(
                 args.get('regionID'),
                 args.get('typeID'),
+                mode=mode,
                 data_range=api_config.MAX_RANGE,
                 config=api_config.CONFIG,
                 logger=LOGGER
