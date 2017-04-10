@@ -5,10 +5,10 @@ install:
   - "pip install cython"
   - "pip install numpy"
   - "pip install . "
-  - "pip install pymysql"
+  #- "pip install pymysql"
 script: 
   - "python scripts/manage_api.py --testkey"
-  - "python scripts/create_splitcache --sql"
+  #- "python scripts/create_splitcache --sql"
   - "python setup.py test"
 branches:
   only:
