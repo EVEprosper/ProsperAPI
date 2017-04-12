@@ -7,41 +7,41 @@ prosper-api (1.1.2) stable; urgency=low
 
 prosper-api (1.1.1) stable; urgency=low
 
-  * fixing dependency for ProsperCommon v1.0.0
+  * fixing dependency for ProsperCommon v1.0.0 (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Sat, Apr 08 2017 21:00:00 -0700
 
 prosper-api (1.1.0) stable; urgency=low
 
-  * adding travis.ci support
+  * adding travis.ci support (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Wed, Apr 05 2017 22:00:00 -0700
 
 prosper-api (1.0.2) stable; urgency=low
 
-  * reducing logging level on EMD failure
+  * reducing logging level on EMD failure (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Mon, Apr 03 2017 10:00:00 -0700
 
 prosper-api (1.0.1) stable; urgency=low
 
-  * fixing logging messages
-  * fixing test suite flask app generation
-  * adding args to endpoint exceptions
+  * fixing logging messages (John Purcell)
+  * fixing test suite flask app generation (John Purcell)
+  * adding args to endpoint exceptions (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Mon, Apr 03 2017 08:00:00 -0700
 
 prosper-api (1.0.0) stable; urgency=high
 
-  * adding Prophet endpoint
-  * reworking project structure
-  * adding test suite
-  * adding overrides for fbprophet use
+  * adding Prophet endpoint (John Purcell)
+  * reworking project structure (John Purcell)
+  * adding test suite (John Purcell)
+  * adding overrides for fbprophet use (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Sun, 26 Mar 2017 19:32:54 -0700
 
 prosper-api (0.2.0) stable; urgency=high
 
-  * Adding debian installer to package
+  * Adding debian installer to package (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Mon, 17 Oct 2016 19:00:00 -0700
