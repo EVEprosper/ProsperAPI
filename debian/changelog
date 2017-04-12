@@ -9,13 +9,13 @@ prosper-api (1.1.1) stable; urgency=low
 
   * fixing dependency for ProsperCommon v1.0.0
 
- -- John Purcell <jpurcell.ee@gmail.com>  Sat, Apr 8 2017 21:00:00 -0700
+ -- John Purcell <jpurcell.ee@gmail.com>  Sat, Apr 08 2017 21:00:00 -0700
 
 prosper-api (1.1.0) stable; urgency=low
 
   * adding travis.ci support
 
- -- John Purcell <jpurcell.ee@gmail.com>  Wed, Apr 5 2017 22:00:00 -0700
+ -- John Purcell <jpurcell.ee@gmail.com>  Wed, Apr 05 2017 22:00:00 -0700
 
 prosper-api (1.0.2) stable; urgency=low
 
@@ -45,4 +45,3 @@ prosper-api (0.2.0) stable; urgency=high
   * Adding debian installer to package
 
  -- John Purcell <jpurcell.ee@gmail.com>  Mon, 17 Oct 2016 19:00:00 -0700
- 
