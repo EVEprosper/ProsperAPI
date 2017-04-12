@@ -19,7 +19,7 @@ script:
 #  - "python scripts/manage_api.py --testkey"
 #  - "python setup.py test"
 ## Build Package ##
-  - "sudo dpkg-buildpackage -us -uc"
+  - "sudo dpkg-buildpackage -us -uc -d"
 branches:
   only:
   - master
