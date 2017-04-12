@@ -4,10 +4,18 @@ python:
 install: 
   - "pip install cython"
   - "pip install numpy"
-  - "pip install . "
+#  - "pip install . "
+## dh-virtualenv ##
+  - "sudo apt-get install devscripts python-virtualenv git equivs"
+  - "git clone https://github.com/spotify/dh-virtualenv.git"
+  - "cd dh-virtualenv"
+  - "sudo mk-build-deps -ri"
+  - "dpkg-buildpackage -us -uc -b"
+  - "cd .."
+  - "sudo dpkg -i dh-virtualenv*.deb"
 script: 
-  - "python scripts/manage_api.py --testkey"
-  - "python setup.py test"
+#  - "python scripts/manage_api.py --testkey"
+#  - "python setup.py test"
 branches:
   only:
   - master
