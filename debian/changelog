@@ -1,25 +1,35 @@
 prosper-api (1.1.2) stable; urgency=low
+
   * fixing issues with build/requirements
   * reverting ESI/CREST switch out of main
- -- John Purcell <jpurcell.ee@gmail.com> Tue, Apr 11 10:00:00 -0700
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Tue, Apr 11 10:00:00 -0700
 
 prosper-api (1.1.1) stable; urgency=low
+
   * fixing dependency for ProsperCommon v1.0.0
- -- John Purcell <jpurcell.ee@gmail.com> Sat, Apr 8 21:00:00 -0700
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Sat, Apr 8 21:00:00 -0700
 
 prosper-api (1.1.0) stable; urgency=low
+
   * adding travis.ci support
- -- John Purcell <jpurcell.ee@gmail.com> Wed, Apr 5 22:00:00 -0700
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Wed, Apr 5 22:00:00 -0700
 
 prosper-api (1.0.2) stable; urgency=low
+
   * reducing logging level on EMD failure
- -- John Purcell <jpurcell.ee@gmail.com> Mon, Apr 03 2017 10:00:00 -0700
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Mon, Apr 03 2017 10:00:00 -0700
 
 prosper-api (1.0.1) stable; urgency=low
+
   * fixing logging messages
   * fixing test suite flask app generation
   * adding args to endpoint exceptions
- -- John Purcell <jpurcell.ee@gmail.com> Mon, Apr 03 2017 08:00:00 -0700
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Mon, Apr 03 2017 08:00:00 -0700
 
 prosper-api (1.0.0) stable; urgency=high
 
