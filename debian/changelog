@@ -45,3 +45,4 @@ prosper-api (0.2.0) stable; urgency=high
   * Adding debian installer to package (John Purcell)
 
  -- John Purcell <jpurcell.ee@gmail.com>  Mon, 17 Oct 2016 19:00:00 -0700
+
