@@ -4,9 +4,10 @@ python:
   - "3.5"
 install: 
 ## prosperAPI ##
-#  - "pip install cython"
-#  - "pip install numpy"
-#  - "pip install . "
+  - "pip install cython"
+  - "pip install numpy"
+  - "pip install prospercommon -U --force-reinstall"
+  - "pip install . "
 ## dh-virtualenv ##
   - "sudo apt-get install devscripts python-virtualenv git equivs"
   - "git clone https://github.com/spotify/dh-virtualenv.git"
@@ -17,8 +18,8 @@ install:
   - "sudo dpkg -i dh-virtualenv*.deb"
 script: 
 ## Test Python ##
-#  - "python scripts/manage_api.py --testkey"
-#  - "python setup.py test"
+  - "python scripts/manage_api.py --testkey"
+  - "python setup.py test"
 ## Build Package ##
   - "sudo dpkg-buildpackage -us -uc -d"
 branches:
