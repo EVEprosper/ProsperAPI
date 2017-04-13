@@ -2,9 +2,15 @@
 %:
 	dh $@ --with python-virtualenv
 
+ifdef DEBIAN_FRONTEND
 override_dh_virtualenv:
-	#dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib  
-	dh_virtualenv --preinstall cython --preinstall numpy --preinstall matplotlib  
+	dh_virtualenv --preinstall cython --preinstall numpy --preinstall matplotlib
+	
+else
+override_dh_virtualenv:
+	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib
+
+endif
 
 override_dh_strip:
 	dh_strip --exclude=numpy --exclude=pandas --exclude=matplotlib

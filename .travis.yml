@@ -13,7 +13,7 @@ install:
   - "git clone https://github.com/spotify/dh-virtualenv.git"
   - "cd dh-virtualenv"
   - "sudo mk-build-deps -ri"
-  - "sudo dpkg-buildpackage -us -uc -b"
+  - "sudo -E dpkg-buildpackage -us -uc -b"
   - "cd .."
   - "sudo dpkg -i dh-virtualenv*.deb"
 script: 
