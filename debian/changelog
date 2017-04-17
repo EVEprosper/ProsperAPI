@@ -1,3 +1,9 @@
+prosper-api (1.1.3) stable; urgency=low
+
+  * adding compatability with intelpython3 bindings
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Mon, 17 Apr 2017 15:00:00 -0700
+
 prosper-api (1.1.2) stable; urgency=low
 
   * fixing issues with build/requirements
