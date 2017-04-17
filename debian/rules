@@ -2,7 +2,7 @@
 %:
 	dh $@ --with python-virtualenv
 
-ifneq($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
+ifneq ($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
 override_dh_virtualenv:
 	dh_virtualenv --python /opt/intel/intelpython3/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib
 
