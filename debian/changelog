@@ -9,7 +9,7 @@ prosper-api (1.1.2) stable; urgency=low
   * fixing issues with build/requirements
   * reverting ESI/CREST switch out of main
 
- -- John Purcell <jpurcell.ee@gmail.com> Tue, 11 Apr 2017 10:00:00 -0700
+ -- John Purcell <jpurcell.ee@gmail.com>  Tue, 11 Apr 2017 10:00:00 -0700
 
 prosper-api (1.1.1) stable; urgency=low
 
