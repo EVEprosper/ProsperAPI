@@ -107,11 +107,11 @@ setup(
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
-        'requests~=2.13.0',
-        'pandas~=0.19.2',
-        'numpy~=1.12.0',
-        'cython~=0.25.2',
-        'matplotlib~=2.0.0',        #required for building fbprophet
+        'requests~=2.10.0',         #intelpython3 == 2.10.0
+        'pandas~=0.18.1',           #intelpython3 == 0.18.1
+        'numpy~=1.11.1',            #intelpython3 == 1.11.1
+        'cython~=0.24',             #intelpython3 == 0.24
+        'matplotlib~=1.5.1',        #required for building fbprophet (intel==1.5.1)
         'pystan~=2.14.0',
         'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
         'tinydb~=3.2.2',
