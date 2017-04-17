@@ -4,7 +4,7 @@
 
 ifneq ($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
 override_dh_virtualenv:
-	dh_virtualenv --python /opt/intel/intelpython3/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib
+	dh_virtualenv --python /opt/intel/intelpython3/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib
 
 else
 override_dh_virtualenv:
