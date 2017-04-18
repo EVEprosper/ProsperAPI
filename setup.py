@@ -107,7 +107,7 @@ setup(
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
-        'requests==2.10.0',         #intelpython3 == 2.10.0
+        'requests~=2.13.0',         #intelpython3 == 2.10.0
         'pandas==0.18.1',           #intelpython3 == 0.18.1
         'numpy==1.11.1',            #intelpython3 == 1.11.1
         'cython==0.24',             #intelpython3 == 0.24
@@ -121,7 +121,7 @@ setup(
     ],
     tests_require=[
         'pytest~=3.0.0',
-        'pytest_cov~=2.4.0',
+        'pytest_cov~=2.4.0',        #requires requests==2.13.0
         'pytest-flask~=0.10.0',
         'pymysql~=0.7.10'
     ],
