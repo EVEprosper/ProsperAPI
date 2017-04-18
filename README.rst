@@ -90,5 +90,5 @@ any damage arising from the use of this websi
 .. |Build Status| image:: https://travis-ci.org/EVEprosper/ProsperAPI.svg?branch=master
    :target: https://travis-ci.org/EVEprosper/ProsperAPI
 .. |Coverage Status| image:: https://coveralls.io/repos/github/EVEprosper/ProsperAPI/badge.svg?branch=master
-:target: https://coveralls.io/github/EVEprosper/ProsperAPI?branch=master
+   :target: https://coveralls.io/github/EVEprosper/ProsperAPI?branch=master
 
