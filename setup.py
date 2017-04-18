@@ -123,8 +123,8 @@ setup(
         'pytest~=3.0.0',
         'pytest_cov~=2.4.0',        #requires requests==2.13.0
         'pytest-flask~=0.10.0',
-        'pymysql~=0.7.10',
-        'python-coveralls~=2.9.1'
+        'pymysql~=0.7.10'#,
+        #'python-coveralls~=2.9.1'
     ],
     cmdclass={
         'test':PyTest

@@ -4,6 +4,7 @@ python:
 install: 
   - "pip install cython"
   - "pip install numpy"
+  - "pip install python-coveralls"
   - "travis_wait 15 pip install . "
 script: 
   - "python scripts/manage_api.py --testkey"
