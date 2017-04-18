@@ -12,3 +12,5 @@ branches:
   only:
   - master
   - travis_test
+after_success:
+  - coveralls
