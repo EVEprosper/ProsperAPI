@@ -5,9 +5,13 @@ We have worked very hard to make sure the process to release is as easy and trus
 Getting started is easy.  Set up a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) (remember python3).  Also, you will need `python3-dev` on linux systems.
 
 > `git clone <ProsperAPI Address>`
+
 > `cd ProsperAPI`
+
 > `virtualenv venv -p python3`
+
 > `source venv/bin/activate` (NOTE: windows is `venv\Scripts\activate`)
+
 > `pip install -e .` 
 
 # 1. Debug Mode Work
