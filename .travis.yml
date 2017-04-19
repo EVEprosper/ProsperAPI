@@ -6,7 +6,7 @@ install:
   - "pip install cython"
   - "pip install numpy" 
   - "pip install prospercommon --no-cache-dir"
-  - "travis_wait 15 pip install . "
+  - "travis_wait 15 pip install . --extra-index-url=https://repo.fury.io/lockefox/"
 script: 
   - "python scripts/manage_api.py --testkey"
   - "python setup.py test"
