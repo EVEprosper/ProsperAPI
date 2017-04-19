@@ -2,7 +2,7 @@
 from os import path, makedirs
 from datetime import datetime
 
-from tinydb import TinyDB, Query
+from tinymongo import TinyMongoClient
 from plumbum import cli
 import shortuuid
 
@@ -72,34 +72,39 @@ class ManageAPI(cli.Application):
             id_info = 'automated test key'
 
         LOGGER.info('making key for {0}:{1}'.format(username, id_info))
+        
+        #Connect to TinyMongoDB and use prosperAPI DB 
+        connection = TinyMongoClient(CACHE_PATH)
+        api_db = connection.prosperAPI
+        #Attach to users collection
+        usersDB = api_db.users
 
-        api_db = TinyDB(self.cache_path)
-
-        current_key = api_db.search(
-            Query().user_name == username
-        )
+        current_key = usersDB.find_one({'user_name': username })
+        
         if current_key:
+        
             key_msg = \
             'user already has a key' + \
-            '\n\tapi_key={0}'.format(current_key[0]['api_key']) + \
-            '\n\tuser_name={0}'.format(current_key[0]['user_name']) + \
-            '\n\tuser_info={0}'.format(current_key[0]['user_info']) + \
-            '\n\tkey_generated={0}'.format(current_key[0]['key_generated']) + \
-            '\n\tlast_accessed={0}'.format(current_key[0]['last_accessed'])
-
+            '\n\tapi_key={0}'.format(current_key['api_key']) + \
+            '\n\tuser_name={0}'.format(current_key['user_name']) + \
+            '\n\tuser_info={0}'.format(current_key['user_info']) + \
+            '\n\tkey_generated={0}'.format(current_key['key_generated']) + \
+            '\n\tlast_accessed={0}'.format(current_key['last_accessed'])
+            
             print(key_msg)
             if not self.debug:
                 LOGGER.info(key_msg)
 
             if not self.force:
                 exit()
-
+        """
         if current_key and not self.debug:
             api_db.remove(
                 Query().user_name == username
             )
-
+        """
         last_accessed = None
+        
         if self.testkey:
             last_accessed = datetime.now().isoformat()
         api_key_entry = {
@@ -111,17 +116,15 @@ class ManageAPI(cli.Application):
         }
 
         if not self.debug:
-            api_db.insert(api_key_entry)
+            usersDB.insert_one(api_key_entry)
 
-        check_key = api_db.search(
-            Query().user_name == username
-        )
+        check_key = usersDB.find_one({'user_name': username})
 
         if self.debug:
             api_msg = 'Key generated for {0}: {1}'.format(username, api_key_entry['api_key'])
         else:
             api_msg = 'Key generated for {0}: {1}'.\
-                format(check_key[0]['user_name'], check_key[0]['api_key'])
+                format(check_key['user_name'], check_key['api_key'])
 
         print(api_msg)
         if not self.debug:
