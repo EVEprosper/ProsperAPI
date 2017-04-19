@@ -69,5 +69,7 @@ lint*.txt$
 logs/
 cache/
 
+#pycharm project files
+
 #secret configs
 *_local.cfg
