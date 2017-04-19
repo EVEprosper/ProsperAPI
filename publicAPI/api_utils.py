@@ -34,11 +34,8 @@ def check_key(
     
     # Connect to TinyMongoDB and use prosperAPI DB 
     connection = TinyMongoClient(CACHE_PATH)
-    api_db = connection.prosperAPI
-    # Attach to users collection
-    userdb = api_db.users
-    
-    api_value = userdb.find_one({'api_key': api_key })
+    userdb = connection.prosperAPI.users
+    api_value = userdb.find_one({'api_key': api_key})
 
     access_allowed = False
     if api_value:
@@ -56,7 +53,7 @@ def check_key(
                 '$set': {'last_accessed': currenttime}
             }
             )
-        
+        connection.close()
         access_allowed = True
     else:
         logger.warning('Invalid API key: {0}'.format(api_key))

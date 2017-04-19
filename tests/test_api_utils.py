@@ -43,6 +43,7 @@ def test_good_key():
         '%Y-%m-%dT%H:%M:%S.%f').timestamp()
 
     assert new_time > old_time
+    connection.close()
 
 def test_bad_key():
     """validate failed key logic"""

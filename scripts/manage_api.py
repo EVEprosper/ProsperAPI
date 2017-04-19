@@ -75,9 +75,8 @@ class ManageAPI(cli.Application):
         
         # Connect to TinyMongoDB and use prosperAPI DB 
         connection = TinyMongoClient(CACHE_PATH)
-        api_db = connection.prosperAPI
+        userdb = connection.prosperAPI.users
         # Attach to users collection
-        userdb = api_db.users
 
         current_key = userdb.find_one({'user_name': username })
         
@@ -124,7 +123,7 @@ class ManageAPI(cli.Application):
         else:
             api_msg = 'Key generated for {0}: {1}'.\
                 format(check_key['user_name'], check_key['api_key'])
-
+        connection.close()
         print(api_msg)
         if not self.debug:
             LOGGER.info(api_msg)

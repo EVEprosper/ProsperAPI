@@ -184,7 +184,7 @@ def test_get_api_key():
         pytest.xfail('Unable to test without test keys')
 
     test_key = vals['api_key']
-
+    connection.close()
     TEST_API_KEY = test_key
 
 @pytest.mark.usefixtures('client_class')
