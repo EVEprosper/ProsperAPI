@@ -15,7 +15,6 @@ makedirs(CACHE_PATH, exist_ok=True)
 
 def check_key(
         api_key,
-        cache_path=CACHE_PATH,
         throw_on_fail=False,
         logger=LOGGER
 ):
@@ -33,13 +32,13 @@ def check_key(
 
     """
     
-    #Connect to TinyMongoDB and use prosperAPI DB 
+    # Connect to TinyMongoDB and use prosperAPI DB 
     connection = TinyMongoClient(CACHE_PATH)
     api_db = connection.prosperAPI
-    #Attach to users collection
-    usersDB = api_db.users
+    # Attach to users collection
+    userdb = api_db.users
     
-    api_value = usersDB.find_one({'api_key': api_key })
+    api_value = userdb.find_one({'api_key': api_key })
 
     access_allowed = False
     if api_value:
@@ -50,11 +49,11 @@ def check_key(
             )
         )
         logger.debug(api_value)
-        currentTime = datetime.now().isoformat()
-        usersDB.update(
+        currenttime = datetime.now().isoformat()
+        userdb.update(
             {'api_key': api_key},
             {
-                '$set': {'last_accessed': currentTime}
+                '$set': {'last_accessed': currenttime}
             }
             )
         
