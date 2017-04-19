@@ -1,7 +1,7 @@
 """test_api_utils.py: exercise api utilities"""
 from os import path
 from datetime import datetime
-from tinydb import TinyDB, Query
+from tinymongo import TinyMongoClient
 import shortuuid
 
 import pytest
@@ -13,34 +13,33 @@ import helpers
 HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
 
-CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache', 'apikeys.json')
+CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
 
 DO_API_TESTS = True
 
 def test_good_key():
     """validating check_key logic"""
-    tdb = TinyDB(CACHE_PATH)
-    vals = tdb.all()
+    connection = TinyMongoClient(CACHE_PATH)
+    api_db = connection.prosperAPI.users
+    vals = api_db.find()
 
     if not vals:
         global DO_API_TESTS
         DO_API_TESTS = False
         pytest.xfail('Unable to test without test keys')
 
-    test_key = vals[0]['api_key']
-    tdb.close()
+    test_key = vals['api_key']
     assert api_utils.check_key(test_key)
 
-    tdb = TinyDB(CACHE_PATH)
-    new_vals = tdb.search(Query().api_key == test_key)
+    new_vals = api_db.find_one({'api_key': test_key})
 
-    #TODO: fails on virgin key
+    # TODO: fails on virgin key
     old_time = datetime.strptime(
-        vals[0]['last_accessed'],
+        vals['last_accessed'],
         '%Y-%m-%dT%H:%M:%S.%f').timestamp()
 
     new_time = datetime.strptime(
-        new_vals[0]['last_accessed'],
+        new_vals['last_accessed'],
         '%Y-%m-%dT%H:%M:%S.%f').timestamp()
 
     assert new_time > old_time
