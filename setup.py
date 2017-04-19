@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
