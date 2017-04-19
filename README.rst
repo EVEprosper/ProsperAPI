@@ -27,7 +27,7 @@ For Developers
 Getting started is easy for developers. Just spin up a `virtualenv`_ and
 install
 
-    ``pip install .``
+    ``pip install . --extra-index-url=https://repo.fury.io/lockefox/``
 
 Testing is designed to be easy too! Just run tests from setup.py
 

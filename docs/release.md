@@ -12,7 +12,7 @@ Getting started is easy.  Set up a [virtualenv](http://docs.python-guide.org/en/
 
 > `source venv/bin/activate` (NOTE: windows is `venv\Scripts\activate`)
 
-> `pip install -e .` 
+> `pip install -e . --extra-index-url=https://repo.fury.io/lockefox/` 
 
 # 1. Debug Mode Work
 _Humans Should Be Able To Touch Code_
