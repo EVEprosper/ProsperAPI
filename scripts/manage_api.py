@@ -97,12 +97,11 @@ class ManageAPI(cli.Application):
 
             if not self.force:
                 exit()
-        """
+
         if current_key and not self.debug:
-            api_db.remove(
-                Query().user_name == username
-            )
-        """
+            print("Delete Key")
+            userdb.delete_one({'user_name': username})
+
         last_accessed = None
         
         if self.testkey:
