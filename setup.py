@@ -99,7 +99,7 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
-            'cache/apikeys.json'    #including key file for installer
+            'cache/prosperAPI.json'    #including key file for installer
         ]
     },
     install_requires=[
@@ -115,6 +115,7 @@ setup(
         'pystan~=2.14.0',
         'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
         'tinydb~=3.2.2',
+        'tinymongo~=0.1.8',
         'ujson~=1.35',
         'plumbum~=1.6.3',
         'shortuuid~=0.5.0'
