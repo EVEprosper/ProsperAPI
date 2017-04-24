@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 import json
 import pandas as pd
-from tinydb import TinyDB, Query
+from tinymongo import TinyMongoClient
 
 import pytest
 from flask import url_for
@@ -22,14 +22,15 @@ ROOT_CONFIG = helpers.get_config(
     path.join(ROOT, 'scripts', 'app.cfg')
 )
 TEST_CACHE_PATH = path.join(HERE, 'cache')
-CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache', 'apikeys.json')
+CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
 
 BASE_URL = 'http://localhost:8000'
+
 def test_clear_caches():
     """remove cache files for test"""
     cache_path = path.join(ROOT, 'publicAPI', 'cache')
     for file in listdir(cache_path):
-        if file == 'apikeys.json':
+        if file == 'prosperAPI.json':
             continue
         else:
             remove(path.join(cache_path, file))
@@ -175,14 +176,15 @@ TEST_API_KEY = ''
 def test_get_api_key():
     """fetch api key from cache for testing"""
     global TEST_API_KEY
-    tdb = TinyDB(CACHE_PATH)
-    vals = tdb.all()
+    connection = TinyMongoClient(CACHE_PATH)
+    api_db = connection.prosperAPI.users
+    vals = api_db.find()
 
     if not vals:
         pytest.xfail('Unable to test without test keys')
 
-    test_key = vals[0]['api_key']
-
+    test_key = vals['api_key']
+    connection.close()
     TEST_API_KEY = test_key
 
 @pytest.mark.usefixtures('client_class')

@@ -2,11 +2,22 @@
 %:
 	dh $@ --with python-virtualenv
 
+ifneq ($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
 override_dh_virtualenv:
-	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib  
+	dh_virtualenv --python /opt/intel/intelpython3/bin/python3.5 --preinstall cython==0.24 --preinstall numpy==1.11.1 --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/
+else
+override_dh_virtualenv:
+	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/
+
+endif
 
 override_dh_strip:
 	dh_strip --exclude=numpy --exclude=pandas --exclude=matplotlib
 
+ifneq ($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
+override_dh_shlibdeps:
+	dh_shlibdeps --exclude=numpy --exclude=pandas --exclude=matplotlib --exclude=cython --dpkg-shlibdeps-params=--ignore-missing-info
+else
 override_dh_shlibdeps:
 	dh_shlibdeps --exclude=numpy --exclude=pandas --exclude=matplotlib
+endif

@@ -2,7 +2,7 @@ from os import path, makedirs
 from datetime import datetime
 
 import ujson as json
-from tinydb import TinyDB, Query
+from tinymongo import TinyMongoClient
 
 import prosper.common.prosper_logging as p_logging
 import publicAPI.exceptions as exceptions
@@ -15,8 +15,6 @@ makedirs(CACHE_PATH, exist_ok=True)
 
 def check_key(
         api_key,
-        cache_path=CACHE_PATH,
-        api_file='apikeys.json',
         throw_on_fail=False,
         logger=LOGGER
 ):
@@ -33,26 +31,29 @@ def check_key(
         (bool) access allowed or not
 
     """
-    api_db = TinyDB(path.join(cache_path, api_file))
-
-    api_value = api_db.search(
-        Query().api_key == api_key
-    )
+    
+    # Connect to TinyMongoDB and use prosperAPI DB 
+    connection = TinyMongoClient(CACHE_PATH)
+    userdb = connection.prosperAPI.users
+    api_value = userdb.find_one({'api_key': api_key})
 
     access_allowed = False
     if api_value:
         logger.info(
             'accessed service - {0}:{1}'.format(
-                api_value[0]['user_name'],
-                api_value[0]['user_info']
+                api_value['user_name'],
+                api_value['user_info']
             )
         )
-        logger.debug(api_value[0])
-
-        api_db.update(
-            {'last_accessed': datetime.now().isoformat()},
-            Query().api_key == api_key
-        )
+        logger.debug(api_value)
+        currenttime = datetime.now().isoformat()
+        userdb.update(
+            {'api_key': api_key},
+            {
+                '$set': {'last_accessed': currenttime}
+            }
+            )
+        connection.close()
         access_allowed = True
     else:
         logger.warning('Invalid API key: {0}'.format(api_key))
@@ -61,6 +62,5 @@ def check_key(
                 status=401,
                 message='Invalid API key'
             )
-    api_db.close()
 
     return access_allowed

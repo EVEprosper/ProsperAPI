@@ -1,15 +1,20 @@
 language: python
 python:
   - "3.5"
+cache: pip
 install: 
   - "pip install cython"
-  - "pip install numpy"
-  - "pip install . "
-  #- "pip install pymysql"
+  - "pip install numpy" 
+  - "pip install prospercommon --no-cache-dir"
+  - "travis_wait 15 pip install ."
 script: 
   - "python scripts/manage_api.py --testkey"
-  #- "python scripts/create_splitcache --sql"
+  #- "python scripts/create_splitcache --emd"
   - "python setup.py test"
 branches:
   only:
   - master
+  - travis_test
+after_success:
+  - "pip install python-coveralls"
+  - "coveralls"

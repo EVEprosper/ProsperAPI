@@ -1,7 +1,9 @@
+|Prosper Logo|
+
 ProsperAPI
 ==========
 
-|Build Status|
+|Build Status| |Coverage Status|
 
 A collection of API resources for the general public to leverage `EVE
 Prosper`_\ ’s `EVE Online`_ market data.
@@ -20,7 +22,6 @@ are required for production:
 -  Debian Linux (Ubuntu16)
 -  Python >3.5
 -  `dh-virtualenv`_ >1.0
--  Access to `Prosper GemFury`_
 
 For Developers
 --------------
@@ -28,7 +29,7 @@ For Developers
 Getting started is easy for developers. Just spin up a `virtualenv`_ and
 install
 
-    ``pip install .``
+    ``pip install . --extra-index-url=https://repo.fury.io/lockefox/``
 
 Testing is designed to be easy too! Just run tests from setup.py
 
@@ -38,7 +39,7 @@ Testing is designed to be easy too! Just run tests from setup.py
 
 -  On Windows, numerical libraries are touchy. Have included manually
    compiled wheels in project
--  `fbprophet`_ is a complicated dedpendency. See build docs for more
+-  `fbprophet`_ is a complicated dedpendency. See `build documentation`_ for more
    notes
 -  Mac is special, `fbprophet`_ is not supported, but everything else is
 
@@ -82,7 +83,6 @@ any damage arising from the use of this websi
 .. _EVE Online: https://www.eveonline.com/
 .. _Flask-Restful: https://flask-restful.readthedocs.io/en/0.3.5/
 .. _dh-virtualenv: https://dh-virtualenv.readthedocs.io/en/1.0/
-.. _Prosper GemFury: https://repo.fury.io/lockefox/
 .. _virtualenv: https://python-docs.readthedocs.io/en/latest/dev/virtualenvs.html
 .. _fbprophet: https://github.com/facebookincubator/prophet
 .. _build documentation: https://github.com/EVEprosper/ProsperAPI/blob/master/docs/build.md
@@ -91,3 +91,7 @@ any damage arising from the use of this websi
 
 .. |Build Status| image:: https://travis-ci.org/EVEprosper/ProsperAPI.svg?branch=master
    :target: https://travis-ci.org/EVEprosper/ProsperAPI
+.. |Coverage Status| image:: https://coveralls.io/repos/github/EVEprosper/ProsperAPI/badge.svg?branch=master
+   :target: https://coveralls.io/github/EVEprosper/ProsperAPI?branch=master
+.. |Prosper Logo| image:: http://dl.eveprosper.com/podcast/logo-colour-17_sm5.png
+   :target: http://www.eveprosper.com

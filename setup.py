@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.1.2'
+__version__ = '1.1.4-1'
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
@@ -99,7 +99,7 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
-            'cache/apikeys.json'    #including key file for installer
+            'cache/prosperAPI.json'    #including key file for installer
         ]
     },
     install_requires=[
@@ -107,21 +107,22 @@ setup(
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
-        'requests~=2.13.0',
-        'pandas~=0.19.2',
-        'numpy~=1.12.0',
-        'cython~=0.25.2',
-        'matplotlib~=2.0.0',        #required for building fbprophet
+        'requests~=2.13.0',         #intelpython3 == 2.10.0
+        'pandas==0.18.1',           #intelpython3 == 0.18.1
+        'numpy==1.11.1',            #intelpython3 == 1.11.1
+        'cython==0.24',             #intelpython3 == 0.24
+        'matplotlib~=2.0.0',        #required for building fbprophet (intel==1.5.1)
         'pystan~=2.14.0',
         'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
         'tinydb~=3.2.2',
+        'tinymongo~=0.1.8.dev0',
         'ujson~=1.35',
         'plumbum~=1.6.3',
         'shortuuid~=0.5.0'
     ],
     tests_require=[
         'pytest~=3.0.0',
-        'pytest_cov~=2.4.0',
+        'pytest_cov~=2.4.0',        #requires requests==2.13.0
         'pytest-flask~=0.10.0',
         'pymysql~=0.7.10'
     ],
