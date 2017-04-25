@@ -8,6 +8,7 @@ from plumbum import cli
 import pandas as pd
 
 import prosper.common.prosper_logging as p_logging
+import prosper.common.prosper_config as p_config
 import publicAPI.crest_utils as crest_utils
 import publicAPI.forecast_utils as forecast_utils
 HERE = path.abspath(path.dirname(__file__))
@@ -15,6 +16,7 @@ ROOT = path.dirname(HERE)
 
 LOGGER = p_logging.DEFAULT_LOGGER
 CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
+CONFIG = p_config.ProsperConfig(path.join(HERE, 'app.cfg'))
 makedirs(CACHE_PATH, exist_ok=True)
 
 REGION_LIST = [
@@ -154,10 +156,21 @@ def fetch_crest(
         (:obj:`pandas.DataFrame`): data from endpoint
 
     """
+    logger.info('--Fetching price history: CREST')
     if data_range > CREST_MAX:
-        warnings.warn('CREST only returns %d days' % CREST_MAX, UserWarning)
+        warning_msg = 'CREST only returns %d days' % CREST_MAX
+        warnings.warn(warning_msg, UserWarning)
+        logger.warning(warning_msg)
 
-    raise NotImplementedError('CREST fetching not supported')
+    data = crest_utils.fetch_market_history(
+        region_id,
+        type_id,
+        mode=crest_utils.SwitchCCPSource.CREST,
+        config=CONFIG,
+        logger=logger
+    )
+
+    return data.tail(n=data_range)
 
 def fetch_esi(
         type_id,
@@ -177,10 +190,21 @@ def fetch_esi(
         (:obj:`pandas.DataFrame`): data from endpoint
 
     """
+    logger.info('--Fetching price history: ESI')
     if data_range > CREST_MAX:
-        warnings.warn('ESI only returns %d days' % CREST_MAX, UserWarning)
+        warning_msg = 'ESI only returns %d days' % CREST_MAX
+        warnings.warn(warning_msg, UserWarning)
+        logger.warning(warning_msg)
 
-    raise NotImplementedError('ESI fetching not supported')
+    data = crest_utils.fetch_market_history(
+        region_id,
+        type_id,
+        mode=crest_utils.SwitchCCPSource.ESI,
+        config=CONFIG,
+        logger=logger
+    )
+
+    return data.tail(n=data_range)
 
 def fetch_emd(
         type_id,
@@ -200,7 +224,17 @@ def fetch_emd(
         (:obj:`pandas.DataFrame`): data from endpoint
 
     """
-    pass
+    logger.info('--Fetching price history: EMD')
+
+    data = forecast_utils.fetch_extended_history(
+        region_id,
+        type_id,
+        data_range=data_range,
+        config=CONFIG,
+        logger=logger
+    )
+
+    return data
 
 class SplitCache(cli.Application):
     """Seeds a splitcache file for research purposes"""
@@ -272,7 +306,7 @@ class SplitCache(cli.Application):
         LOGGER.info('hello world')
 
         for region_id in cli.terminal.Progress(REGION_LIST):
-            LOGGER.debug('Fetching region_id: %d' % region_id)
+            LOGGER.info('Fetching region_id: %d' % region_id)
             data = fetch_data(
                 self.type_id,
                 region_id,
