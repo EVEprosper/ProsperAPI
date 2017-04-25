@@ -3,9 +3,10 @@ from os import path, makedirs
 from enum import Enum
 import warnings
 
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
 from plumbum import cli
 import pandas as pd
+import ujson as json
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
@@ -242,6 +243,46 @@ def fetch_emd(
 
     return data
 
+def write_to_cache_file(
+        data,
+        cache_path,
+        type_id=0,
+        region_id=0,
+        logger=LOGGER
+):
+    """save data to tinyDB
+
+    Args:
+        data (:obj:`pandas.DataFrame`): data to write out
+        cache_path (str): path to cache file
+        type_id (int, optional): EVE Online type_id
+        region_id (int, optional): EVE Online region_id
+        logger (:obj:`logging.logger`, optional): logging handle
+
+    Returns:
+        None
+
+    """
+    ## get DB ##
+    logger.info('Writing data to cache')
+    tdb = TinyDB(cache_path)
+
+    ## clean out existing entries ##
+    if (type_id and region_id):
+        logger.info('--Removing old cache entries')
+        tdb.remove(
+            (Query().region_id == region_id) &
+            (Query().type_id == type_id)
+        )
+
+    caching_data_str = data.to_json(
+        date_format='iso',
+        orient='records'
+    )
+    cache_data = json.loads(caching_data_str)
+    logger.info('--Writing to cache file')
+    tdb.insert_multiple(cache_data)
+
 class SplitCache(cli.Application):
     """Seeds a splitcache file for research purposes"""
     __log_builder = p_logging.ProsperLogger(
@@ -252,7 +293,10 @@ class SplitCache(cli.Application):
         ['d', '--debug'],
         help='debug mode: do not write to live database'
     )
-
+    force = cli.Flag(
+        ['f', '--force'],
+        help='Clean out old cache entries'
+    )
     @cli.switch(
         ['v', '--verbose'],
         help='Enable verbose messaging'
@@ -310,7 +354,9 @@ class SplitCache(cli.Application):
         LOGGER = self.__log_builder.logger
 
         LOGGER.info('hello world')
-
+        if self.debug:
+            global REGION_LIST
+            REGION_LIST = [10000002]
         for region_id in cli.terminal.Progress(REGION_LIST):
             LOGGER.info('Fetching region_id: %d' % region_id)
             data = fetch_data(
@@ -320,6 +366,21 @@ class SplitCache(cli.Application):
                 self.data_source,
                 LOGGER
             )
+            if self.force:
+                ## WARNING: deletes old cache values ##
+                write_to_cache_file(
+                    data,
+                    self.cache_path,
+                    type_id=self.type_id,
+                    region_id=region_id,
+                    logger=LOGGER
+                )
+            else:
+                write_to_cache_file(
+                    data,
+                    self.cache_path,
+                    logger=LOGGER
+                )
 
 if __name__ == '__main__':
     SplitCache.run()
