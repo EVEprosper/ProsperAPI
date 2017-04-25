@@ -99,7 +99,8 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
-            'cache/prosperAPI.json'    #including key file for installer
+            'cache/prosperAPI.json',    #including key file for installer
+            'cache/splitcache.json'
         ]
     },
     install_requires=[
