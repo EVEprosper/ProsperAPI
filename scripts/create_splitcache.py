@@ -89,9 +89,9 @@ REGION_LIST = [
 ]
 
 class DataSources(Enum):
-    SQL = 'sql',
-    EMD = 'eve-marketdata',
-    CREST = 'crest',
+    SQL = 'sql'
+    EMD = 'eve-marketdata'
+    CREST = 'crest'
     ESI = 'esi'
 
 def fetch_data(
