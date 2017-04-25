@@ -84,7 +84,7 @@ REGION_LIST = [
     10000067,   #'Genesis',
     10000068,   #'Verge Vendor',
     10000069,   #'Black Rise',
-    11000031,   #'Thera'
+    #11000031,   #'Thera'
 ]
 
 class DataSources(Enum):
@@ -116,25 +116,30 @@ def fetch_data(
         data = fetch_crest(
             type_id,
             region_id,
-            data_range
+            data_range,
+            logger
         )
     elif data_source == DataSources.ESI:
         data = fetch_esi(
             type_id,
             region_id,
-            data_range
+            data_range,
+            logger
         )
     elif data_source == DataSources.EMD:
         data = fetch_emd(
             type_id,
             region_id,
-            data_range
+            data_range,
+            logger
         )
     elif data_source == DataSources.SQL:
         raise NotImplementedError('SQL connection not supported at this time')
     else:
         raise NotImplementedError('Invalid DataSource: {0}'.format(repr(data_source)))
 
+    data['type_id'] = type_id
+    data['region_id'] = region_id
     return data
 
 CREST_MAX = 400
@@ -231,6 +236,7 @@ def fetch_emd(
         type_id,
         data_range=data_range,
         config=CONFIG,
+        min_data=0,
         logger=logger
     )
 
@@ -239,7 +245,7 @@ def fetch_emd(
 class SplitCache(cli.Application):
     """Seeds a splitcache file for research purposes"""
     __log_builder = p_logging.ProsperLogger(
-        'api_manager',
+        'splitcache_helper',
         HERE
     )
     debug = cli.Flag(
@@ -316,4 +322,4 @@ class SplitCache(cli.Application):
             )
 
 if __name__ == '__main__':
-    ManageAPI.run()
+    SplitCache.run()
