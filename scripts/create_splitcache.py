@@ -1,5 +1,6 @@
 """manage_api.py: tool for adding/removing API keys"""
 from os import path, makedirs
+from datetime import datetime
 from enum import Enum
 import warnings
 
@@ -141,6 +142,8 @@ def fetch_data(
 
     data['type_id'] = type_id
     data['region_id'] = region_id
+    data['data_source'] = data_source.name
+    data['cache_date'] = datetime.utcnow().strftime('%Y-%m-%d')
     return data
 
 CREST_MAX = 400
@@ -267,12 +270,15 @@ def write_to_cache_file(
     logger.info('Writing data to cache')
     tdb = TinyDB(cache_path)
 
+    date_min = data['date'].min()
+    logger.debug(date_min)
     ## clean out existing entries ##
     if (type_id and region_id):
         logger.info('--Removing old cache entries')
         tdb.remove(
             (Query().region_id == region_id) &
-            (Query().type_id == type_id)
+            (Query().type_id == type_id) &
+            (Query().date >= date_min)
         )
 
     caching_data_str = data.to_json(
