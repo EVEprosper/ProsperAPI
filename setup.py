@@ -99,6 +99,7 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
+            'split_info.json',
             'cache/prosperAPI.json',    #including key file for installer
             'cache/splitcache.json'
         ]
