@@ -48,7 +48,6 @@ def test_splitinfo_happypath():
     assert split_obj.new_id == DEMO_SPLIT['new_id']
     assert split_obj.split_date == datetime.strptime(DEMO_SPLIT['split_date'], '%Y-%m-%d')
     assert split_obj.date_str == DEMO_SPLIT['split_date']
-    assert split_obj.original_item == True
     assert split_obj.bool_mult_div == False
 
     assert split_obj.split_rate == DEMO_SPLIT['split_rate']
@@ -76,7 +75,7 @@ def test_splitinfo_reverse():
 
     ## Validate data inside obj ##
     assert split_obj.bool_mult_div == True
-    assert split_obj.original_item == False
+    assert split_obj.current_typeid() == DEMO_UNSPLIT['original_id']
     test_price = 3.5
     test_volume = 1e6
 

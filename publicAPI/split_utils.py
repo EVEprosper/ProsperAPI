@@ -26,7 +26,7 @@ class SplitInfo(object):
         self.bool_mult_div = None
         self.type_name = ''
         self.split_date = None
-        self.original_item = None
+        #self.original_item = None
         self.date_str = ''
         if json_entry:
             self.load_object(json_entry)
@@ -68,14 +68,11 @@ class SplitInfo(object):
     def __str__(self):
         return self.type_name
 
-    #TODO: this is bad, and you shoud feel bad
     def current_typeid(self):
         """get the current live typeid"""
-        if  (bool(self) and     self.original_item) or \
-        (not bool(self) and not self.original_item):
+        if bool(self):
             return self.new_id
-        elif (bool(self) and not self.original_item) or \
-        (not  bool(self) and     self.original_item):
+        else:
             return self.original_id
 
     def load_object(self, json_entry):
