@@ -24,7 +24,7 @@ CONFIG = api_config.CONFIG
 LOGGER = p_logging.DEFAULT_LOGGER
 DEBUG = False
 
-TEST = forecast_utils.LOGGER
+TEST = api_utils.LOGGER
 ## Flask Handles ##
 API = Api()
 APP_HACK = Flask(__name__)  #flask-restful CSV writer sucks

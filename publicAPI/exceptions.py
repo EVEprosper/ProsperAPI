@@ -60,3 +60,11 @@ class UnableToFetchData(EMDDataException):
 class NoDataReturned(EMDDataException):
     """missing data in EMD data"""
     pass
+
+## split_utils ##
+class SplitException(Exception):
+    """base class for split exceptions"""
+    pass
+class InvalidSplitConfig(SplitException):
+    """invalid data found in split config"""
+    pass
