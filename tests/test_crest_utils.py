@@ -9,6 +9,7 @@ from tinydb import Query
 
 import pytest
 
+import publicAPI.config as api_config
 import publicAPI.crest_utils as crest_utils
 import publicAPI.exceptions as exceptions
 import helpers
@@ -302,7 +303,7 @@ class TestValidateID:
             self.type_id,
             cache_buster=True,
             config=ROOT_CONFIG,
-            mode=crest_utils.SwitchCCPSource.ESI
+            mode=api_config.SwitchCCPSource.ESI
         )
 
         assert type_info_esi['name']        == type_info['name']
@@ -334,7 +335,7 @@ class TestValidateID:
             self.region_id,
             cache_buster=True,
             config=ROOT_CONFIG,
-            mode=crest_utils.SwitchCCPSource.ESI
+            mode=api_config.SwitchCCPSource.ESI
         )
 
         assert region_info_esi['name']        == region_info['name']
@@ -432,7 +433,7 @@ def test_fetch_market_history_esi(config=CONFIG):
         config.get('TEST', 'region_id'),
         config.get('TEST', 'type_id'),
         config=ROOT_CONFIG,
-        mode=crest_utils.SwitchCCPSource.ESI
+        mode=api_config.SwitchCCPSource.ESI
     )
 
     assert isinstance(data, pd.DataFrame)

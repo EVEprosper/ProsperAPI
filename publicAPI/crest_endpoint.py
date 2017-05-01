@@ -116,7 +116,7 @@ class OHLC_endpoint(Resource):
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
-        mode = crest_utils.SwitchCCPSource(
+        mode = api_config.SwitchCCPSource(
             api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
         )
         ## Validate inputs ##
@@ -261,7 +261,7 @@ class ProphetEndpoint(Resource):
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
-        mode = crest_utils.SwitchCCPSource(
+        mode = api_config.SwitchCCPSource(
             api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
         )
         forecast_range = api_config.DEFAULT_RANGE

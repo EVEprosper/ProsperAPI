@@ -2,7 +2,6 @@
 
 from os import path, makedirs
 from datetime import datetime
-from enum import Enum
 import pytz
 import configparser
 
@@ -23,11 +22,6 @@ HERE = path.abspath(path.dirname(__file__))
 
 CACHE_PATH = path.join(HERE, 'cache')
 makedirs(CACHE_PATH, exist_ok=True)
-
-class SwitchCCPSource(Enum):
-    """enum for switching between crest/esi"""
-    ESI = 'ESI'
-    CREST = 'CREST'
 
 def setup_cache_file(
         cache_filename#,
@@ -114,7 +108,7 @@ def endpoint_to_kwarg(
 def validate_id(
         endpoint_name,
         type_id,
-        mode=SwitchCCPSource.CREST,
+        mode=api_config.SwitchCCPSource.CREST,
         cache_buster=False,
         config=api_config.CONFIG,
         logger=LOGGER
@@ -169,14 +163,14 @@ def validate_id(
             type_id
         )
         type_info = None
-        if mode == SwitchCCPSource.CREST:
+        if mode == api_config.SwitchCCPSource.CREST:
             type_info = fetch_crest_endpoint(
                 endpoint_name,
                 **kwarg_pair,
                 config=config
                 #TODO: index_key to key/val pair
             )
-        elif mode == SwitchCCPSource.ESI:
+        elif mode == api_config.SwitchCCPSource.ESI:
             type_info = fetch_esi_endpoint(
                 endpoint_name,
                 **kwarg_pair,
@@ -314,7 +308,7 @@ def fetch_esi_endpoint(
 def fetch_market_history(
         region_id,
         type_id,
-        mode=SwitchCCPSource.CREST,
+        mode=api_config.SwitchCCPSource.CREST,
         config=api_config.CONFIG,
         logger=LOGGER
 ):
@@ -333,7 +327,7 @@ def fetch_market_history(
     logger.debug('region_id: {0}'.format(region_id))
     logger.debug('type_id: {0}'.format(type_id))
     try:
-        if mode == SwitchCCPSource.CREST:
+        if mode == api_config.SwitchCCPSource.CREST:
             raw_data = fetch_crest_endpoint(
                 'market_history',
                 region_id=region_id,
@@ -341,7 +335,7 @@ def fetch_market_history(
                 config=config
             )
             logger.debug(raw_data['items'][:5])
-        elif mode == SwitchCCPSource.ESI:
+        elif mode == api_config.SwitchCCPSource.ESI:
             raw_data = fetch_esi_endpoint(
                 'market_history',
                 region_id=region_id,
@@ -371,9 +365,9 @@ def fetch_market_history(
     logger.info('--pushing data into pandas')
 
     try:
-        if mode == SwitchCCPSource.CREST:
+        if mode == api_config.SwitchCCPSource.CREST:
             return_data = pd.DataFrame(raw_data['items'])
-        elif mode == SwitchCCPSource.ESI:
+        elif mode == api_config.SwitchCCPSource.ESI:
             return_data = pd.DataFrame(raw_data)
         else:   #pragma: no cover
             logger.error('Usupported datasource requested')
@@ -391,12 +385,12 @@ def fetch_market_history(
         )
 
     logger.info('--fixing column names')
-    if mode == SwitchCCPSource.CREST:
+    if mode == api_config.SwitchCCPSource.CREST:
         return_data.rename(
             columns={'orderCount': 'orders'},
             inplace=True
         )
-    elif mode == SwitchCCPSource.ESI:
+    elif mode == api_config.SwitchCCPSource.ESI:
         return_data.rename(
             columns={
                 'lowest': 'lowPrice',

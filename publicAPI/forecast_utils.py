@@ -142,7 +142,7 @@ def check_requested_range(
 def fetch_extended_history(
         region_id,
         type_id,
-        mode=crest_utils.SwitchCCPSource.CREST,
+        mode=api_config.SwitchCCPSource.CREST,
         min_data=MIN_DATA,
         crest_range=CREST_RANGE,
         config=api_config.CONFIG,
