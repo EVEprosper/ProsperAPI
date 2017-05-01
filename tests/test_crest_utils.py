@@ -229,7 +229,8 @@ class TestTinyDBHelp:
 
         tdb_handle.close()
 
-        rmtree(TEST_CACHE_PATH)
+        helpers.clear_caches()
+        #rmtree(TEST_CACHE_PATH)
         tdb_handle = crest_utils.setup_cache_file('dummy_handle')
         #assert tdb_handle
         assert path.isfile(path.join(TEST_CACHE_PATH, 'dummy_handle.json'))
@@ -279,8 +280,9 @@ class TestValidateID:
 
     def test_clear_cachefiles(self):
         """init test, clean up paths before test"""
-        rmtree(TEST_CACHE_PATH)
-        makedirs(TEST_CACHE_PATH)
+        helpers.clear_caches()
+        #rmtree(TEST_CACHE_PATH)
+        #makedirs(TEST_CACHE_PATH)
 
     def test_happypath_types(self):
         """make sure behavior is expected for direct use"""

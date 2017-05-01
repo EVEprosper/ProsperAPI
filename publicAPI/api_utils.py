@@ -31,8 +31,8 @@ def check_key(
         (bool) access allowed or not
 
     """
-    
-    # Connect to TinyMongoDB and use prosperAPI DB 
+
+    # Connect to TinyMongoDB and use prosperAPI DB
     connection = TinyMongoClient(CACHE_PATH)
     userdb = connection.prosperAPI.users
     api_value = userdb.find_one({'api_key': api_key})
@@ -49,10 +49,8 @@ def check_key(
         currenttime = datetime.now().isoformat()
         userdb.update(
             {'api_key': api_key},
-            {
-                '$set': {'last_accessed': currenttime}
-            }
-            )
+            {'$set': {'last_accessed': currenttime}}
+        )
         connection.close()
         access_allowed = True
     else:

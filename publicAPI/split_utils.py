@@ -8,14 +8,12 @@ import pandas as pd
 from tinydb import TinyDB, Query
 
 import publicAPI.config as api_config
+import publicAPI.crest_utils as crest_utils
+import publicAPI.forecast_utils as forecast_utils
 import publicAPI.exceptions as exceptions
 
 HERE = path.abspath(path.dirname(__file__))
-
-SPLIT_TYPES = [
-    29668,  #PLEX
-    44992   #Mini-PLEX
-]
+SPLIT_CACHE_FILE = path.join(HERE, 'cache', 'splitcache.json')
 class SplitInfo(object):
     """utility for managing split information"""
     def __init__(self, json_entry=None):
@@ -26,7 +24,6 @@ class SplitInfo(object):
         self.bool_mult_div = None
         self.type_name = ''
         self.split_date = None
-        #self.original_item = None
         self.date_str = ''
         if json_entry:
             self.load_object(json_entry)
@@ -61,8 +58,6 @@ class SplitInfo(object):
             return other * self.split_rate
     def __rtruediv__(self, other):
         return self.divide(other)
-    #def __truediv__(self, other):
-    #    return self.divide(other)
 
     #type_name for reasons
     def __str__(self):
@@ -142,7 +137,7 @@ def read_split_info(
     Args:
          (str, optional): path to split_info.json
         logger (:obj:`logging.logger`, optional): logging handle
-split_info_file
+
     Returns:
         (:obj:`dict`) dict of type_id:SplitInfo
 
@@ -161,12 +156,12 @@ split_info_file
     return split_collection
 
 def fetch_split_history(
-       region_id,
-       type_id,
-       fetch_source,
-       range=400,
-       config=api_config.CONFIG,
-       logger=api_config.LOGGER
+        region_id,
+        type_id,
+        fetch_source,
+        data_range=400,
+        config=api_config.CONFIG,
+        logger=api_config.LOGGER
 ):
     """for split items, fetch and stitch the data together
 
@@ -174,7 +169,7 @@ def fetch_split_history(
         region_id (int): EVE Online region_id
         type_id (int): EVE Online type_id
         fetch_source (:enum:`api_config.SwitchCCPSource`): which endpoint to fetch
-        range (int, optional): how much total data to fetch
+        data_range (int, optional): how much total data to fetch
         config (:obj:`configparser.ConfigParser`, optional): config overrides
         logger (:obj:`logging.logger`, optional): logging handle
 
@@ -195,3 +190,32 @@ def fetch_split_history(
         'fetching data from remote {0} (was {1})'.\
         format(type_id, fetch_id)
     )
+    ## Get current market data ##
+    if fetch_source == api_config.SwitchCCPSource.EMD:
+        logger.info('--EMD fetch')
+        current_data = forecast_utils.fetch_extended_history(
+            region_id,
+            fetch_id,
+            data_range=data_range,
+            config=config,
+            logger=logger
+        )
+    else:
+        logger.info('--CCP fetch')
+        current_data = crest_utils.fetch_market_history(
+            region_id,
+            fetch_id,
+            mode=fetch_source,
+            config=config,
+            logger=logger
+        )
+
+    ## Early exit: split too old ##
+    min_date = current_data['date'].min()
+    if min_date > split_obj.split_date:
+        logger.info('No split work -- split too old')
+        return current_data
+
+    ## Fetch split data ##
+    split_archive = TinyDB(SPLIT_CACHE_FILE)
+

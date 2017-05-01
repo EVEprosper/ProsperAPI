@@ -28,12 +28,7 @@ BASE_URL = 'http://localhost:8000'
 
 def test_clear_caches():
     """remove cache files for test"""
-    cache_path = path.join(ROOT, 'publicAPI', 'cache')
-    for file in listdir(cache_path):
-        if file == 'prosperAPI.json':
-            continue
-        else:
-            remove(path.join(cache_path, file))
+    helpers.clear_caches(True)
 
 VIRGIN_RUNTIME = None
 

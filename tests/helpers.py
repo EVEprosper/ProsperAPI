@@ -1,12 +1,58 @@
 """helpers.py: a collection of helpful utilities for tests"""
-from os import path
+from os import path, listdir, remove
 import configparser
 from datetime import datetime, timedelta
+import json
 
+from tinymongo import TinyMongoClient
 import pymysql.cursors
 
 import prosper.common.prosper_config as p_config
+
+HERE = path.abspath(path.dirname(__file__))
+ROOT = path.dirname(HERE)
+PROD_CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
+TEST_CACHE_PATH = path.join(HERE, 'cache')
 CONN = None
+SPECIAL_CACHE_FILES = [
+    'prosperAPI.json',
+    'splitcache.json'
+]
+SPECIAL_CACHE_COLLECTIONS = [
+    'users'
+]
+def clear_caches(bool_prod=False):
+    """remove cache files for testing"""
+    cache_path = TEST_CACHE_PATH
+    if bool_prod:
+        cache_path = PROD_CACHE_PATH
+
+    for file in listdir(cache_path):
+        if file in SPECIAL_CACHE_FILES:
+            continue
+
+        remove(path.join(cache_path, file))
+
+def clear_tinymongo_cache(bool_prod=False):
+    """tinymongo uses all collections in one file, clearing requires direct access"""
+    if not bool_prod:
+        remove(path.join(TEST_CACHE_PATH, 'prosperAPI.json'))
+        return
+
+    with open(path.join(PROD_CACHE_PATH, 'prosperAPI.json'), 'r') as tdb_fh:
+        raw_json = json.load(tdb_fh)
+
+    collections = raw_json.keys()
+    tdb = TinyMongoClient(PROD_CACHE_PATH)
+    for collection in collections:
+        if collection in SPECIAL_CACHE_COLLECTIONS:
+            #skip special tables
+            continue
+
+        tdb.prosperAPI[collection].delete_many({})  #nuke it from orbit
+
+    tdb.close()
+
 def get_config(config_filename):
     """parse test config file
 
@@ -18,19 +64,6 @@ def get_config(config_filename):
 
     """
     config = p_config.ProsperConfig(config_filename)
-    #config = configparser.ConfigParser(
-    #    interpolation=configparser.ExtendedInterpolation(),
-    #    allow_no_value=True,
-    #    delimiters=('='),
-    #    inline_comment_prefixes=('#')
-    #)
-#
-    #local_filename = config_filename.replace('.cfg', '_local.cfg')
-    #if path.isfile(local_filename):
-    #    config_filename = local_filename
-#
-    #with open(config_filename, 'r') as file:
-    #    config.read_file(file)
 
     return config
 

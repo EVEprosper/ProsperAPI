@@ -426,30 +426,3 @@ def data_to_ohlc(
     })
 
     return ohlc
-
-SPLIT_DATE = datetime.strptime('2017-05-09', '%Y-%m-%d')
-def split_plex(
-        data,
-        type_id,
-        split_date=SPLIT_DATE,
-        split_value=500,
-        logger=LOGGER
-):
-    """handle plex split
-
-    Note:
-        Expects "crest" dataframe
-        ['date', 'lowPrice', 'highPrice', 'avgPrice', 'volume', 'orders']
-
-    Args:
-        data (:obj:`pandas:DataFrame`): data to split
-        type_id (int): EVE Online type_id for splitting
-        split_date (:obj:`datetime.datetime`, optional): day when split happens (UTC)
-        split_value (int, optional): split factor
-        logger (:obj:`logging.logger`, optional): logging handle
-
-    Returns:
-        (:obj:`pandas:DataFrame`): updated dataframe
-
-    """
-    pass
