@@ -68,3 +68,6 @@ class SplitException(Exception):
 class InvalidSplitConfig(SplitException):
     """invalid data found in split config"""
     pass
+class NoSplitConfigFound(SplitException):
+    """tried to fetch info without defining split"""
+    pass

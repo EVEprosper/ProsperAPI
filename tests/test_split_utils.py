@@ -17,6 +17,7 @@ SPLIT_FILE = path.join(ROOT, 'publicAPI', 'split_info.json')
 SPLIT_CACHE = path.join(ROOT, 'publicAPI', 'cache', 'splitcache.json')
 
 TEST_DATE = datetime.utcnow() - timedelta(days=10)
+FUTURE_DATE = datetime.utcnow() + timedelta(days=10)
 DEMO_SPLIT = {
     "type_id":34,
     "type_name":"Tritanium",
@@ -24,6 +25,15 @@ DEMO_SPLIT = {
     "new_id":35,
     "split_date":TEST_DATE.strftime('%Y-%m-%d'),
     "bool_mult_div":"False",
+    "split_rate": 10
+}
+DEMO_UNSPLIT = {
+    "type_id":35,
+    "type_name":"Tritanium",
+    "original_id":34,
+    "new_id":35,
+    "split_date":FUTURE_DATE.strftime('%Y-%m-%d'),
+    "bool_mult_div":"True",
     "split_rate": 10
 }
 
@@ -37,9 +47,13 @@ def test_splitinfo_happypath():
     assert split_obj.original_id == DEMO_SPLIT['original_id']
     assert split_obj.new_id == DEMO_SPLIT['new_id']
     assert split_obj.split_date == datetime.strptime(DEMO_SPLIT['split_date'], '%Y-%m-%d')
+    assert split_obj.date_str == DEMO_SPLIT['split_date']
+    assert split_obj.original_item == True
     assert split_obj.bool_mult_div == False
 
     assert split_obj.split_rate == DEMO_SPLIT['split_rate']
+
+    assert split_obj.current_typeid() == DEMO_SPLIT['new_id']
 
     ## Validate magicmethod behavior ##
     assert int(split_obj) == DEMO_SPLIT['new_id']
@@ -58,13 +72,11 @@ def test_splitinfo_happypath():
 
 def test_splitinfo_reverse():
     """validate SplitInfo with "True" bool_mult_div"""
-    reverse_profile = dict(DEMO_SPLIT)
-    reverse_profile['bool_mult_div'] = "True"
-    split_obj = split_utils.SplitInfo(reverse_profile)
+    split_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
 
     ## Validate data inside obj ##
     assert split_obj.bool_mult_div == True
-
+    assert split_obj.original_item == False
     test_price = 3.5
     test_volume = 1e6
 

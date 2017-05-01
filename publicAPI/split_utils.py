@@ -26,17 +26,19 @@ class SplitInfo(object):
         self.bool_mult_div = None
         self.type_name = ''
         self.split_date = None
+        self.original_item = None
+        self.date_str = ''
         if json_entry:
             self.load_object(json_entry)
-        self.now = datetime.utcnow()
+
 
     #int(SplitInfo) = "what does the type_id switch to?"
     def __int__(self):
         return self.new_id
 
-    #bool(SplitInfo) = "is this type_id the currently released item?"
+    #bool(SplitInfo) = "has the split happened yet?"
     def __bool__(self):
-        return bool(self.split_date < self.now)
+        return bool(self.split_date < datetime.utcnow())
 
     #new_price = old_price * SplitInfo()
     def multiply(self, other):
@@ -66,6 +68,16 @@ class SplitInfo(object):
     def __str__(self):
         return self.type_name
 
+    #TODO: this is bad, and you shoud feel bad
+    def current_typeid(self):
+        """get the current live typeid"""
+        if  (bool(self) and     self.original_item) or \
+        (not bool(self) and not self.original_item):
+            return self.new_id
+        elif (bool(self) and not self.original_item) or \
+        (not  bool(self) and     self.original_item):
+            return self.original_id
+
     def load_object(self, json_entry):
         """loads info from json object into helper
 
@@ -88,6 +100,7 @@ class SplitInfo(object):
                 json_entry['split_date'],
                 '%Y-%m-%d'
             )
+            self.date_str = self.split_date.strftime('%Y-%m-%d')
             split_rate = json_entry['split_rate']
         except Exception as err_msg:
             raise exceptions.InvalidSplitConfig(
@@ -115,7 +128,11 @@ class SplitInfo(object):
                 'Unable to parse `bool_mult_div`={0}'.format(json_entry['bool_mult_div'])
             )
 
-SPLIT_INFO = {}
+        if self.type_id == self.original_id:
+            self.original_item = True
+        else:
+            self.original_item = False
+
 def read_split_info(
         split_info_file=path.join(HERE, 'split_info.json'),
         logger=api_config.LOGGER
@@ -126,16 +143,16 @@ def read_split_info(
         Does not update global SPLIT_INFO (use `main` scope)
 
     Args:
-        split_info_file (str, optional): path to split_info.json
+         (str, optional): path to split_info.json
         logger (:obj:`logging.logger`, optional): logging handle
-
+split_info_file
     Returns:
         (:obj:`dict`) dict of type_id:SplitInfo
 
     """
     logger.info('Reading split file: {0}'.format(split_info_file))
     with open(split_info_file, 'r') as split_fh:
-        split_list = json.read(split_fh)
+        split_list = json.load(split_fh)
 
     logger.info('loading split info into objects')
     split_collection = {}
@@ -146,4 +163,38 @@ def read_split_info(
 
     return split_collection
 
+def fetch_split_history(
+       region_id,
+       type_id,
+       fetch_source,
+       range=400,
+       config=api_config.CONFIG,
+       logger=api_config.LOGGER
+):
+    """for split items, fetch and stitch the data together
 
+    Args:
+        region_id (int): EVE Online region_id
+        type_id (int): EVE Online type_id
+        fetch_source (:enum:`api_config.SwitchCCPSource`): which endpoint to fetch
+        range (int, optional): how much total data to fetch
+        config (:obj:`configparser.ConfigParser`, optional): config overrides
+        logger (:obj:`logging.logger`, optional): logging handle
+
+    Returns:
+        (:obj:`pandas.DataFrame`) data from endpoint
+
+    """
+    ## Figure out if there's work to do ##
+    if type_id not in api_config.SPLIT_INFO:
+        raise exceptions.NoSplitConfigFound(
+            'No config set for {0}'.format(type_id)
+        )
+
+    split_obj = SPLIT_INFO[type_id]
+    fetch_id = split_obj.current_typeid()
+
+    logger.info(
+        'fetching data from remote {0} (was {1})'.\
+        format(type_id, fetch_id)
+    )

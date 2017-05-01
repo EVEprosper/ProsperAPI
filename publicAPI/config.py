@@ -2,6 +2,8 @@
 from os import path
 from enum import Enum
 
+import ujson as json
+
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
@@ -33,3 +35,5 @@ def load_globals(config=CONFIG):
 
     DEFAULT_RANGE = int(config.get('CREST', 'prophet_range'))
     MAX_RANGE = int(config.get('CREST', 'prophet_max'))
+
+SPLIT_INFO = {}
