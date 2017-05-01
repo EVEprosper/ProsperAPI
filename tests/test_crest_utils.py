@@ -162,7 +162,7 @@ def test_validate_esi_fetcher(config=CONFIG):
     ]
     for key in row_keys:
         assert key in market_item.keys()
-    assert len(market_data) >= 400
+    assert len(market_data) >= 366
 
 def test_esi_fetcher_errors(config=CONFIG):
     """validate errors thrown by fetch_crest_endpoint"""

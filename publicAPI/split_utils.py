@@ -59,8 +59,8 @@ class SplitInfo(object):
             return other * self.split_rate
     def __rtruediv__(self, other):
         return self.divide(other)
-    def __truediv__(self, other):
-        return self.divide(other)
+    #def __truediv__(self, other):
+    #    return self.divide(other)
 
     #type_name for reasons
     def __str__(self):
@@ -95,15 +95,16 @@ class SplitInfo(object):
             )
 
         #TODO: this is shitty
-        if isinstance(split_rate, int) or isinstance(split_rate, float):
-            self.split_rate = split_rate
-        else:
+        if isinstance(split_rate, str):
             try:
                 self.split_rate = ast.literal_eval(split_rate)
             except Exception as err_msg:
                 raise exceptions.InvalidSplitConfig(
                     'Unable to parse split_rate {0}'.format(repr(err_msg))
                 )
+        else:
+            self.split_rate = split_rate
+
 
         if json_entry['bool_mult_div'].lower() == 'true':
             self.bool_mult_div = True
