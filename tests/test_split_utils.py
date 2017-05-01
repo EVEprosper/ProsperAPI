@@ -37,11 +37,7 @@ def test_splitinfo_happypath():
     assert split_obj.original_id == DEMO_SPLIT['original_id']
     assert split_obj.new_id == DEMO_SPLIT['new_id']
     assert split_obj.split_date == datetime.strptime(DEMO_SPLIT['split_date'], '%Y-%m-%d')
-
-    if DEMO_SPLIT['bool_mult_div'].lower() == "false":
-        assert split_obj.bool_mult_div == False
-    else:
-        assert split_obj.bool_mult_div == True
+    assert split_obj.bool_mult_div == False
 
     assert split_obj.split_rate == DEMO_SPLIT['split_rate']
 
@@ -56,7 +52,47 @@ def test_splitinfo_happypath():
     expected_price = test_price / DEMO_SPLIT['split_rate']
     expected_volume = test_volume * DEMO_SPLIT['split_rate']
 
-    print(test_volume / split_obj)
     assert test_price * split_obj == expected_price
     assert split_obj * test_price == expected_price
     assert test_volume / split_obj == expected_volume
+
+def test_splitinfo_reverse():
+    """validate SplitInfo with "True" bool_mult_div"""
+    reverse_profile = dict(DEMO_SPLIT)
+    reverse_profile['bool_mult_div'] = "True"
+    split_obj = split_utils.SplitInfo(reverse_profile)
+
+    ## Validate data inside obj ##
+    assert split_obj.bool_mult_div == True
+
+    test_price = 3.5
+    test_volume = 1e6
+
+    expected_price = test_price * DEMO_SPLIT['split_rate']
+    expected_volume = test_volume / DEMO_SPLIT['split_rate']
+
+    assert test_price * split_obj == expected_price
+    assert split_obj * test_price == expected_price
+    assert test_volume / split_obj == expected_volume
+
+def test_splitinfo_throws():
+    """make sure bad behavior is caught"""
+    short_profile = dict(DEMO_SPLIT)
+    short_profile.pop('split_rate', None)
+    with pytest.raises(exceptions.InvalidSplitConfig):
+        split_obj = split_utils.SplitInfo(short_profile)
+
+    bad_split = dict(DEMO_SPLIT)
+    bad_split['split_rate'] = 'bacon'
+    with pytest.raises(exceptions.InvalidSplitConfig):
+        split_obj = split_utils.SplitInfo(bad_split)
+
+    bad_date = dict(DEMO_SPLIT)
+    bad_date['split_date'] = 'Tomorrow'
+    with pytest.raises(exceptions.InvalidSplitConfig):
+        split_obj = split_utils.SplitInfo(bad_date)
+
+    bad_bool = dict(DEMO_SPLIT)
+    bad_bool['bool_mult_div'] = 'bacon'
+    with pytest.raises(exceptions.InvalidSplitConfig):
+        split_obj = split_utils.SplitInfo(bad_bool)

@@ -1,6 +1,7 @@
 """split_utils.py: tool for handling type_id split/remapping"""
 from os import path, makedirs
 from datetime import datetime
+import ast
 
 import ujson as json
 import pandas as pd
@@ -87,11 +88,23 @@ class SplitInfo(object):
                 json_entry['split_date'],
                 '%Y-%m-%d'
             )
-            self.split_rate = int(json_entry['split_rate'])
+            split_rate = json_entry['split_rate']
         except Exception as err_msg:
             raise exceptions.InvalidSplitConfig(
                 'Unable to parse config {0}'.format(repr(err_msg))
             )
+
+        #TODO: this is shitty
+        if isinstance(split_rate, int) or isinstance(split_rate, float):
+            self.split_rate = split_rate
+        else:
+            try:
+                self.split_rate = ast.literal_eval(split_rate)
+            except Exception as err_msg:
+                raise exceptions.InvalidSplitConfig(
+                    'Unable to parse split_rate {0}'.format(repr(err_msg))
+                )
+
         if json_entry['bool_mult_div'].lower() == 'true':
             self.bool_mult_div = True
         elif json_entry['bool_mult_div'].lower() == 'false':
