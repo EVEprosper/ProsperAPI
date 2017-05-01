@@ -133,6 +133,17 @@ def read_split_info(
         (:obj:`dict`) dict of type_id:SplitInfo
 
     """
-    pass
+    logger.info('Reading split file: {0}'.format(split_info_file))
+    with open(split_info_file, 'r') as split_fh:
+        split_list = json.read(split_fh)
+
+    logger.info('loading split info into objects')
+    split_collection = {}
+    for split_info in split_list:
+        split_obj = SplitInfo(split_info)
+        logger.debug(split_obj)
+        split_collection[split_obj.type_id] = split_obj
+
+    return split_collection
 
 
