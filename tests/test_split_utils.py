@@ -7,6 +7,9 @@ from tinydb import TinyDB, Query
 import pytest
 
 import publicAPI.split_utils as split_utils
+import publicAPI.config as api_utils
+import publicAPI.crest_utils as crest_utils
+import publicAPI.forecast_utils as forecast_utils
 import publicAPI.exceptions as exceptions
 import helpers
 
@@ -29,14 +32,19 @@ DEMO_SPLIT = {
 }
 DEMO_UNSPLIT = {
     "type_id":35,
-    "type_name":"Tritanium",
+    "type_name":"Pyerite",
     "original_id":34,
     "new_id":35,
     "split_date":FUTURE_DATE.strftime('%Y-%m-%d'),
     "bool_mult_div":"True",
     "split_rate": 10
 }
-
+ROOT_CONFIG = helpers.get_config(
+    path.join(ROOT, 'scripts', 'app.cfg')
+)
+TEST_CONFIG = helpers.get_config(
+    path.join(HERE, 'test_config.cfg')
+)
 def test_splitinfo_happypath():
     """test SplitInfo behavior"""
     split_obj = split_utils.SplitInfo(DEMO_SPLIT)
@@ -107,3 +115,77 @@ def test_splitinfo_throws():
     bad_bool['bool_mult_div'] = 'bacon'
     with pytest.raises(exceptions.InvalidSplitConfig):
         split_obj = split_utils.SplitInfo(bad_bool)
+
+def test_load_data():
+    """push data into global scope for testing"""
+    api_utils.SPLIT_INFO = split_utils.read_split_info()
+    demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
+    revrsplit_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
+
+    api_utils.SPLIT_INFO[demosplit_obj.type_id] = demosplit_obj
+    api_utils.SPLIT_INFO[revrsplit_obj.type_id] = revrsplit_obj
+
+def test_split_history_throws():
+    """make sure fetch_split_history throws expected errors"""
+    with pytest.raises(exceptions.NoSplitConfigFound):
+        split_obj = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            int(TEST_CONFIG.get('TEST', 'alt_id')) + 1,
+            api_utils.SwitchCCPSource.EMD
+        )
+
+@pytest.mark.incremental
+class TestNoSplit:
+    """validate behavior if there's no split to perform"""
+    test_type_id = DEMO_UNSPLIT['type_id']
+    def test_future_split(self):
+        """try on a split that hasn't happened yet"""
+        test_data_esi = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            api_utils.SwitchCCPSource.ESI,
+            config=ROOT_CONFIG
+        )
+        expected_esi = crest_utils.fetch_market_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            mode=api_utils.SwitchCCPSource.ESI,
+            config=ROOT_CONFIG
+        )
+        for column in test_data_esi.columns.values:
+            assert test_data_esi[column].equals(expected_esi[column])
+        #assert test_data_esi.equals(crest_utils.fetch_market_history(
+        #    TEST_CONFIG.get('TEST', 'region_id'),
+        #    self.test_type_id,
+        #    mode=api_utils.SwitchCCPSource.ESI,
+        #    config=ROOT_CONFIG
+        #))
+
+        test_data_crest = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            api_utils.SwitchCCPSource.CREST,
+            config=ROOT_CONFIG
+        )
+        assert test_data_crest.equals(crest_utils.fetch_market_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            mode=api_utils.SwitchCCPSource.CREST,
+            config=ROOT_CONFIG
+        ))
+
+        test_data_emd = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            api_utils.SwitchCCPSource.ESI,
+            data_range=TEST_CONFIG.get('TEST', 'history_count'),
+            config=ROOT_CONFIG
+        )
+        assert test_data_emd.equals(forecast_utils.fetch_extended_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            data_range=TEST_CONFIG.get('TEST', 'history_count'),
+            config=ROOT_CONFIG
+        ))
+
+

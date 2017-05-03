@@ -183,7 +183,7 @@ def fetch_split_history(
             'No config set for {0}'.format(type_id)
         )
 
-    split_obj = SPLIT_INFO[type_id]
+    split_obj = api_config.SPLIT_INFO[type_id]
     fetch_id = split_obj.current_typeid()
 
     logger.info(
@@ -211,9 +211,10 @@ def fetch_split_history(
         )
 
     ## Early exit: split too old ##
-    min_date = current_data['date'].min()
-    if min_date > split_obj.split_date:
-        logger.info('No split work -- split too old')
+    min_date = datetime.strptime(current_data['date'].min(), '%Y-%m-%d')
+    if min_date > split_obj.split_date or not bool(split_obj):
+        #split is too old OR split hasn't happened yet
+        logger.info('No split work -- Returning current pull')
         return current_data
 
     ## Fetch split data ##
