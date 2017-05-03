@@ -138,8 +138,8 @@ def test_split_history_throws():
 class TestNoSplit:
     """validate behavior if there's no split to perform"""
     test_type_id = DEMO_UNSPLIT['type_id']
-    def test_future_split(self):
-        """try on a split that hasn't happened yet"""
+    def test_future_split_esi(self):
+        """validate on ESI"""
         test_data_esi = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
@@ -153,6 +153,8 @@ class TestNoSplit:
             config=ROOT_CONFIG
         ))
 
+    def test_future_split_crest(self):
+        """validate with CREST source"""
         test_data_crest = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
@@ -166,6 +168,8 @@ class TestNoSplit:
             config=ROOT_CONFIG
         ))
 
+    def test_future_split_emd(self):
+        """valdiate with EMD source"""
         test_data_emd = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
@@ -180,4 +184,6 @@ class TestNoSplit:
             config=ROOT_CONFIG
         ))
 
-
+    def test_short_split(self):
+        """make sure escaped if split was too far back"""
+        pass
