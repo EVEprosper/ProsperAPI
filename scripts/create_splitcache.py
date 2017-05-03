@@ -13,6 +13,7 @@ import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 import publicAPI.crest_utils as crest_utils
 import publicAPI.forecast_utils as forecast_utils
+import publicAPI.config as api_utils
 HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
 
@@ -174,7 +175,7 @@ def fetch_crest(
     data = crest_utils.fetch_market_history(
         region_id,
         type_id,
-        mode=crest_utils.SwitchCCPSource.CREST,
+        mode=api_utils.SwitchCCPSource.CREST,
         config=CONFIG,
         logger=logger
     )
@@ -208,7 +209,7 @@ def fetch_esi(
     data = crest_utils.fetch_market_history(
         region_id,
         type_id,
-        mode=crest_utils.SwitchCCPSource.ESI,
+        mode=api_utils.SwitchCCPSource.ESI,
         config=CONFIG,
         logger=logger
     )
@@ -314,7 +315,7 @@ class SplitCache(cli.Application):
     back_range = 750
     @cli.switch(
         ['r', '--range'],
-        str,
+        int,
         help='How many days to back-fetch'
     )
     def override_back_range(self, back_range):
@@ -325,8 +326,7 @@ class SplitCache(cli.Application):
     @cli.switch(
         ['s', '--source'],
         str,
-        help='where to source data for backfill'
-    )
+        help='where to source data for backfill')
     def override_data_source(self, data_source):
         """override data_source from user"""
         self.data_source = DataSources(data_source.lower())
@@ -335,24 +335,28 @@ class SplitCache(cli.Application):
     @cli.switch(
         ['c', '--db'],
         str,
-        help='path to alternate API database'
-    )
+        help='path to alternate API database')
     def override_cache_path(self, cache_path):
         """override cache path"""
-        if path.isfile(cache_path):
-            self.cache_path = cache_path
-        else:
-            raise FileNotFoundError
+        self.cache_path = cache_path
 
     type_id = 29668
     @cli.switch(
         ['t', '--type'],
         int,
-        help='typeID required for back-db'
-    )
+        help='typeID required for back-db')
     def override_type_id(self, type_id):
         """override type_id from user"""
         self.type_id = type_id
+
+    region_list = REGION_LIST
+    @cli.switch(
+        ['--regions'],
+        str,
+        help='list of regions to scrape')
+    def override_region_list(self, region_str):
+        """override region list from user"""
+        self.region_list = region_str.split(',')
 
     def main(self):
         """application runtime"""
@@ -360,11 +364,9 @@ class SplitCache(cli.Application):
         LOGGER = self.__log_builder.logger
 
         LOGGER.info('hello world')
-        if self.debug:
-            global REGION_LIST
-            REGION_LIST = [10000002]
-        for region_id in cli.terminal.Progress(REGION_LIST):
-            LOGGER.info('Fetching region_id: %d' % region_id)
+
+        for region_id in cli.terminal.Progress(self.region_list):
+            LOGGER.info('Fetching region_id: {0}'.format(region_id))
             data = fetch_data(
                 self.type_id,
                 region_id,
