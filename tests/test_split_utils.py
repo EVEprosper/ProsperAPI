@@ -125,6 +125,17 @@ def test_load_data():
     api_utils.SPLIT_INFO[demosplit_obj.type_id] = demosplit_obj
     api_utils.SPLIT_INFO[revrsplit_obj.type_id] = revrsplit_obj
 
+def test_datetime_helper():
+    """validate datetime helper"""
+    short_string = '2017-04-01'
+    long_string  = '2017-04-01T12:14:10'
+    bad_string   = '2017-04-01T12:14:10-07:00'
+
+    short_datetime = split_utils.datetime_helper(short_string)
+    long_datetime  = split_utils.datetime_helper(long_string)
+    with pytest.raises(ValueError):
+        bad_datetime = split_utils.datetime_helper(bad_string)
+
 def test_split_history_throws():
     """make sure fetch_split_history throws expected errors"""
     with pytest.raises(exceptions.NoSplitConfigFound):
@@ -173,7 +184,7 @@ class TestNoSplit:
         test_data_emd = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
-            api_utils.SwitchCCPSource.ESI,
+            api_utils.SwitchCCPSource.EMD,
             data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
