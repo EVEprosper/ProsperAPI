@@ -31,7 +31,7 @@ DEMO_SPLIT = {
     "split_rate": 10
 }
 DEMO_UNSPLIT = {
-    "type_id":35,
+    "type_id":34,
     "type_name":"Pyerite",
     "original_id":34,
     "new_id":35,
@@ -146,20 +146,12 @@ class TestNoSplit:
             api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
-        expected_esi = crest_utils.fetch_market_history(
+        assert test_data_esi.equals(crest_utils.fetch_market_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
             mode=api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
-        )
-        for column in test_data_esi.columns.values:
-            assert test_data_esi[column].equals(expected_esi[column])
-        #assert test_data_esi.equals(crest_utils.fetch_market_history(
-        #    TEST_CONFIG.get('TEST', 'region_id'),
-        #    self.test_type_id,
-        #    mode=api_utils.SwitchCCPSource.ESI,
-        #    config=ROOT_CONFIG
-        #))
+        ))
 
         test_data_crest = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),

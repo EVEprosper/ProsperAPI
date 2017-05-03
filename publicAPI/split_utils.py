@@ -155,6 +155,28 @@ def read_split_info(
 
     return split_collection
 
+def datetime_helper(
+        datetime_str
+):
+    """try to conver datetime for comparison
+
+    Args:
+        datetime_str (str): datetime str (%Y-%m-%d) or (%Y-%m-%dT%H:%M:S)
+
+    Returns:
+        (:obj:`datetime.datetime`)
+
+    """
+    try:
+        return_datetime = datetime.strptime(datetime_str, '%Y-%m-%d')
+    except Exception:
+        try:
+            return_datetime = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S')
+        except Exception:
+            raise
+
+    return return_datetime
+
 def fetch_split_history(
         region_id,
         type_id,
@@ -211,7 +233,7 @@ def fetch_split_history(
         )
 
     ## Early exit: split too old ##
-    min_date = datetime.strptime(current_data['date'].min(), '%Y-%m-%d')
+    min_date = datetime_helper(current_data['date'].min())
     if min_date > split_obj.split_date or not bool(split_obj):
         #split is too old OR split hasn't happened yet
         logger.info('No split work -- Returning current pull')
