@@ -215,13 +215,14 @@ def fetch_split_history(
     ## Get current market data ##
     if fetch_source == api_config.SwitchCCPSource.EMD:
         logger.info('--EMD fetch')
-        current_data = forecast_utils.fetch_extended_history(
+        current_data = forecast_utils.fetch_market_history_emd(
             region_id,
             fetch_id,
             data_range=data_range,
             config=config,
-            logger=logger
+            #logger=logger
         )
+        current_data = forecast_utils.parse_emd_data(current_data['result'])
     else:
         logger.info('--CCP fetch')
         current_data = crest_utils.fetch_market_history(
@@ -233,7 +234,10 @@ def fetch_split_history(
         )
 
     ## Early exit: split too old ##
+    #logger.info(current_data)
     min_date = datetime_helper(current_data['date'].min())
+    logger.info(min_date)
+    logger.info(split_obj.split_date)
     if min_date > split_obj.split_date or not bool(split_obj):
         #split is too old OR split hasn't happened yet
         logger.info('No split work -- Returning current pull')

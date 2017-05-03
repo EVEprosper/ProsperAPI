@@ -1,5 +1,6 @@
 """test_split_utils.py: tests for split_utils.py"""
 from os import path
+from math import floor
 from datetime import datetime, timedelta
 import requests
 from tinydb import TinyDB, Query
@@ -19,10 +20,11 @@ ROOT = path.dirname(HERE)
 SPLIT_FILE = path.join(ROOT, 'publicAPI', 'split_info.json')
 SPLIT_CACHE = path.join(ROOT, 'publicAPI', 'cache', 'splitcache.json')
 
-TEST_DATE = datetime.utcnow() - timedelta(days=10)
-FUTURE_DATE = datetime.utcnow() + timedelta(days=10)
+DAYS_SINCE_SPLIT = 10
+TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
+FUTURE_DATE = datetime.utcnow() + timedelta(days=DAYS_SINCE_SPLIT)
 DEMO_SPLIT = {
-    "type_id":34,
+    "type_id":35,
     "type_name":"Tritanium",
     "original_id":34,
     "new_id":35,
@@ -188,13 +190,28 @@ class TestNoSplit:
             data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
-        assert test_data_emd.equals(forecast_utils.fetch_extended_history(
+        emd_data_raw = forecast_utils.fetch_market_history_emd(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
             data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
-        ))
+        )
+        assert test_data_emd.equals(forecast_utils.parse_emd_data(emd_data_raw['result']))
 
     def test_short_split(self):
         """make sure escaped if split was too far back"""
-        pass
+        short_days = floor(DAYS_SINCE_SPLIT/2)
+        test_data_emd = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            DEMO_SPLIT['type_id'],
+            api_utils.SwitchCCPSource.EMD,
+            data_range=short_days,
+            config=ROOT_CONFIG
+        )
+        emd_data_raw = forecast_utils.fetch_market_history_emd(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            DEMO_SPLIT['type_id'],
+            data_range=short_days,
+            config=ROOT_CONFIG
+        )
+        assert test_data_emd.equals(forecast_utils.parse_emd_data(emd_data_raw['result']))
