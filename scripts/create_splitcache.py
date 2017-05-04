@@ -343,11 +343,11 @@ class SplitCache(cli.Application):
     type_id = 29668
     @cli.switch(
         ['t', '--type'],
-        int,
+        str,
         help='typeID required for back-db')
     def override_type_id(self, type_id):
         """override type_id from user"""
-        self.type_id = type_id
+        self.type_id = list(map(int, type_id.split(',')))
 
     region_list = REGION_LIST
     @cli.switch(
@@ -366,29 +366,30 @@ class SplitCache(cli.Application):
         LOGGER.info('hello world')
 
         for region_id in cli.terminal.Progress(self.region_list):
-            LOGGER.info('Fetching region_id: {0}'.format(region_id))
-            data = fetch_data(
-                self.type_id,
-                region_id,
-                self.back_range,
-                self.data_source,
-                LOGGER
-            )
-            if self.force:
-                ## WARNING: deletes old cache values ##
-                write_to_cache_file(
-                    data,
-                    self.cache_path,
-                    type_id=self.type_id,
-                    region_id=region_id,
-                    logger=LOGGER
+            for type_id in self.type_id:
+                LOGGER.info('Fetching: {0}@{1}'.format(type_id, region_id))
+                data = fetch_data(
+                    type_id,
+                    region_id,
+                    self.back_range,
+                    self.data_source,
+                    LOGGER
                 )
-            else:
-                write_to_cache_file(
-                    data,
-                    self.cache_path,
-                    logger=LOGGER
-                )
+                if self.force:
+                    ## WARNING: deletes old cache values ##
+                    write_to_cache_file(
+                        data,
+                        self.cache_path,
+                        type_id=type_id,
+                        region_id=region_id,
+                        logger=LOGGER
+                    )
+                else:
+                    write_to_cache_file(
+                        data,
+                        self.cache_path,
+                        logger=LOGGER
+                    )
 
 if __name__ == '__main__':
     SplitCache.run()

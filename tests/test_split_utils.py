@@ -166,7 +166,7 @@ def test_fetch_cache_fail():
     with pytest.raises(exceptions.NoSplitDataFound):
         cache_data = split_utils.fetch_split_cache_data(
             TEST_CONFIG.get('TEST', 'region_id'),
-            int(TEST_CONFIG.get('TEST', 'type_id')) + 1,
+            int(TEST_CONFIG.get('TEST', 'bad_typeid')) + 1,
             split_cache_file=SPLIT_CACHE_FILE
         )
 
@@ -291,3 +291,52 @@ class TestNoSplit:
             config=ROOT_CONFIG
         )
         assert test_data_emd.equals(forecast_utils.parse_emd_data(emd_data_raw['result']))
+
+def days_since_date(date_str):
+    """return number of days since date requested
+
+    Args:
+        date_str (str)
+
+    Returns
+        (int) number of days since date
+
+    """
+    demo_date = split_utils.datetime_helper(date_str)
+    delta = datetime.utcnow() - demo_date
+
+    return delta.days
+
+@pytest.mark.incremental
+class TestSplit:
+    """test end-to-end behavior on fetch_split_history"""
+    test_type_id = DEMO_SPLIT['type_id']
+    def test_forward_happypath_esi(self):
+        """test a forward-split"""
+        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+        raw_esi_data = crest_utils.fetch_market_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_type_id,
+            mode=api_utils.SwitchCCPSource.ESI,
+            config=ROOT_CONFIG
+        )
+        min_date = raw_esi_data.date.min()
+        split_data = split_utils.fetch_split_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            DEMO_SPLIT['type_id'],
+            api_utils.SwitchCCPSource.EMD,
+            data_range=days_since_date(min_date),
+            config=ROOT_CONFIG
+        )
+
+        old_data = split_data[split_data.date <= split_obj.split_date]
+        raw_old_data = raw_esi_data[raw_esi_data.date <= split_obj.split_date]
+        new_data = split_data[split_data.date > split_obj.split_date]
+        raw_new_data = raw_esi_data[raw_esi_data.date > split_obj.split_date]
+
+        ## new data should be same ##
+        assert new_data.equals(raw_new_data)
+
+        ## Old data should be split ##
+
+
