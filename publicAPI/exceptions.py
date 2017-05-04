@@ -71,3 +71,6 @@ class InvalidSplitConfig(SplitException):
 class NoSplitConfigFound(SplitException):
     """tried to fetch info without defining split"""
     pass
+class NoSplitDataFound(SplitException):
+    """found no data in the cache database"""
+    pass

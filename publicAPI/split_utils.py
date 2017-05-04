@@ -177,11 +177,54 @@ def datetime_helper(
 
     return return_datetime
 
+KEEP_COLUMNS = [
+    'date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders'
+]
+def fetch_split_cache_data(
+        region_id,
+        type_id,
+        split_cache_file=SPLIT_CACHE_FILE,
+        keep_columns=KEEP_COLUMNS
+):
+    """get data from cache
+
+    Args:
+        region_id (int): EVE Online region id
+        type_id (int): EVE Online type id
+        split_cache_file (str, optional): path to split file
+
+    Returns:
+        (:obj:`pandas.data_frame`) pandas collection of data
+            ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
+
+    """
+    db_handle = TinyDB(split_cache_file)
+
+    split_data = db_handle.search(
+        (Query().region_id == region_id) &
+        (Query().type_id == type_id)
+    )
+    print(split_data)
+    if not split_data:
+        raise exceptions.NoSplitDataFound()
+
+    split_data = pd.DataFrame({split_data})
+    split_data = split_data[[keep_columns]]
+    split_data.sort_values(
+        by='date',
+        ascending=False,
+        inplace=True
+    )
+
+    return split_data
+
+
 def fetch_split_history(
         region_id,
         type_id,
         fetch_source,
         data_range=400,
+        #split_cache_file=SPLIT_CACHE_FILE,
         config=api_config.CONFIG,
         logger=api_config.LOGGER
 ):
@@ -233,16 +276,13 @@ def fetch_split_history(
             logger=logger
         )
 
-    ## Early exit: split too old ##
-    #logger.info(current_data)
+    ## Early exit: split too old or hasn't happened yet ##
     min_date = datetime_helper(current_data['date'].min())
-    logger.info(min_date)
-    logger.info(split_obj.split_date)
     if min_date > split_obj.split_date or not bool(split_obj):
         #split is too old OR split hasn't happened yet
         logger.info('No split work -- Returning current pull')
         return current_data
 
     ## Fetch split data ##
-    split_archive = TinyDB(SPLIT_CACHE_FILE)
+
 

@@ -16,7 +16,8 @@ TEST_CACHE_PATH = path.join(HERE, 'cache')
 CONN = None
 SPECIAL_CACHE_FILES = [
     'prosperAPI.json',
-    'splitcache.json'
+    'splitcache.json',
+    'travis_splitcache.json'
 ]
 SPECIAL_CACHE_COLLECTIONS = [
     'users'

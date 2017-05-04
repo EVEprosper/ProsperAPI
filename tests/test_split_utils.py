@@ -147,6 +147,22 @@ def test_split_history_throws():
             api_utils.SwitchCCPSource.EMD
         )
 
+SPLIT_CACHE_FILE = path.join(ROOT, TEST_CONFIG.get('TEST', 'splitcache_file'))
+def test_fetch_cache_data():
+    """fetch data from cache and make sure shape is correct"""
+    cache_data = split_utils.fetch_split_cache_data(
+        TEST_CONFIG.get('TEST', 'region_id'),
+        TEST_CONFIG.get('TEST', 'type_id'),
+        split_cache_file=SPLIT_CACHE_FILE
+    )
+
+    cache_data.to_csv('test_cache_data.csv')
+    missing_keys = set(cache_data.columns.values) - set(split_utils.KEEP_COLUMNS)
+    assert missing_keys == set()
+
+def test_fetch_cache_fail():
+    """make sure bad-path is covered"""
+    pass
 @pytest.mark.incremental
 class TestNoSplit:
     """validate behavior if there's no split to perform"""
