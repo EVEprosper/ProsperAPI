@@ -5,6 +5,7 @@ import ast
 
 import ujson as json
 import pandas as pd
+import numpy as np
 from tinydb import TinyDB, Query
 
 import publicAPI.config as api_config
@@ -204,7 +205,6 @@ def fetch_split_cache_data(
         (Query().region_id == int(region_id)) &
         (Query().type_id == int(type_id))
     )
-    print(split_data)
     if not split_data:
         raise exceptions.NoSplitDataFound()
 
@@ -218,6 +218,61 @@ def fetch_split_cache_data(
 
     return split_data
 
+def combine_split_history(
+        current_data,
+        split_data,
+        keep_columns=KEEP_COLUMNS
+):
+    """combine two dataframes into one at split_date
+
+    Args:
+        current_data (:obj:`pandas.DataFrame`): data from remote source
+        split_data (:obj:`pandas.DataFrame`): data from cache
+        keep_columns (:obj:`list`, optional): expected headers/columns for dataframe
+
+    Returns:
+        (:obj:`pandas.DataFrame`): combined data
+
+    """
+    max_cache_date = split_data['date'].max()
+
+    current_data = current_data[current_data.date > max_cache_date]
+    current_data = current_data[keep_columns]
+    current_data = current_data.append(
+        split_data,
+        ignore_index=True
+    )
+    current_data.sort_values(
+        by='date',
+        ascending=False,
+        inplace=True
+    )
+
+    return current_data
+
+PRICE_KEYS = ['avgPrice', 'highPrice', 'lowPrice']
+VOLUME_KEYS = ['volume', 'orders']
+def execute_split(
+        split_dataframe,
+        split_obj,
+        price_keys=PRICE_KEYS,
+        volume_keys=VOLUME_KEYS
+):
+    """apply split to dataframe
+
+    Args:
+        price_dataframe (:obj:`pandas.DataFrame`): data to be updated
+        split_obj (:obj:`split_utils.SplitInfo`): recipe for splitting
+        price_keys (:obj:`list`, optional): price columns
+        volume_keys (:obj:`list`, optional): volume columns
+
+    Returns:
+        (:obj:`pandas.DataFrame`): updated dataframe
+
+    """
+    split_dataframe[price_keys] = split_dataframe[price_keys] * split_obj
+    split_dataframe[volume_keys] = split_dataframe[volume_keys] / split_obj
+    return split_dataframe
 
 def fetch_split_history(
         region_id,
@@ -284,5 +339,35 @@ def fetch_split_history(
         return current_data
 
     ## Fetch split data ##
+    split_data = fetch_split_cache_data(
+        region_id,
+        split_obj.original_id
+    )
+    if type_id == split_obj.new_id: #adjust the back history
+        split_data = execute_split(
+            split_data,
+            split_obj
+        )
+    elif type_id == split_obj.original_id: #adjust the current data
+        current_data = execute_split(
+            current_data,
+            split_obj
+        )
+    else:   #pragma: no cover
+        logger.error(
+            'Unable to map new/old type_ids correctly' +
+            '\n\ttype_id={0}'.format(type_id) +
+            '\n\toriginal_id={0} new_id={1}'.format(split_obj.original_id, split_obj.new_id),
+            exc_info=True
+        )
+        raise exceptions.MissmatchedTypeIDs(
+            status=500,
+            message='unable to map types to splitcache function'
+        )
+    combined_data = combine_split_history(
+        current_data.copy(),    #pass by value, not by reference
+        split_data.copy()
+    )
 
+    return combined_data
 

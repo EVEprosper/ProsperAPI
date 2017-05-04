@@ -74,3 +74,6 @@ class NoSplitConfigFound(SplitException):
 class NoSplitDataFound(SplitException):
     """found no data in the cache database"""
     pass
+class MissmatchedTypeIDs(SplitException):
+    """new_id/original_id aren't direct swaps"""
+    pass

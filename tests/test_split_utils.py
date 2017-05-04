@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import requests
 from tinydb import TinyDB, Query
 
+import pandas as pd
 import pytest
 
 import publicAPI.split_utils as split_utils
@@ -157,7 +158,6 @@ def test_fetch_cache_data():
         TEST_CONFIG.get('TEST', 'type_id'),
         split_cache_file=SPLIT_CACHE_FILE
     )
-
     missing_keys = set(cache_data.columns.values) - set(split_utils.KEEP_COLUMNS)
     assert missing_keys == set()
 
@@ -169,6 +169,60 @@ def test_fetch_cache_fail():
             int(TEST_CONFIG.get('TEST', 'type_id')) + 1,
             split_cache_file=SPLIT_CACHE_FILE
         )
+
+def test_execute_split_forward():
+    """check if execute_split works as expected"""
+    split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+    cache_data = split_utils.fetch_split_cache_data(
+        TEST_CONFIG.get('TEST', 'region_id'),
+        TEST_CONFIG.get('TEST', 'type_id'),
+        split_cache_file=SPLIT_CACHE_FILE
+    )
+
+    split_data = split_utils.execute_split(
+        cache_data.copy(),  #copy b/c otherwise passed by reference
+        split_obj
+    )
+
+    price_mod = split_obj.split_rate
+    if not split_obj.bool_mult_div:
+        price_mod = 1/price_mod
+    for col_name in split_utils.PRICE_KEYS:
+        price_diff = abs(split_data[col_name] - (cache_data[col_name] * price_mod))
+        assert price_diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+        #float() is weird, look for difference to be trivially small
+
+    vol_mod = 1/price_mod
+    for col_name in split_utils.VOLUME_KEYS:
+        vol_diff = abs(split_data[col_name] - (cache_data[col_name] * vol_mod))
+        assert vol_diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+
+def test_execute_split_backwards():
+    """check if execute_split works as expected"""
+    split_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
+    cache_data = split_utils.fetch_split_cache_data(
+        TEST_CONFIG.get('TEST', 'region_id'),
+        TEST_CONFIG.get('TEST', 'type_id'),
+        split_cache_file=SPLIT_CACHE_FILE
+    )
+
+    split_data = split_utils.execute_split(
+        cache_data.copy(),  #copy b/c otherwise passed by reference
+        split_obj
+    )
+
+    price_mod = split_obj.split_rate
+    if not split_obj.bool_mult_div:
+        price_mod = 1/price_mod
+    for col_name in split_utils.PRICE_KEYS:
+        price_diff = abs(split_data[col_name] - (cache_data[col_name] * price_mod))
+        assert price_diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+
+    vol_mod = 1/price_mod
+    for col_name in split_utils.VOLUME_KEYS:
+        vol_diff = abs(split_data[col_name] - (cache_data[col_name] * vol_mod))
+        assert vol_diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+
 @pytest.mark.incremental
 class TestNoSplit:
     """validate behavior if there's no split to perform"""
