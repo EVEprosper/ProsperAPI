@@ -201,15 +201,15 @@ def fetch_split_cache_data(
     db_handle = TinyDB(split_cache_file)
 
     split_data = db_handle.search(
-        (Query().region_id == region_id) &
-        (Query().type_id == type_id)
+        (Query().region_id == int(region_id)) &
+        (Query().type_id == int(type_id))
     )
     print(split_data)
     if not split_data:
         raise exceptions.NoSplitDataFound()
 
-    split_data = pd.DataFrame({split_data})
-    split_data = split_data[[keep_columns]]
+    split_data = pd.DataFrame(split_data)
+    split_data = split_data[keep_columns]
     split_data.sort_values(
         by='date',
         ascending=False,

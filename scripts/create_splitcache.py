@@ -356,7 +356,7 @@ class SplitCache(cli.Application):
         help='list of regions to scrape')
     def override_region_list(self, region_str):
         """override region list from user"""
-        self.region_list = region_str.split(',')
+        self.region_list = list(map(int, region_str.split(',')))
 
     def main(self):
         """application runtime"""
