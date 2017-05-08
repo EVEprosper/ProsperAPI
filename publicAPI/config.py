@@ -2,8 +2,6 @@
 from os import path
 from enum import Enum
 
-import ujson as json
-
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
@@ -19,6 +17,8 @@ DEFAULT_RANGE = 60
 MAX_RANGE = 180
 DEFAULT_HISTORY_RANGE = 700
 EXPECTED_CREST_RANGE = 400
+
+SPLIT_CACHE_FILE = path.join(HERE, 'cache', 'splitcache.json')
 
 class SwitchCCPSource(Enum):
     """enum for switching between crest/esi"""

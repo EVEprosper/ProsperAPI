@@ -19,7 +19,7 @@ HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
 
 SPLIT_FILE = path.join(ROOT, 'publicAPI', 'split_info.json')
-SPLIT_CACHE = path.join(ROOT, 'publicAPI', 'cache', 'splitcache.json')
+SPLIT_CACHE = path.join(ROOT, 'publicAPI', 'cache', 'travis_splitcache.json')
 
 DAYS_SINCE_SPLIT = 10
 TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
@@ -40,6 +40,15 @@ DEMO_UNSPLIT = {
     "new_id":35,
     "split_date":FUTURE_DATE.strftime('%Y-%m-%d'),
     "bool_mult_div":"True",
+    "split_rate": 10
+}
+DEMO_NOSPLIT = {
+    "type_id":35,
+    "type_name":"Tritanium",
+    "original_id":35,
+    "new_id":35,
+    "split_date":TEST_DATE.strftime('%Y-%m-%d'),
+    "bool_mult_div":"False",
     "split_rate": 10
 }
 ROOT_CONFIG = helpers.get_config(
@@ -156,7 +165,7 @@ def test_fetch_cache_data():
     cache_data = split_utils.fetch_split_cache_data(
         TEST_CONFIG.get('TEST', 'region_id'),
         TEST_CONFIG.get('TEST', 'type_id'),
-        split_cache_file=SPLIT_CACHE_FILE
+        #split_cache_file=SPLIT_CACHE_FILE
     )
     missing_keys = set(cache_data.columns.values) - set(split_utils.KEEP_COLUMNS)
     assert missing_keys == set()
@@ -166,8 +175,8 @@ def test_fetch_cache_fail():
     with pytest.raises(exceptions.NoSplitDataFound):
         cache_data = split_utils.fetch_split_cache_data(
             TEST_CONFIG.get('TEST', 'region_id'),
-            int(TEST_CONFIG.get('TEST', 'bad_typeid')) + 1,
-            split_cache_file=SPLIT_CACHE_FILE
+            int(TEST_CONFIG.get('TEST', 'bad_typeid')),
+            #split_cache_file=SPLIT_CACHE_FILE
         )
 
 def test_execute_split_forward():
@@ -176,7 +185,7 @@ def test_execute_split_forward():
     cache_data = split_utils.fetch_split_cache_data(
         TEST_CONFIG.get('TEST', 'region_id'),
         TEST_CONFIG.get('TEST', 'type_id'),
-        split_cache_file=SPLIT_CACHE_FILE
+        #split_cache_file=SPLIT_CACHE_FILE
     )
 
     split_data = split_utils.execute_split(
@@ -203,7 +212,7 @@ def test_execute_split_backwards():
     cache_data = split_utils.fetch_split_cache_data(
         TEST_CONFIG.get('TEST', 'region_id'),
         TEST_CONFIG.get('TEST', 'type_id'),
-        split_cache_file=SPLIT_CACHE_FILE
+        #split_cache_file=SPLIT_CACHE_FILE
     )
 
     split_data = split_utils.execute_split(
@@ -310,10 +319,10 @@ def days_since_date(date_str):
 @pytest.mark.incremental
 class TestSplit:
     """test end-to-end behavior on fetch_split_history"""
-    test_type_id = DEMO_SPLIT['type_id']
+    test_type_id = DEMO_NOSPLIT['original_id']
     def test_forward_happypath_esi(self):
         """test a forward-split"""
-        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+        split_obj = split_utils.SplitInfo(DEMO_NOSPLIT)
         raw_esi_data = crest_utils.fetch_market_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
@@ -324,19 +333,25 @@ class TestSplit:
         split_data = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
-            api_utils.SwitchCCPSource.EMD,
-            data_range=days_since_date(min_date),
+            api_utils.SwitchCCPSource.ESI,
+            #data_range=days_since_date(min_date),
             config=ROOT_CONFIG
         )
+        split_data.to_csv('split_data.csv', index=False)
 
-        old_data = split_data[split_data.date <= split_obj.split_date]
-        raw_old_data = raw_esi_data[raw_esi_data.date <= split_obj.split_date]
-        new_data = split_data[split_data.date > split_obj.split_date]
-        raw_new_data = raw_esi_data[raw_esi_data.date > split_obj.split_date]
-
+        min_split_date = split_data.date.min()
+        raw_esi_data = raw_esi_data[raw_esi_data.date >= min_split_date]
+        raw_esi_data = raw_esi_data[split_utils.KEEP_COLUMNS]
+        raw_esi_data.sort_values(
+            by='date',
+            ascending=False,
+            inplace=True
+        )
+        raw_esi_data.to_csv('raw_esi_data.csv', index=False)
         ## new data should be same ##
-        assert new_data.equals(raw_new_data)
+
 
         ## Old data should be split ##
 
 
+        assert False

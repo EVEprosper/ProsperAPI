@@ -14,7 +14,6 @@ import publicAPI.forecast_utils as forecast_utils
 import publicAPI.exceptions as exceptions
 
 HERE = path.abspath(path.dirname(__file__))
-SPLIT_CACHE_FILE = path.join(HERE, 'cache', 'splitcache.json')
 class SplitInfo(object):
     """utility for managing split information"""
     def __init__(self, json_entry=None):
@@ -184,7 +183,8 @@ KEEP_COLUMNS = [
 def fetch_split_cache_data(
         region_id,
         type_id,
-        split_cache_file=SPLIT_CACHE_FILE,
+        split_date=None,
+        #split_cache_file=SPLIT_CACHE_FILE,
         keep_columns=KEEP_COLUMNS
 ):
     """get data from cache
@@ -199,12 +199,19 @@ def fetch_split_cache_data(
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
 
     """
-    db_handle = TinyDB(split_cache_file)
+    db_handle = TinyDB(api_config.SPLIT_CACHE_FILE)
 
-    split_data = db_handle.search(
-        (Query().region_id == int(region_id)) &
-        (Query().type_id == int(type_id))
-    )
+    if split_date:
+        split_data = db_handle.search(
+            (Query().region_id == int(region_id)) &
+            (Query().type_id == int(type_id)) &
+            (Query().date <= split_date)
+        )
+    else:
+        split_data = db_handle.search(
+            (Query().region_id == int(region_id)) &
+            (Query().type_id == int(type_id))
+        )
     if not split_data:
         raise exceptions.NoSplitDataFound()
 
@@ -339,16 +346,20 @@ def fetch_split_history(
         return current_data
 
     ## Fetch split data ##
+    logger.info('--fetching data from cache')
     split_data = fetch_split_cache_data(
         region_id,
-        split_obj.original_id
+        split_obj.original_id,
+        split_date=split_obj.date_str
     )
     if type_id == split_obj.new_id: #adjust the back history
+        logger.info('--splitting old-data')
         split_data = execute_split(
             split_data,
             split_obj
         )
     elif type_id == split_obj.original_id: #adjust the current data
+        logger.info('--splitting new-data')
         current_data = execute_split(
             current_data,
             split_obj
@@ -364,6 +375,8 @@ def fetch_split_history(
             status=500,
             message='unable to map types to splitcache function'
         )
+
+    logger.info('--combining data')
     combined_data = combine_split_history(
         current_data.copy(),    #pass by value, not by reference
         split_data.copy()

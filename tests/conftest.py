@@ -3,12 +3,15 @@
 from os import path
 
 from publicAPI import create_app
+import publicAPI.config as api_config
 import pytest
 
 import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
+
+api_config.SPLIT_CACHE_FILE = path.join(ROOT, 'publicAPI', 'cache', 'travis_splitcache.json')
 
 @pytest.fixture
 def app():
