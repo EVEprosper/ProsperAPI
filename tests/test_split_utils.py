@@ -363,7 +363,7 @@ def validate_plain_data(
         elif column == 'index':
             continue
         else:
-            diff = abs(split_data[column] - raw_data[column])
+            diff = abs(pd.to_numeric(split_data[column]) - pd.to_numeric(raw_data[column]))
             assert diff.max() < float_limit
 
 def validate_split_data(
@@ -392,13 +392,14 @@ def validate_split_data(
         elif column == 'index':
             continue
         elif column in split_utils.PRICE_KEYS:
-            #print(split_data[column])
-            #print(raw_data[column] * split_obj)
-            diff = abs(split_data[column] - raw_data[column] * split_obj)
-            #print(diff)
+            diff = abs(
+                pd.to_numeric(split_data[column]) - pd.to_numeric(raw_data[column]) * split_obj
+            )
             assert diff.max() < float_limit
         else:
-            diff = abs(split_data[column] - raw_data[column] / split_obj)
+            diff = abs(
+                pd.to_numeric(split_data[column]) - pd.to_numeric(raw_data[column]) / split_obj
+            )
             assert diff.max() < float_limit
 
 @pytest.mark.incremental
@@ -427,7 +428,8 @@ class TestSplit:
             api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
-        split_data.to_csv('split_data_esi.csv', index=False)
+        #split_data.to_csv('split_data_esi.csv', index=False)
+
         ## Doctor data for testing ##
         min_split_date = split_data.date.min()
         raw_esi_data1 = prep_raw_data(
@@ -477,7 +479,7 @@ class TestSplit:
             api_utils.SwitchCCPSource.CREST,
             config=ROOT_CONFIG
         )
-        split_data.to_csv('split_data_crest.csv', index=False)
+        #split_data.to_csv('split_data_crest.csv', index=False)
 
         ## Doctor data for testing ##
         min_split_date = split_data.date.min()
@@ -485,12 +487,10 @@ class TestSplit:
             raw_crest_data1.copy(),
             min_split_date
         )
-        #raw_crest_data1['date'] = pd.to_datetime(raw_crest_data1['date']).dt.strftime('%Y-%m-%d')
         raw_crest_data2 = prep_raw_data(
             raw_crest_data2.copy(),
             min_split_date
         )
-        #raw_crest_data2['date'] = pd.to_datetime(raw_crest_data2['date']).dt.strftime('%Y-%m-%d')
 
         split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
         pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
@@ -513,25 +513,28 @@ class TestSplit:
     def test_forward_happypath_emd(self):
         """test a forward-split: crest"""
         split_obj = split_utils.SplitInfo(DEMO_SPLIT)
-        raw_emd_data1 = crest_utils.fetch_market_history(
+        raw_emd_data = forecast_utils.fetch_market_history_emd(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
-            mode=api_utils.SwitchCCPSource.EMD,
+            data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
-        raw_emd_data2 = crest_utils.fetch_market_history(
+        raw_emd_data1 = forecast_utils.parse_emd_data(raw_emd_data['result'])
+        raw_emd_data = forecast_utils.fetch_market_history_emd(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_original_id,
-            mode=api_utils.SwitchCCPSource.EMD,
+            data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
+        raw_emd_data2 = forecast_utils.parse_emd_data(raw_emd_data['result'])
+
         split_data = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
             api_utils.SwitchCCPSource.EMD,
             config=ROOT_CONFIG
         )
-        split_data.to_csv('split_data_emd.csv', index=False)
+        #split_data.to_csv('split_data_emd.csv', index=False)
 
         ## Doctor data for testing ##
         min_split_date = split_data.date.min()
