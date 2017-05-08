@@ -334,11 +334,10 @@ class TestSplit:
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
             api_utils.SwitchCCPSource.ESI,
-            #data_range=days_since_date(min_date),
             config=ROOT_CONFIG
         )
-        split_data.to_csv('split_data.csv', index=False)
 
+        ## Doctor data for testing ##
         min_split_date = split_data.date.min()
         raw_esi_data = raw_esi_data[raw_esi_data.date >= min_split_date]
         raw_esi_data = raw_esi_data[split_utils.KEEP_COLUMNS]
@@ -347,11 +346,39 @@ class TestSplit:
             ascending=False,
             inplace=True
         )
-        raw_esi_data.to_csv('raw_esi_data.csv', index=False)
+
+        pre_split_data = split_data[split_data.date <= split_obj.date_str].reset_index()
+        pre_raw_data = raw_esi_data[raw_esi_data.date <= split_obj.date_str].reset_index()
+        post_split_data = split_data[split_data.date > split_obj.date_str].reset_index()
+        post_raw_data = raw_esi_data[raw_esi_data.date > split_obj.date_str].reset_index()
+
         ## new data should be same ##
+        for column in post_split_data.columns.values:
+            if column == 'date':
+                assert post_split_data[column].equals(post_raw_data[column])
+            elif column == 'index':
+                continue
+            else:
+                diff = abs(post_split_data[column] - post_raw_data[column])
+                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
 
 
         ## Old data should be split ##
+        pre_split_data.to_csv('pre_split_data.csv', index=False)
+        pre_raw_data.to_csv('pre_raw_data.csv', index=False)
+        for column in pre_split_data.columns.values:
+            if column == 'date':
+                assert pre_split_data[column].equals(pre_raw_data[column])
+            elif column == 'index':
+                continue
+            elif column in split_utils.PRICE_KEYS:
+                print(pre_split_data[column])
+                print(pre_raw_data[column] * split_obj)
+                diff = abs(pre_split_data[column] - pre_raw_data[column] * split_obj)
+                print(diff)
+                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+            else:
+                diff = abs(pre_split_data[column] - pre_raw_data[column] / split_obj)
+                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+        #assert post_split_data.equals(post_raw_data)
 
-
-        assert False
