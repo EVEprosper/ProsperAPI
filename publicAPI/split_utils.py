@@ -241,6 +241,7 @@ def combine_split_history(
         (:obj:`pandas.DataFrame`): combined data
 
     """
+    current_data['date'] = pd.to_datetime(current_data['date']).dt.strftime('%Y-%m-%d')
     max_cache_date = split_data['date'].max()
 
     current_data = current_data[current_data.date > max_cache_date]
@@ -380,10 +381,16 @@ def fetch_split_history(
         )
 
     logger.info('--combining data')
+    current_data.to_csv('current_data.csv', index=False)
+    split_data.to_csv('split_data.csv', index=False)
     combined_data = combine_split_history(
         current_data.copy(),    #pass by value, not by reference
         split_data.copy()
     )
 
+    if fetch_source == api_config.SwitchCCPSource.CREST:
+        logger.info('--Setting CREST datetime')
+        combined_data['date'] = pd.to_datetime(combined_data['date']).\
+            dt.strftime('%Y-%m-%dT%H:%M:%S')
     return combined_data
 
