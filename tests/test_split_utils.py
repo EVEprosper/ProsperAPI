@@ -316,20 +316,107 @@ def days_since_date(date_str):
 
     return delta.days
 
+def prep_raw_data(
+        data,
+        min_date
+):
+    """clean up data for testing
+
+    Args:
+        data (:obj:`pandas.DataFrame`): dataframe to clean (COPY)
+        min_date (str): datetime to filter to
+
+    Returns:
+        clean_data (:obj:`pandas.DataFrame)
+
+    """
+    clean_data = data[data.date >= min_date]
+    clean_data = clean_data[split_utils.KEEP_COLUMNS]
+    clean_data.sort_values(
+        by='date',
+        ascending=False,
+        inplace=True
+    )
+    return clean_data
+
+def validate_plain_data(
+        raw_data,
+        split_data,
+        float_limit=float(TEST_CONFIG.get('TEST', 'float_limit'))
+):
+    """validate data that did not split
+
+    Args:
+        raw_data (:obj:`pandas.DataFrame`): raw data (A group)
+        split_data (:obj:`pandas.DataFrame`): split data (B group)
+        float_limit (float, optional): maximum deviation for equality test
+
+    Returns:
+        (None): asserts internally
+
+    """
+    for column in split_data.columns.values:
+        if column == 'date':
+            assert split_data[column].equals(raw_data[column])
+        elif column == 'index':
+            continue
+        else:
+            diff = abs(split_data[column] - raw_data[column])
+            assert diff.max() < float_limit
+
+def validate_split_data(
+        raw_data,
+        split_data,
+        split_obj,
+        float_limit=float(TEST_CONFIG.get('TEST', 'float_limit'))
+):
+    """validate data that did not split
+
+    Args:
+        raw_data (:obj:`pandas.DataFrame`): raw data (A group)
+        split_data (:obj:`pandas.DataFrame`): split data (B group)
+        split_obj (:obj:`split_utils.SplitInfo`): split information
+        float_limit (float, optional): maximum deviation for equality test
+
+    Returns:
+        (None): asserts internally
+
+    """
+    for column in split_data.columns.values:
+        if column == 'date':
+            assert split_data[column].equals(raw_data[column])
+        elif column == 'index':
+            continue
+        elif column in split_utils.PRICE_KEYS:
+            print(split_data[column])
+            print(raw_data[column] * split_obj)
+            diff = abs(split_data[column] - raw_data[column] * split_obj)
+            print(diff)
+            assert diff.max() < float_limit
+        else:
+            diff = abs(split_data[column] - raw_data[column] / split_obj)
+            assert diff.max() < float_limit
+
 @pytest.mark.incremental
 class TestSplit:
     """test end-to-end behavior on fetch_split_history"""
-    test_type_id = DEMO_NOSPLIT['original_id']
+    test_type_id = DEMO_SPLIT['type_id']
+    test_original_id = DEMO_SPLIT['original_id']
     def test_forward_happypath_esi(self):
         """test a forward-split"""
-        split_obj = split_utils.SplitInfo(DEMO_NOSPLIT)
-        raw_esi_data = crest_utils.fetch_market_history(
+        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+        raw_esi_data1 = crest_utils.fetch_market_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
             mode=api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
-        min_date = raw_esi_data.date.min()
+        raw_esi_data2 = crest_utils.fetch_market_history(
+            TEST_CONFIG.get('TEST', 'region_id'),
+            self.test_original_id,
+            mode=api_utils.SwitchCCPSource.ESI,
+            config=ROOT_CONFIG
+        )
         split_data = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
@@ -339,46 +426,37 @@ class TestSplit:
 
         ## Doctor data for testing ##
         min_split_date = split_data.date.min()
-        raw_esi_data = raw_esi_data[raw_esi_data.date >= min_split_date]
-        raw_esi_data = raw_esi_data[split_utils.KEEP_COLUMNS]
-        raw_esi_data.sort_values(
-            by='date',
-            ascending=False,
-            inplace=True
+        raw_esi_data1 = prep_raw_data(
+            raw_esi_data1.copy(),
+            min_split_date
+        )
+        raw_esi_data2 = prep_raw_data(
+            raw_esi_data2.copy(),
+            min_split_date
         )
 
-        pre_split_data = split_data[split_data.date <= split_obj.date_str].reset_index()
-        pre_raw_data = raw_esi_data[raw_esi_data.date <= split_obj.date_str].reset_index()
-        post_split_data = split_data[split_data.date > split_obj.date_str].reset_index()
-        post_raw_data = raw_esi_data[raw_esi_data.date > split_obj.date_str].reset_index()
 
-        ## new data should be same ##
-        for column in post_split_data.columns.values:
-            if column == 'date':
-                assert post_split_data[column].equals(post_raw_data[column])
-            elif column == 'index':
-                continue
-            else:
-                diff = abs(post_split_data[column] - post_raw_data[column])
-                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+        pre_split_data = split_data[split_data.date <= split_obj.date_str].reset_index()
+        pre_raw_data = raw_esi_data2[raw_esi_data2.date <= split_obj.date_str].reset_index()
+        post_split_data = split_data[split_data.date > split_obj.date_str].reset_index()
+        post_raw_data = raw_esi_data1[raw_esi_data1.date > split_obj.date_str].reset_index()
+
+        validate_plain_data(
+            post_raw_data,
+            post_split_data
+        )
+
+        validate_split_data(
+            pre_raw_data,
+            pre_split_data,
+            split_obj
+        )
+
 
 
         ## Old data should be split ##
         pre_split_data.to_csv('pre_split_data.csv', index=False)
         pre_raw_data.to_csv('pre_raw_data.csv', index=False)
-        for column in pre_split_data.columns.values:
-            if column == 'date':
-                assert pre_split_data[column].equals(pre_raw_data[column])
-            elif column == 'index':
-                continue
-            elif column in split_utils.PRICE_KEYS:
-                print(pre_split_data[column])
-                print(pre_raw_data[column] * split_obj)
-                diff = abs(pre_split_data[column] - pre_raw_data[column] * split_obj)
-                print(diff)
-                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
-            else:
-                diff = abs(pre_split_data[column] - pre_raw_data[column] / split_obj)
-                assert diff.max() < float(TEST_CONFIG.get('TEST', 'float_limit'))
+
         #assert post_split_data.equals(post_raw_data)
 
