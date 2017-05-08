@@ -346,7 +346,10 @@ def fetch_split_history(
         return current_data
 
     ## Fetch split data ##
-    logger.info('--fetching data from cache')
+    logger.info(
+        '--fetching data from cache {0}@{1}'.format(
+            split_obj.original_id, region_id
+    ))
     split_data = fetch_split_cache_data(
         region_id,
         split_obj.original_id,
