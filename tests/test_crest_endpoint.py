@@ -175,7 +175,8 @@ class TestODBCsplit:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=44992,
+                #type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )

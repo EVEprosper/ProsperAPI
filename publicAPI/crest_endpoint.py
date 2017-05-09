@@ -131,6 +131,7 @@ class OHLC_endpoint(Resource):
 
         ## Fetch CREST ##
         try:
+            LOGGER.info(api_config.SPLIT_INFO)
             if args.get('typeID') in api_config.SPLIT_INFO:
                 LOGGER.info('FORK: using split utility')
                 data = split_utils.fetch_split_history(
