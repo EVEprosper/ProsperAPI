@@ -44,28 +44,6 @@ def return_supported_types():
 
     return supported_types
 
-def collect_stats(
-        endpoint_name,
-        args_payload,
-        additional_data=None,
-        db_name='CREST_stats.json',
-        logger=LOGGER
-):
-    """save request information for later processing
-
-    Args:
-        endpoint_name (str): name of endpoint collecting data
-        args_payload (:obj:`dict`): args provided
-        additional_data (:obj:`dict`, optional): additional info to save
-        db_name (str, optional): tinyDB filename
-        logger (:obj:`logging.logger`, optional): logging handle for progress
-
-    Returns:
-        None
-
-    """
-    pass
-
 ## Flask Endpoints ##
 @API.representation('text/csv')
 def output_csv(data, status, headers=None):
