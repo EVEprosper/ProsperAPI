@@ -362,12 +362,15 @@ def fetch_split_history(
             split_data,
             split_obj
         )
+    # vv FIX ME vv: Testable? #
     elif type_id == split_obj.original_id: #adjust the current data
+
         logger.info('--splitting new-data')
         current_data = execute_split(
             current_data,
             split_obj
         )
+    # ^^ FIX ME ^^ #
     else:   #pragma: no cover
         logger.error(
             'Unable to map new/old type_ids correctly' +

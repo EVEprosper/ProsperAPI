@@ -150,8 +150,8 @@ class OHLC_endpoint(Resource):
                     logger=LOGGER
                 )
             data = crest_utils.data_to_ohlc(data)
-        except exceptions.ValidatorException as err:
-            LOGGER.warning(
+        except exceptions.ValidatorException as err: #pragma: no cover
+            LOGGER.error(
                 'ERROR: unable to parse CREST data' +
                 '\n\targs={0}'.format(args),
                 exc_info=True
@@ -341,6 +341,7 @@ class ProphetEndpoint(Resource):
                 api_config.MAX_RANGE
             )
         except exceptions.ValidatorException as err:
+            #FIX ME: testing?
             LOGGER.warning(
                 'ERROR: unable to generate forecast' +
                 '\n\targs={0}'.format(args),
