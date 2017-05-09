@@ -42,3 +42,6 @@ Also, `.travis.yml` creates a local split_cache.json file just for automated tes
 
 # Database Note:
 Splitcache has purposefully been made to run in a flat-file, rather than use [tinymongo](https://github.com/schapman1974/tinymongo) for remote database connection compatability.  This was done to continue the spirit of "anyone can launch ProsperAPI anywhere".
+
+PLEX split was prepared with the following:
+> `python scripts\create_splitcache.py -t 29668 -r 720 -s eve-marketdata`
