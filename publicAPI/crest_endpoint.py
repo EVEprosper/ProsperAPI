@@ -327,6 +327,11 @@ class ProphetEndpoint(Resource):
                     config=api_config.CONFIG,
                     logger=LOGGER
                 )
+                data.sort_values(
+                    by='date',
+                    ascending=True,
+                    inplace=True
+                )
             else:
                 data = forecast_utils.fetch_extended_history(
                     args.get('regionID'),

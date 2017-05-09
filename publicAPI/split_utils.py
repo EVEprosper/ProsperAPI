@@ -264,7 +264,8 @@ def execute_split(
         split_dataframe,
         split_obj,
         price_keys=PRICE_KEYS,
-        volume_keys=VOLUME_KEYS
+        volume_keys=VOLUME_KEYS,
+        logger=api_config.LOGGER
 ):
     """apply split to dataframe
 
@@ -278,8 +279,16 @@ def execute_split(
         (:obj:`pandas.DataFrame`): updated dataframe
 
     """
+    # vv FIXME vv: serial access to recast dataframe #
+    split_cols = list(price_keys)
+    split_cols.extend(volume_keys)
+    for key in split_cols:
+        split_dataframe[key] = pd.to_numeric(split_dataframe[key])
+    # ^^ FIXME ^^ #
+
     split_dataframe[price_keys] = split_dataframe[price_keys] * split_obj
     split_dataframe[volume_keys] = split_dataframe[volume_keys] / split_obj
+
     return split_dataframe
 
 def fetch_split_history(
@@ -364,11 +373,13 @@ def fetch_split_history(
         path.join(HERE, 'current_data_{0}.csv'.format(type_id)),
         index=False
     )
+    logger.info(split_obj.__dict__)
     if type_id == split_obj.new_id: #adjust the back history
         logger.info('--splitting old-data')
         split_data = execute_split(
             split_data,
-            split_obj
+            split_obj,
+            logger=logger
         )
     # vv FIX ME vv: Testable? #
     elif type_id == split_obj.original_id: #adjust the current data
