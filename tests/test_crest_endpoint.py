@@ -173,7 +173,7 @@ test_clear_caches()
 @pytest.mark.usefixtures('client_class')
 class TestODBCsplit:
     """make sure behavior for splits is maintained"""
-    def validate_forward_split(self):
+    def test_validate_forward_split(self):
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
@@ -469,7 +469,7 @@ class TestProphetjson:
 
 class TestProphetSplit:
     """make sure behavior for splits is maintained"""
-    def validate_forward_split(self):
+    def test_validate_forward_split(self):
         if platform.system() == 'Darwin':
             pytest.xfail('Unable to run fbprophet on mac')
 
