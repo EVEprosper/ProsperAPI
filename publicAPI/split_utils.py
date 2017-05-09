@@ -264,8 +264,7 @@ def execute_split(
         split_dataframe,
         split_obj,
         price_keys=PRICE_KEYS,
-        volume_keys=VOLUME_KEYS,
-        logger=api_config.LOGGER
+        volume_keys=VOLUME_KEYS
 ):
     """apply split to dataframe
 
@@ -371,8 +370,7 @@ def fetch_split_history(
         logger.info('--splitting old-data')
         split_data = execute_split(
             split_data,
-            split_obj,
-            logger=logger
+            split_obj
         )
     # vv FIX ME vv: Testable? #
     elif type_id == split_obj.original_id: #adjust the current data
