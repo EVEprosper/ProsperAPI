@@ -9,6 +9,7 @@ install:
   - "travis_wait 15 pip install ."
 script: 
   - "python scripts/manage_api.py --testkey"
+  - "python scripts/create_splitcache.py --regions=10000002 --type=34,35 --range=30 --db=publicAPI/cache/travis_splitcache.json --source=esi"
   - "python setup.py test"
 branches:
   only:

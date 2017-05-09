@@ -5,6 +5,7 @@ from flask import Flask
 
 import publicAPI.crest_endpoint as crest_endpoint
 import publicAPI.config as config
+import publicAPI.split_utils as split_utils
 
 import prosper.common.prosper_logging as p_logging
 
@@ -34,7 +35,7 @@ def create_app(
 
     log_builder = p_logging.ProsperLogger(
         'publicAPI',
-        HERE,
+        '/var/log/prosper/',
         local_configs
     )
     if not app.debug:
@@ -51,4 +52,6 @@ def create_app(
     config.CONFIG = local_configs
     config.load_globals(local_configs)
     crest_endpoint.LOGGER = app.logger
+
+    config.SPLIT_INFO = split_utils.read_split_info(logger=crest_endpoint.LOGGER)
     return app

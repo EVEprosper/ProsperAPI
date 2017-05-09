@@ -108,6 +108,7 @@ def endpoint_to_kwarg(
 def validate_id(
         endpoint_name,
         type_id,
+        mode=api_config.SwitchCCPSource.CREST,
         cache_buster=False,
         config=api_config.CONFIG,
         logger=LOGGER
@@ -161,12 +162,23 @@ def validate_id(
             endpoint_name,
             type_id
         )
-        type_info = fetch_crest_endpoint(
-            endpoint_name,
-            **kwarg_pair,
-            config=config
-            #TODO: index_key to key/val pair
-        )
+        type_info = None
+        if mode == api_config.SwitchCCPSource.CREST:
+            type_info = fetch_crest_endpoint(
+                endpoint_name,
+                **kwarg_pair,
+                config=config
+                #TODO: index_key to key/val pair
+            )
+        elif mode == api_config.SwitchCCPSource.ESI:
+            type_info = fetch_esi_endpoint(
+                endpoint_name,
+                **kwarg_pair,
+                config=config
+            )
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:
         logger.warning(
             'ERROR: unable to connect to CREST' +
@@ -246,9 +258,57 @@ def fetch_crest_endpoint(
 
     return data
 
+ESI_BASE = 'https://esi.tech.ccp.is/latest/'
+def fetch_esi_endpoint(
+        endpoint_name,
+        esi_base=ESI_BASE,
+        config=api_config.CONFIG,
+        **kwargs
+):
+    """Fetch payload from EVE Online's ESI service
+
+    Notes:
+        Only works on unauth'd endpoints
+
+    Args:
+        endpoint_name (str): name of endpoint (in config)
+        config (`configparser.ConfigParser`, optional): override for config obj
+        **kwargs (:obj:`dict`): key/values to overwrite in query
+
+    Returns:
+        (:obj:`dict`): JSON object returned by endpoint
+
+    """
+    try:
+        esi_url = esi_base + config.get('ESI_RESOURCES', endpoint_name)
+    except (configparser.NoOptionError, KeyError):
+        raise exceptions.UnsupportedCrestEndpoint(
+            'No {0} found in [ESI_RESOURCES]'.format(endpoint_name))
+
+    try:
+        esi_url = esi_url.format(**kwargs)
+    except KeyError as err_msg:
+        raise exceptions.CrestAddressError(repr(err_msg))
+
+    headers = {
+        'User-Agent': config.get('GLOBAL', 'useragent')
+    }
+
+    # no try-except, catch in caller
+    # done to make logging path easier
+    req = requests.get(
+        esi_url,
+        headers=headers
+    )
+    req.raise_for_status()
+    data = req.json()
+
+    return data
+
 def fetch_market_history(
         region_id,
         type_id,
+        mode=api_config.SwitchCCPSource.CREST,
         config=api_config.CONFIG,
         logger=LOGGER
 ):
@@ -267,12 +327,25 @@ def fetch_market_history(
     logger.debug('region_id: {0}'.format(region_id))
     logger.debug('type_id: {0}'.format(type_id))
     try:
-        raw_data = fetch_crest_endpoint(
-            'market_history',
-            region_id=region_id,
-            type_id=type_id,
-            config=config
-        )
+        if mode == api_config.SwitchCCPSource.CREST:
+            raw_data = fetch_crest_endpoint(
+                'market_history',
+                region_id=region_id,
+                type_id=type_id,
+                config=config
+            )
+            logger.debug(raw_data['items'][:5])
+        elif mode == api_config.SwitchCCPSource.ESI:
+            raw_data = fetch_esi_endpoint(
+                'market_history',
+                region_id=region_id,
+                type_id=type_id,
+                config=config
+            )
+            logger.debug(raw_data[:5])
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to fetch market history from CREST' +
@@ -282,16 +355,23 @@ def fetch_market_history(
         )
         raise exceptions.CRESTBadMarketData(
             status=404,
-            message='Unable to fetch CREST data for {0}@{1}'.format(
+            message='Unable to fetch {2} data for {0}@{1}'.format(
                 type_id,
-                region_id
+                region_id,
+                mode.name
             )
         )
 
     logger.info('--pushing data into pandas')
-    logger.debug(raw_data['items'][:5])
+
     try:
-        return_data = pd.DataFrame(raw_data['items'])
+        if mode == api_config.SwitchCCPSource.CREST:
+            return_data = pd.DataFrame(raw_data['items'])
+        elif mode == api_config.SwitchCCPSource.ESI:
+            return_data = pd.DataFrame(raw_data)
+        else:   #pragma: no cover
+            logger.error('Usupported datasource requested')
+            raise exceptions.UnsupportedSource()
     except Exception as err_msg:    #pragma: no cover
         logger.error(
             'ERROR: unable to parse CREST history data' +
@@ -305,10 +385,22 @@ def fetch_market_history(
         )
 
     logger.info('--fixing column names')
-    return_data.rename(
-        columns={'orderCount': 'orders'},
-        inplace=True
-    )
+    if mode == api_config.SwitchCCPSource.CREST:
+        return_data.rename(
+            columns={'orderCount': 'orders'},
+            inplace=True
+        )
+    elif mode == api_config.SwitchCCPSource.ESI:
+        return_data.rename(
+            columns={
+                'lowest': 'lowPrice',
+                'highest': 'highPrice',
+                'average': 'avgPrice',
+                'order_count': 'orders'
+            },
+            inplace=True
+        )
+
     return return_data
 
 def data_to_ohlc(

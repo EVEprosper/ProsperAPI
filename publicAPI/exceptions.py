@@ -43,6 +43,9 @@ class UnsupportedCrestEndpoint(CrestException):
 class CrestAddressError(CrestException):
     """unable to format request url"""
     pass
+class UnsupportedSource(CrestException):
+    """only support CREST/ESI for data sources"""
+    pass
 
 ## forecast_utils ##
 class ForecastException(Exception):
@@ -56,4 +59,21 @@ class UnableToFetchData(EMDDataException):
     pass
 class NoDataReturned(EMDDataException):
     """missing data in EMD data"""
+    pass
+
+## split_utils ##
+class SplitException(Exception):
+    """base class for split exceptions"""
+    pass
+class InvalidSplitConfig(SplitException):
+    """invalid data found in split config"""
+    pass
+class NoSplitConfigFound(SplitException):
+    """tried to fetch info without defining split"""
+    pass
+class NoSplitDataFound(SplitException):
+    """found no data in the cache database"""
+    pass
+class MissmatchedTypeIDs(SplitException):
+    """new_id/original_id aren't direct swaps"""
     pass

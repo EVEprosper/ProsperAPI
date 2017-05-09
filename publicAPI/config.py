@@ -1,5 +1,6 @@
 """config.py: a place to hold config/globals"""
 from os import path
+from enum import Enum
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
@@ -16,6 +17,15 @@ DEFAULT_RANGE = 60
 MAX_RANGE = 180
 DEFAULT_HISTORY_RANGE = 700
 EXPECTED_CREST_RANGE = 400
+
+SPLIT_CACHE_FILE = path.join(HERE, 'cache', 'splitcache.json')
+
+class SwitchCCPSource(Enum):
+    """enum for switching between crest/esi"""
+    ESI = 'ESI'
+    CREST = 'CREST'
+    EMD = 'EMD'
+
 def load_globals(config=CONFIG):
     """loads global vars from config object"""
     global USER_AGENT, USER_AGENT_SHORT, DEFAULT_RANGE, MAX_RANGE
@@ -25,3 +35,5 @@ def load_globals(config=CONFIG):
 
     DEFAULT_RANGE = int(config.get('CREST', 'prophet_range'))
     MAX_RANGE = int(config.get('CREST', 'prophet_max'))
+
+SPLIT_INFO = {}

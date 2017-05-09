@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.1.4-1'
+__version__ = '1.2.0'
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
@@ -99,7 +99,9 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
-            'cache/prosperAPI.json'    #including key file for installer
+            'split_info.json',
+            'cache/prosperAPI.json',    #including key file for installer
+            'cache/splitcache.json'
         ]
     },
     install_requires=[

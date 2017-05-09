@@ -32,7 +32,11 @@ _Testing Should Be Easy_
 
 What is code without coverage?  [pytest](http://doc.pytest.org/en/latest/) hooks have been built-in to make testing easy.  Testing is just one command away:
 
->`python setup.py test`
+> `python scripts/manage_api.py -t` (first time only)
+
+> `python scripts/create_splitcache.py --regions=10000002 --type=34,35 --range=30 --db=publicAPI/cache/travis_splitcache.json --source=esi` (first time only)
+
+> `python setup.py test`
 
 Included in the test pass:
 * unit testing

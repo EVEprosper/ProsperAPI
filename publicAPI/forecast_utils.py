@@ -17,7 +17,7 @@ import publicAPI.exceptions as exceptions
 import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
-LOGGER = p_logging.DEFAULT_LOGGER
+#LOGGER = api_config.LOGGER
 
 CACHE_PATH = path.join(HERE, 'cache')
 makedirs(CACHE_PATH, exist_ok=True)
@@ -63,7 +63,7 @@ def write_prediction_cache(
         prediction_data,
         cache_path=CACHE_PATH,
         db_filename='prophet.json',
-        logger=LOGGER
+        logger=api_config.LOGGER
 ):
     """update tinydb latest prediction
 
@@ -142,11 +142,12 @@ def check_requested_range(
 def fetch_extended_history(
         region_id,
         type_id,
+        mode=api_config.SwitchCCPSource.ESI,
         min_data=MIN_DATA,
         crest_range=CREST_RANGE,
         config=api_config.CONFIG,
         data_range=DEFAULT_RANGE,
-        logger=LOGGER
+        logger=api_config.LOGGER
 ):
     """fetch data from database
 
@@ -189,6 +190,7 @@ def fetch_extended_history(
                 region_id,
                 type_id,
                 config=config,
+                mode=mode,
                 logger=logger
             )
         except Exception as err_msg:    #pragma: no cover
@@ -362,3 +364,4 @@ def build_forecast(
         report = report.loc[report.date > cut_date]
 
     return report
+
