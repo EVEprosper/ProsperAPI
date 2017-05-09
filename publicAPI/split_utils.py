@@ -323,6 +323,7 @@ def fetch_split_history(
     split_obj = api_config.SPLIT_INFO[type_id]
     fetch_id = split_obj.current_typeid()
 
+    logger.debug(split_obj.__dict__)
     logger.info(
         'fetching data from remote {0} (was {1})'.\
         format(type_id, fetch_id)
@@ -365,15 +366,7 @@ def fetch_split_history(
         split_obj.original_id,
         split_date=split_obj.date_str
     )
-    split_data.to_csv(
-        path.join(HERE, 'split_data_{0}.csv'.format(type_id)),
-        index=False
-    )
-    current_data.to_csv(
-        path.join(HERE, 'current_data_{0}.csv'.format(type_id)),
-        index=False
-    )
-    logger.info(split_obj.__dict__)
+
     if type_id == split_obj.new_id: #adjust the back history
         logger.info('--splitting old-data')
         split_data = execute_split(
