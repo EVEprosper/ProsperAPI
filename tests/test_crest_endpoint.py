@@ -42,7 +42,7 @@ class TestODBCcsv:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -71,7 +71,7 @@ class TestODBCcsv:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -96,7 +96,7 @@ class TestODBCcsv:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid')
             )
         )
@@ -107,7 +107,7 @@ class TestODBCcsv:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='butts') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -125,7 +125,7 @@ class TestODBCjson:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -163,11 +163,32 @@ class TestODBCjson:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid')
             )
         )
         assert req._status_code == 404
+
+test_clear_caches()
+@pytest.mark.usefixtures('client_class')
+class TestODBCsplit:
+    """make sure behavior for splits is maintained"""
+    def validate_forward_split(self):
+        req = self.client.get(
+            url_for('ohlc_endpoint', return_type='csv') +
+            '?typeID={type_id}&regionID={region_id}'.format(
+                type_id=CONFIG.get('TEST', 'alt_id'),
+                region_id=CONFIG.get('TEST', 'region_id')
+            )
+        )
+
+        data = None
+        with io.StringIO(req.data.decode()) as buff:
+            data = pd.read_csv(buff)
+
+        assert req._status_code == 200
+
+
 
 TEST_API_KEY = ''
 def test_get_api_key():
@@ -199,7 +220,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -234,7 +255,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -253,7 +274,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -283,7 +304,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key='IMAHUGEBUTT',
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -298,7 +319,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=9001
@@ -313,7 +334,7 @@ class TestProphetcsv:
         req = self.client.get(
             url_for('prophetendpoint', return_type='butts') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -336,7 +357,7 @@ class TestProphetjson:
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -370,7 +391,7 @@ class TestProphetjson:
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -389,7 +410,7 @@ class TestProphetjson:
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'alt_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'bad_regionid'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -421,7 +442,7 @@ class TestProphetjson:
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key='IMAHUGEBUTT',
                 range=CONFIG.get('TEST', 'forecast_range')
@@ -437,7 +458,7 @@ class TestProphetjson:
         req = self.client.get(
             url_for('prophetendpoint', return_type='json') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=CONFIG.get('TEST', 'nosplit_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=9000
