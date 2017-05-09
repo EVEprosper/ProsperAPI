@@ -113,7 +113,6 @@ class TestODBCcsv:
         )
         assert req._status_code == 405
 
-test_clear_caches()
 @pytest.mark.usefixtures('client_class')
 class TestODBCjson:
     """test framework for collecting endpoint stats"""
@@ -169,7 +168,6 @@ class TestODBCjson:
         )
         assert req._status_code == 404
 
-test_clear_caches()
 @pytest.mark.usefixtures('client_class')
 class TestODBCsplit:
     """make sure behavior for splits is maintained"""
@@ -177,7 +175,7 @@ class TestODBCsplit:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=29668,
+                type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -205,7 +203,6 @@ def test_get_api_key():
     connection.close()
     TEST_API_KEY = test_key
 
-test_clear_caches()
 @pytest.mark.usefixtures('client_class')
 class TestProphetcsv:
     """test framework for collecting endpoint stats"""
@@ -343,7 +340,6 @@ class TestProphetcsv:
         )
         assert req._status_code == 405
 
-test_clear_caches()
 @pytest.mark.usefixtures('client_class')
 class TestProphetjson:
     """test framework for collecting endpoint stats"""
@@ -467,6 +463,8 @@ class TestProphetjson:
         )
         assert req._status_code == 413
 
+
+@pytest.mark.usefixtures('client_class')
 class TestProphetSplit:
     """make sure behavior for splits is maintained"""
     def test_validate_forward_split(self):
@@ -478,7 +476,7 @@ class TestProphetSplit:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=29668,
+                type_id=CONFIG.get('TEST', 'type_id'),
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
