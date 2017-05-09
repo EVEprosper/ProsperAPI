@@ -177,7 +177,7 @@ class TestODBCsplit:
         req = self.client.get(
             url_for('ohlc_endpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=29668,
                 region_id=CONFIG.get('TEST', 'region_id')
             )
         )
@@ -478,7 +478,7 @@ class TestProphetSplit:
         req = self.client.get(
             url_for('prophetendpoint', return_type='csv') +
             '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=CONFIG.get('TEST', 'type_id'),
+                type_id=29668,
                 region_id=CONFIG.get('TEST', 'region_id'),
                 api_key=TEST_API_KEY,
                 range=CONFIG.get('TEST', 'forecast_range')
