@@ -1,4 +1,4 @@
-prosper-api (1.2.0) stable; urgency=low
+prosper-api (1.2.0.dev0) stable; urgency=low
 
   * Adding split coverage ahead of PLEX split
 

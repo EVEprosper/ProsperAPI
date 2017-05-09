@@ -4,7 +4,7 @@
 
 ifneq ($(wildcard /opt/intel/intelpython3/.*),)	#use intelpython bindings if available
 override_dh_virtualenv:
-	dh_virtualenv --python /opt/intel/intelpython3/bin/python3.5 --preinstall cython==0.24 --preinstall numpy==1.11.1 --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/
+	dh_virtualenv --python /opt/intel/intelpython3/bin/python3.5 --preinstall cython==0.24 --preinstall numpy==1.11.1 --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/ --use-system-packages
 else
 override_dh_virtualenv:
 	dh_virtualenv --python /usr/bin/python3.5 --preinstall cython --preinstall numpy --preinstall matplotlib --extra-index-url https://repo.fury.io/lockefox/
