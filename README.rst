@@ -26,7 +26,7 @@ are required for production:
 For Developers
 --------------
 
-Getting started is easy for developers. Just spin up a `virtualenv`_ and
+Getting started is easy for developers. Just spin up a `virtualenv` and
 make sure cython and numpy are installed
 
     ``pip install cython``
