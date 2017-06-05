@@ -26,8 +26,13 @@ are required for production:
 For Developers
 --------------
 
-Getting started is easy for developers. Just spin up a `virtualenv`_ and
-install
+Getting started is easy for developers. Just spin up a `virtualenv` and
+make sure cython and numpy are installed
+
+    ``pip install cython``
+    ``pip install numpy``
+
+then install with
 
     ``pip install . --extra-index-url=https://repo.fury.io/lockefox/``
 
