@@ -2,6 +2,7 @@
 
 from os import path, makedirs
 from datetime import datetime
+import time
 import pytz
 import configparser
 
@@ -294,12 +295,20 @@ def fetch_esi_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # no try-except, catch in caller
-    # done to make logging path easier
-    req = requests.get(
-        esi_url,
-        headers=headers
-    )
+    while True:
+        # no try-except, catch in caller
+        # done to make logging path easier
+        req = requests.get(
+            esi_url,
+            headers=headers
+        )
+
+        if req.status_code == 502:      # Server Error: Bad Gateway for url
+            logger.info('--502 error fetching market data, retrying ...')
+            time.sleep(2)
+            continue
+        break
+
     req.raise_for_status()
     data = req.json()
 
