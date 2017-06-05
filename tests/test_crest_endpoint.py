@@ -249,7 +249,7 @@ def test_get_api_key():
     api_db = connection.prosperAPI.users
     vals = api_db.find()
 
-    if not vals:
+    if not 'api_key' in vals:
         pytest.xfail('Unable to test without test keys')
 
     test_key = vals['api_key']
