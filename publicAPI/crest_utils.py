@@ -220,7 +220,7 @@ def fetch_crest_endpoint(
         endpoint_name,
         crest_base=CREST_BASE,
         config=api_config.CONFIG,
-        logger=LOGGER
+        logger=LOGGER,
         **kwargs,
 ):
     """Fetch payload from EVE Online's CREST service
