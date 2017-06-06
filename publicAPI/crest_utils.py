@@ -220,7 +220,6 @@ def fetch_crest_endpoint(
         endpoint_name,
         crest_base=CREST_BASE,
         config=api_config.CONFIG,
-        logger=LOGGER,
         **kwargs
 ):
     """Fetch payload from EVE Online's CREST service
@@ -249,8 +248,7 @@ def fetch_crest_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # exponential backoff starting at 2 secs, settle at 10 secs, max 2 mins
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_delay=120000)
+    @retry(wait_fixed=2000, stop_max_delay=10000)
     def fetch_crest_endpoint_get():
         # no try-except, catch in caller
         # done to make logging path easier
@@ -258,8 +256,7 @@ def fetch_crest_endpoint(
             crest_url,
             headers=headers
         )
-        if req.status_code != 502:          # Server Error: Bad Gateway for url
-            logger.info('--502 error fetching market data, retrying ...')
+        if req.status_code == 502:          # Server Error: Bad Gateway for url
             raise IOError("502 error fetching market data")
         return req
 
@@ -305,12 +302,19 @@ def fetch_esi_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # no try-except, catch in caller
-    # done to make logging path easier
-    req = requests.get(
-        esi_url,
-        headers=headers
-    )
+    @retry(wait_fixed=2000, stop_max_delay=10000)
+    def fetch_esi_endpoint_get():
+        # no try-except, catch in caller
+        # done to make logging path easier
+        req = requests.get(
+            esi_url,
+            headers=headers
+        )
+        if req.status_code == 502:          # Server Error: Bad Gateway for url
+            raise IOError("502 error fetching market data")
+        return req
+
+    req = fetch_esi_endpoint_get()
     req.raise_for_status()
     data = req.json()
 
