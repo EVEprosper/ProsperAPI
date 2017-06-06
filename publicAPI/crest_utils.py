@@ -2,6 +2,7 @@
 
 from os import path, makedirs
 from datetime import datetime
+from retrying import retry
 import pytz
 import configparser
 
@@ -247,12 +248,18 @@ def fetch_crest_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # no try-except, catch in caller
-    # done to make logging path easier
-    req = requests.get(
-        crest_url,
-        headers=headers
-    )
+    @retry(wait_fixed=2000, stop_max_delay=10000)
+    def fetch_crest_endpoint_get():
+        # no try-except, catch in caller
+        # done to make logging path easier
+        req = requests.get(
+            crest_url,
+            headers=headers
+        )
+        req.raise_for_status()
+        return req
+
+    req = fetch_crest_endpoint_get()
     req.raise_for_status()
     data = req.json()
 
@@ -294,12 +301,18 @@ def fetch_esi_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # no try-except, catch in caller
-    # done to make logging path easier
-    req = requests.get(
-        esi_url,
-        headers=headers
-    )
+    @retry(wait_fixed=2000, stop_max_delay=10000)
+    def fetch_esi_endpoint_get():
+        # no try-except, catch in caller
+        # done to make logging path easier
+        req = requests.get(
+            esi_url,
+            headers=headers
+        )
+        req.raise_for_status()
+        return req
+
+    req = fetch_esi_endpoint_get()
     req.raise_for_status()
     data = req.json()
 

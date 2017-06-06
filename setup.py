@@ -120,7 +120,8 @@ setup(
         'tinymongo~=0.1.8.dev0',
         'ujson~=1.35',
         'plumbum~=1.6.3',
-        'shortuuid~=0.5.0'
+        'shortuuid~=0.5.0',
+        'retrying >= 1.3.3'
     ],
     tests_require=[
         'pytest~=3.0.0',

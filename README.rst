@@ -27,7 +27,12 @@ For Developers
 --------------
 
 Getting started is easy for developers. Just spin up a `virtualenv`_ and
-install
+make sure cython and numpy are installed
+
+    ``pip install cython``
+    ``pip install numpy``
+
+then install with
 
     ``pip install . --extra-index-url=https://repo.fury.io/lockefox/``
 
