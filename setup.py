@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.1.3'
+__version__ = '1.2.0'
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
@@ -99,7 +99,9 @@ setup(
     package_data={
         '': ['LICENSE', 'README.rst'],
         'publicAPI':[
-            'cache/apikeys.json'    #including key file for installer
+            'split_info.json',
+            'cache/prosperAPI.json',    #including key file for installer
+            'cache/splitcache.json'
         ]
     },
     install_requires=[
@@ -115,9 +117,11 @@ setup(
         'pystan~=2.14.0',
         'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
         'tinydb~=3.2.2',
+        'tinymongo~=0.1.8.dev0',
         'ujson~=1.35',
         'plumbum~=1.6.3',
-        'shortuuid~=0.5.0'
+        'shortuuid~=0.5.0',
+        'retrying >= 1.3.3'
     ],
     tests_require=[
         'pytest~=3.0.0',

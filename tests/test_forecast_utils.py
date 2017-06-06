@@ -212,8 +212,7 @@ class TestPredictCache:
 
     def test_clear_existing_cache(self):
         """clean up cache path before testing"""
-        rmtree(self.cache_path)
-        makedirs(self.cache_path)
+        helpers.clear_caches()
 
     def test_empty_cache(self):
         """test un-cached behavior"""

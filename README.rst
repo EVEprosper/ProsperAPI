@@ -1,3 +1,5 @@
+|Prosper Logo|
+
 ProsperAPI
 ==========
 
@@ -25,9 +27,14 @@ For Developers
 --------------
 
 Getting started is easy for developers. Just spin up a `virtualenv`_ and
-install
+make sure cython and numpy are installed
 
-    ``pip install .``
+    ``pip install cython``
+    ``pip install numpy``
+
+then install with
+
+    ``pip install . --extra-index-url=https://repo.fury.io/lockefox/``
 
 Testing is designed to be easy too! Just run tests from setup.py
 
@@ -91,4 +98,5 @@ any damage arising from the use of this websi
    :target: https://travis-ci.org/EVEprosper/ProsperAPI
 .. |Coverage Status| image:: https://coveralls.io/repos/github/EVEprosper/ProsperAPI/badge.svg?branch=master
    :target: https://coveralls.io/github/EVEprosper/ProsperAPI?branch=master
-
+.. |Prosper Logo| image:: http://dl.eveprosper.com/podcast/logo-colour-17_sm5.png
+   :target: http://www.eveprosper.com
