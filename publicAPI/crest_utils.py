@@ -256,8 +256,7 @@ def fetch_crest_endpoint(
             crest_url,
             headers=headers
         )
-        if req.status_code == 502:          # Server Error: Bad Gateway for url
-            req.raise_for_status()
+        req.raise_for_status()
         return req
 
     req = fetch_crest_endpoint_get()
@@ -310,8 +309,7 @@ def fetch_esi_endpoint(
             esi_url,
             headers=headers
         )
-        if req.status_code == 502:          # Server Error: Bad Gateway for url
-            req.raise_for_status()
+        req.raise_for_status()
         return req
 
     req = fetch_esi_endpoint_get()
