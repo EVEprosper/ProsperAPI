@@ -257,7 +257,7 @@ def fetch_crest_endpoint(
             headers=headers
         )
         if req.status_code == 502:          # Server Error: Bad Gateway for url
-            raise IOError("502 error fetching market data")
+            req.raise_for_status()
         return req
 
     req = fetch_crest_endpoint_get()
@@ -311,7 +311,7 @@ def fetch_esi_endpoint(
             headers=headers
         )
         if req.status_code == 502:          # Server Error: Bad Gateway for url
-            raise IOError("502 error fetching market data")
+            req.raise_for_status()
         return req
 
     req = fetch_esi_endpoint_get()
