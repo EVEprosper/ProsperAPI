@@ -23,7 +23,7 @@ def test_good_key():
     api_db = connection.prosperAPI.users
     vals = api_db.find()
 
-    if not 'api_key' in vals:
+    if not vals:
         global DO_API_TESTS
         DO_API_TESTS = False
         pytest.xfail('Unable to test without test keys')
