@@ -248,8 +248,8 @@ def fetch_crest_endpoint(
         'User-Agent': config.get('GLOBAL', 'useragent')
     }
 
-    # exponential backoff starting at 2 secs, settle at 10 secs
-    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+    # exponential backoff starting at 2 secs, settle at 10 secs, max 2 mins
+    @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_delay=120000)
     def fetch_crest_endpoint_get():
         # no try-except, catch in caller
         # done to make logging path easier
