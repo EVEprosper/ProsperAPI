@@ -39,10 +39,10 @@ def create_app(
         '/var/log/prosper/',
         local_configs
     )
-    if not app.debug or not testmode:
-        log_builder.configure_discord_logger()
-    else:
+    if app.debug or testmode:
         log_builder.configure_debug_logger()
+    else:
+        log_builder.configure_discord_logger()
 
     if log_builder:
         for handle in log_builder:
