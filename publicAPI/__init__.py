@@ -14,6 +14,7 @@ HERE = path.abspath(path.dirname(__file__))
 def create_app(
         settings=None,
         local_configs=None,
+        testmode=False
 ):
     """create Flask application (ROOT)
 
@@ -38,7 +39,7 @@ def create_app(
         '/var/log/prosper/',
         local_configs
     )
-    if not app.debug:
+    if not app.debug or not testmode:
         log_builder.configure_discord_logger()
     else:
         log_builder.configure_debug_logger()

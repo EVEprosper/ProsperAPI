@@ -18,7 +18,8 @@ def app():
     my_app = create_app(
         local_configs=p_config.ProsperConfig(
             path.join(ROOT, 'scripts', 'app.cfg')
-        )
+        ),
+        testmode=True
     )
     return my_app
 
