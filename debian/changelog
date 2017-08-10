@@ -1,3 +1,9 @@
+prosper-api (1.2.2) stable; urgency=low
+
+  * upgrading project for ProsperCommon v1.1.0
+
+ -- John Purcell <jpurcell.ee@gmail.com>  Thu, 10 Aug 2017 08:30:00 -0700
+
 prosper-api (1.2.1) stable; urgency=low
 
   * adding retry to ESI fetch calls (@Xiantra)
