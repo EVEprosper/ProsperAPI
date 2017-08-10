@@ -1,12 +1,31 @@
 """Setup.py for ProsperAPI Flask project"""
-
+from codecs import open
+import importlib
 from os import path, listdir
+
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
-from codecs import open
 
 HERE = path.abspath(path.dirname(__file__))
-__version__ = '1.2.1'
+__package_name__ = 'ProsperAPI'
+__app_name__ = 'publicAPI'
+
+def get_version(package_name):
+    """find __version__ for making package
+
+    Args:
+        package_path (str): path to _version.py folder (abspath > relpath)
+
+    Returns:
+        (str) __version__ value
+
+    """
+    module = package_name + '._version'
+    package = importlib.import_module(module)
+
+    version = package.__version__
+
+    return version
 
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
@@ -75,15 +94,17 @@ class PyTest(TestCommand):
         exit(errno)
 
 with open('README.rst', 'r', 'utf-8') as f:
-    readme = f.read()
+    README = f.read()
 
 setup(
-    name='ProsperAPI',
+    name=__package_name__,
+    description='REST API for exposing Prosper data',
+    long_description=README,
     author='John Purcell',
     author_email='prospermarketshow@gmail.com',
     url='https://github.com/EVEprosper/ProsperAPI',
-    download_url='https://github.com/EVEprosper/ProsperAPI/tarball/v' + __version__,
-    version=__version__,
+    download_url='https://github.com/EVEprosper/' + __package_name__ + '/tarball/v' + get_version(__app_name__),
+    version=get_version(__app_name__),
     license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3.5'

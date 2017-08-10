@@ -1,13 +1,17 @@
 """__init__.py: Flask app configuration"""
 from os import path
+import warnings
 
-from flask import Flask
+try:
+    from flask import Flask
 
-import publicAPI.crest_endpoint as crest_endpoint
-import publicAPI.config as config
-import publicAPI.split_utils as split_utils
+    import publicAPI.crest_endpoint as crest_endpoint
+    import publicAPI.config as config
+    import publicAPI.split_utils as split_utils
 
-import prosper.common.prosper_logging as p_logging
+    import prosper.common.prosper_logging as p_logging
+except ImportError:
+    warnings.warn('pre-install mode -- requirements not installed', UserWarning)
 
 HERE = path.abspath(path.dirname(__file__))
 
