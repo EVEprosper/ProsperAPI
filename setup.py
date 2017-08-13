@@ -126,7 +126,7 @@ setup(
         ]
     },
     install_requires=[
-        'ProsperCommon',
+        'ProsperCommon~=1.1.0',
         'Flask~=0.12',
         'Flask-RESTful~=0.3.5',
         'flask-script~=2.0.5',
