@@ -286,39 +286,39 @@ class TestValidateID:
         #rmtree(TEST_CACHE_PATH)
         #makedirs(TEST_CACHE_PATH)
 
-    def test_happypath_types(self):
-        """make sure behavior is expected for direct use"""
-        pytest.skip('CREST endpoint deprecated')
-        type_info = crest_utils.validate_id(
-            'inventory_types',
-            self.type_id,
-            config=ROOT_CONFIG
-        )
-        assert type_info['name'] == 'Tritanium'
-
-        type_info_retry = crest_utils.validate_id(
-            'inventory_types',
-            self.type_id,
-            config=ROOT_CONFIG
-        )
-        assert type_info_retry == type_info
-
-        type_info_esi = crest_utils.validate_id(
-            'inventory_types',
-            self.type_id,
-            cache_buster=True,
-            config=ROOT_CONFIG,
-            mode=api_config.SwitchCCPSource.ESI
-        )
-        print(type_info)
-        print(type_info_esi)
-        assert type_info_esi['name'] == type_info['name']
-        assert type_info_esi['description'] == type_info['description']
-        assert type_info_esi['published'] == type_info['published']
-        assert type_info_esi['radius'] == type_info['radius']
-        assert type_info_esi['icon_id'] == type_info['iconID']
-        assert type_info_esi['capacity'] == type_info['capacity']
-        assert type_info_esi['type_id'] == type_info['id']
+#    def test_happypath_types(self):
+#        """make sure behavior is expected for direct use"""
+#        pytest.skip('CREST endpoint deprecated')
+#        type_info = crest_utils.validate_id(
+#            'inventory_types',
+#            self.type_id,
+#            config=ROOT_CONFIG
+#        )
+#        assert type_info['name'] == 'Tritanium'
+#
+#        type_info_retry = crest_utils.validate_id(
+#            'inventory_types',
+#            self.type_id,
+#            config=ROOT_CONFIG
+#        )
+#        assert type_info_retry == type_info
+#
+#        type_info_esi = crest_utils.validate_id(
+#            'inventory_types',
+#            self.type_id,
+#            cache_buster=True,
+#            config=ROOT_CONFIG,
+#            mode=api_config.SwitchCCPSource.ESI
+#        )
+#        print(type_info)
+#        print(type_info_esi)
+#        assert type_info_esi['name'] == type_info['name']
+#        assert type_info_esi['description'] == type_info['description']
+#        assert type_info_esi['published'] == type_info['published']
+#        assert type_info_esi['radius'] == type_info['radius']
+#        assert type_info_esi['icon_id'] == type_info['iconID']
+#        assert type_info_esi['capacity'] == type_info['capacity']
+#        assert type_info_esi['type_id'] == type_info['id']
 
     def test_happypath_regions(self):
         """make sure behavior is good for regions too"""
@@ -341,11 +341,10 @@ class TestValidateID:
             self.region_id,
             cache_buster=True,
             config=ROOT_CONFIG,
-            mode=api_config.SwitchCCPSource.ESI
         )
 
-        assert region_info_esi['name']        == region_info['name']
-        assert region_info_esi['region_id']   == region_info['id']
+        assert region_info_esi['name'] == region_info['name']
+        assert region_info_esi['region_id'] == region_info['id']
         assert region_info_esi['description'] == region_info['description']
 
     def test_cache_files(self):
@@ -398,40 +397,40 @@ class TestValidateID:
 
         assert type_info == type_cache['payload']
 
-def test_fetch_market_history(config=CONFIG):
-    """test `fetch_market_history` utility"""
-    pytest.skip('CREST Deprecated')
-    data = crest_utils.fetch_market_history(
-        config.get('TEST', 'region_id'),
-        config.get('TEST', 'type_id'),
-        config=ROOT_CONFIG
-    )
-
-    assert isinstance(data, pd.DataFrame)
-    expected_cols = [
-        'date',
-        'avgPrice',
-        'highPrice',
-        'lowPrice',
-        'volume',
-        'orders'
-        #extra keys:
-        #'volume_str',
-        #'orderCountStr'
-    ]
-    for key in expected_cols:
-        assert key in data.columns.values
-
-    ohlc = crest_utils.data_to_ohlc(data)
-
-    assert ohlc['date'].equals(data['date'])
-    assert ohlc['open'].equals(data['avgPrice'])
-    assert ohlc['high'].equals(data['highPrice'])
-    assert ohlc['low'].equals(data['lowPrice'])
-    assert ohlc['volume'].equals(data['volume'])
-
-    assert data['avgPrice'].shift(1).equals(ohlc['close'])
-
+#def test_fetch_market_history(config=CONFIG):
+#    """test `fetch_market_history` utility"""
+#    #pytest.skip('CREST Deprecated')
+#    data = crest_utils.fetch_market_history(
+#        config.get('TEST', 'region_id'),
+#        config.get('TEST', 'type_id'),
+#        config=ROOT_CONFIG
+#    )
+#
+#    assert isinstance(data, pd.DataFrame)
+#    expected_cols = [
+#        'date',
+#        'avgPrice',
+#        'highPrice',
+#        'lowPrice',
+#        'volume',
+#        'orders'
+#        #extra keys:
+#        #'volume_str',
+#        #'orderCountStr'
+#    ]
+#    for key in expected_cols:
+#        assert key in data.columns.values
+#
+#    ohlc = crest_utils.data_to_ohlc(data)
+#
+#    assert ohlc['date'].equals(data['date'])
+#    assert ohlc['open'].equals(data['avgPrice'])
+#    assert ohlc['high'].equals(data['highPrice'])
+#    assert ohlc['low'].equals(data['lowPrice'])
+#    assert ohlc['volume'].equals(data['volume'])
+#
+#    assert data['avgPrice'].shift(1).equals(ohlc['close'])
+#
 def test_fetch_market_history_esi(config=CONFIG):
     """test `fetch_market_history` utility"""
 
@@ -439,7 +438,6 @@ def test_fetch_market_history_esi(config=CONFIG):
         config.get('TEST', 'region_id'),
         config.get('TEST', 'type_id'),
         config=ROOT_CONFIG,
-        mode=api_config.SwitchCCPSource.ESI
     )
 
     assert isinstance(data, pd.DataFrame)

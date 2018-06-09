@@ -290,9 +290,9 @@ class ProphetEndpoint(Resource):
             args.get('regionID'),
             args.get('typeID')
         )
-        LOGGER.debug(cache_data)
+        self.logger.debug(cache_data)
         if cache_data is not None:
-            LOGGER.info('returning cached forecast')
+            self.logger.info('returning cached forecast')
             message = forecast_reporter(
                 cache_data,
                 forecast_range,

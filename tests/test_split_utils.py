@@ -270,10 +270,10 @@ class TestNoSplit:
 
     def test_future_split_emd(self):
         """valdiate with EMD source"""
-        pytest.skip('EMD mode deprecated')
         test_data_emd = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
+            fetch_source=api_utils.SwitchCCPSource.EMD,
             data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
@@ -456,59 +456,59 @@ class TestSplit:
             split_obj
         )
 
-    def test_forward_happypath_crest(self):
-        """test a forward-split: crest"""
-        pytest.skip('CREST deprecated')
-        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
-        raw_crest_data1 = crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_type_id,
-            mode=api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        raw_crest_data2 = crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_original_id,
-            mode=api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        split_data = split_utils.fetch_split_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            DEMO_SPLIT['type_id'],
-            api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        #split_data.to_csv('split_data_crest.csv', index=False)
-
-        ## Doctor data for testing ##
-        min_split_date = split_data.date.min()
-        raw_crest_data1 = prep_raw_data(
-            raw_crest_data1.copy(),
-            min_split_date
-        )
-        raw_crest_data2 = prep_raw_data(
-            raw_crest_data2.copy(),
-            min_split_date
-        )
-
-        split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
-        pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
-        pre_raw_data = raw_crest_data2[raw_crest_data2.date <= split_date_str].reset_index()
-        post_split_data = split_data[split_data.date > split_date_str].reset_index()
-        post_raw_data = raw_crest_data1[raw_crest_data1.date > split_date_str].reset_index()
-
-        ## Validate pre/post Split values ##
-        validate_plain_data(
-            post_raw_data,
-            post_split_data
-        )
-
-        validate_split_data(
-            pre_raw_data,
-            pre_split_data,
-            split_obj
-        )
-
+#    def test_forward_happypath_crest(self):
+#        """test a forward-split: crest"""
+#        pytest.skip('CREST deprecated')
+#        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+#        raw_crest_data1 = crest_utils.fetch_market_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            self.test_type_id,
+#            mode=api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        raw_crest_data2 = crest_utils.fetch_market_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            self.test_original_id,
+#            mode=api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        split_data = split_utils.fetch_split_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            DEMO_SPLIT['type_id'],
+#            api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        #split_data.to_csv('split_data_crest.csv', index=False)
+#
+#        ## Doctor data for testing ##
+#        min_split_date = split_data.date.min()
+#        raw_crest_data1 = prep_raw_data(
+#            raw_crest_data1.copy(),
+#            min_split_date
+#        )
+#        raw_crest_data2 = prep_raw_data(
+#            raw_crest_data2.copy(),
+#            min_split_date
+#        )
+#
+#        split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
+#        pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
+#        pre_raw_data = raw_crest_data2[raw_crest_data2.date <= split_date_str].reset_index()
+#        post_split_data = split_data[split_data.date > split_date_str].reset_index()
+#        post_raw_data = raw_crest_data1[raw_crest_data1.date > split_date_str].reset_index()
+#
+#        ## Validate pre/post Split values ##
+#        validate_plain_data(
+#            post_raw_data,
+#            post_split_data
+#        )
+#
+#        validate_split_data(
+#            pre_raw_data,
+#            pre_split_data,
+#            split_obj
+#        )
+#
     def test_forward_happypath_emd(self):
         """test a forward-split: crest"""
         split_obj = split_utils.SplitInfo(DEMO_SPLIT)
