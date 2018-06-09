@@ -2,6 +2,7 @@
 from codecs import open
 import importlib
 from os import path, listdir
+import platform
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -79,7 +80,12 @@ class PyTest(TestCommand):
             'tests',
             '--cov=publicAPI/',
             '--cov-report=term-missing'
-        ]    #load defaults here
+        ]
+        if platform.system() == 'Windows':
+            self.pytest_args.extend([
+                '-p',
+                'no:logging',
+            ])
 
     def run_tests(self):
         import shlex
@@ -131,13 +137,13 @@ setup(
         'Flask',
         'Flask-RESTful',
         'flask-script',
-        'requests',         #intelpython3 == 2.10.0
-        'pandas',           #intelpython3 == 0.18.1
-        'numpy',            #intelpython3 == 1.11.1
-        'cython>=0.24',             #intelpython3 == 0.24
-        'matplotlib>=2.0.0',        #required for building fbprophet (intel==1.5.1)
+        'requests',             #intelpython3 == 2.10.0
+        'pandas',               #intelpython3 == 0.18.1
+        'numpy',                #intelpython3 == 1.11.1
+        'cython>=0.24',         #intelpython3 == 0.24
+        'matplotlib>=2.0.0',    #required for building fbprophet (intel==1.5.1)
         'pystan>=2.14.0',
-        'fbprophet>=0.1.post1',     #order matters: need pystan/cython first
+        'fbprophet>=0.1.post1', #order matters: need pystan/cython first
         'tinydb',
         'tinymongo',
         'ujson',
@@ -146,7 +152,7 @@ setup(
         'retrying',
     ],
     tests_require=[
-        'pytest',
+        'pytest',  # >=3.0.0,<3.2.0',
         'pytest_cov',        #requires requests==2.13.0
         'pytest-flask',
         'pymysql',

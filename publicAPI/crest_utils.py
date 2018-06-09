@@ -2,11 +2,12 @@
 
 from os import path, makedirs
 from datetime import datetime
-from retrying import retry
-import pytz
 import configparser
+import logging
+import warnings
 
 import ujson as json
+from retrying import retry
 import requests
 from tinydb import TinyDB, Query
 import pandas as pd
@@ -18,7 +19,7 @@ import publicAPI.exceptions as exceptions
 import publicAPI.config as api_config
 import prosper.common.prosper_logging as p_logging
 
-LOGGER = p_logging.DEFAULT_LOGGER
+LOGGER = logging.getLogger('publicAPI')
 HERE = path.abspath(path.dirname(__file__))
 
 CACHE_PATH = path.join(HERE, 'cache')
@@ -109,10 +110,10 @@ def endpoint_to_kwarg(
 def validate_id(
         endpoint_name,
         type_id,
-        mode=api_config.SwitchCCPSource.CREST,
+        mode=api_config.SwitchCCPSource.ESI,
         cache_buster=False,
         config=api_config.CONFIG,
-        logger=LOGGER
+        logger=logging.getLogger('publicAPI'),
 ):
     """Check EVE Online CREST as source-of-truth for id lookup
 
@@ -165,6 +166,7 @@ def validate_id(
         )
         type_info = None
         if mode == api_config.SwitchCCPSource.CREST:
+            warnings.warn('CREST service deprecated by CCP, use ESI', DeprecationWarning)
             type_info = fetch_crest_endpoint(
                 endpoint_name,
                 **kwarg_pair,
@@ -233,6 +235,7 @@ def fetch_crest_endpoint(
         (:obj:`dict`): JSON object returned by endpoint
 
     """
+    warnings.warn('CREST service deprecated by CCP, use ESI', DeprecationWarning)
     try:
         crest_url = crest_base + config.get('RESOURCES', endpoint_name)
     except (configparser.NoOptionError, KeyError):

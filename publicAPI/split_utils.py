@@ -2,6 +2,7 @@
 from os import path, makedirs
 from datetime import datetime
 import ast
+import logging
 
 import ujson as json
 import pandas as pd
@@ -127,7 +128,7 @@ class SplitInfo(object):
 
 def read_split_info(
         split_info_file=path.join(HERE, 'split_info.json'),
-        logger=api_config.LOGGER
+        logger=logging.getLogger('publicAPI'),
 ):
     """initialize SPLIT_INFO for project
 
@@ -135,7 +136,7 @@ def read_split_info(
         Does not update global SPLIT_INFO (use `main` scope)
 
     Args:
-         (str, optional): path to split_info.json
+        split_info_file (str, optional): path to split_info.json
         logger (:obj:`logging.logger`, optional): logging handle
 
     Returns:

@@ -24,6 +24,7 @@ ROOT_CONFIG = helpers.get_config(
 
 def test_validate_crest_fetcher(config=CONFIG):
     """exercise fetch_crest_endpoint"""
+    pytest.skip('CREST Deprecated')
     region_data = crest_utils.fetch_crest_endpoint(
         'map_regions',
         region_id=config.get('TEST', 'region_id'),
@@ -79,6 +80,7 @@ def test_validate_crest_fetcher(config=CONFIG):
 
 def test_crest_fetcher_errors(config=CONFIG):
     """validate errors thrown by fetch_crest_endpoint"""
+    pytest.skip('CREST Deprecated')
     with pytest.raises(exceptions.UnsupportedCrestEndpoint):
         data = crest_utils.fetch_crest_endpoint(
             'butts',
@@ -396,7 +398,7 @@ class TestValidateID:
 
 def test_fetch_market_history(config=CONFIG):
     """test `fetch_market_history` utility"""
-
+    pytest.skip('CREST Deprecated')
     data = crest_utils.fetch_market_history(
         config.get('TEST', 'region_id'),
         config.get('TEST', 'type_id'),
