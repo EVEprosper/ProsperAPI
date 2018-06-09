@@ -40,7 +40,7 @@ def create_app(
 
     log_builder = p_logging.ProsperLogger(
         'publicAPI',
-        local_configs['LOGGING']['log_path'],
+        local_configs.get_option('LOGGING', 'log_path'),
         local_configs
     )
     if app.debug or testmode:
