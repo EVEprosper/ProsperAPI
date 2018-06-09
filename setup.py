@@ -125,30 +125,31 @@ setup(
             'cache/splitcache.json'
         ]
     },
+    python_requires='>=3.5',
     install_requires=[
-        'ProsperCommon~=1.1.0',
-        'Flask~=0.12',
-        'Flask-RESTful~=0.3.5',
-        'flask-script~=2.0.5',
-        'requests~=2.13.0',         #intelpython3 == 2.10.0
-        'pandas==0.18.1',           #intelpython3 == 0.18.1
-        'numpy==1.11.1',            #intelpython3 == 1.11.1
-        'cython==0.24',             #intelpython3 == 0.24
-        'matplotlib~=2.0.0',        #required for building fbprophet (intel==1.5.1)
-        'pystan~=2.14.0',
-        'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
-        'tinydb~=3.2.2',
-        'tinymongo~=0.1.8.dev0',
-        'ujson~=1.35',
-        'plumbum~=1.6.3',
-        'shortuuid~=0.5.0',
-        'retrying ~= 1.3.3'
+        'ProsperCommon~=1.4.0',
+        'Flask',
+        'Flask-RESTful',
+        'flask-script',
+        'requests',         #intelpython3 == 2.10.0
+        'pandas',           #intelpython3 == 0.18.1
+        'numpy',            #intelpython3 == 1.11.1
+        'cython>=0.24',             #intelpython3 == 0.24
+        'matplotlib>=2.0.0',        #required for building fbprophet (intel==1.5.1)
+        'pystan>=2.14.0',
+        'fbprophet>=0.1.post1',     #order matters: need pystan/cython first
+        'tinydb',
+        'tinymongo',
+        'ujson',
+        'plumbum',
+        'shortuuid',
+        'retrying',
     ],
     tests_require=[
-        'pytest>=3.0.0',
-        'pytest_cov~=2.4.0',        #requires requests==2.13.0
-        'pytest-flask~=0.10.0',
-        'pymysql~=0.7.10'
+        'pytest',
+        'pytest_cov',        #requires requests==2.13.0
+        'pytest-flask',
+        'pymysql',
     ],
     cmdclass={
         'test':PyTest
