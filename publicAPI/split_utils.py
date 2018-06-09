@@ -196,10 +196,11 @@ def fetch_split_cache_data(
         split_cache_file (str, optional): path to split file
 
     Returns:
-        (:obj:`pandas.data_frame`) pandas collection of data
+        pandas.data_frame pandas collection of data
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
 
     """
+    print(api_config.SPLIT_CACHE_FILE)
     db_handle = TinyDB(api_config.SPLIT_CACHE_FILE)
 
     if split_date:
@@ -294,7 +295,7 @@ def execute_split(
 def fetch_split_history(
         region_id,
         type_id,
-        fetch_source,
+        fetch_source=api_config.SwitchCCPSource.ESI,
         data_range=400,
         #split_cache_file=SPLIT_CACHE_FILE,
         config=api_config.CONFIG,
@@ -325,8 +326,8 @@ def fetch_split_history(
 
     logger.debug(split_obj.__dict__)
     logger.info(
-        'fetching data from remote {0} (was {1})'.\
-        format(type_id, fetch_id)
+        'fetching data from remote %s (was %s)',
+        type_id, fetch_id
     )
     ## Get current market data ##
     if fetch_source == api_config.SwitchCCPSource.EMD:
@@ -336,7 +337,6 @@ def fetch_split_history(
             fetch_id,
             data_range=data_range,
             config=config,
-            #logger=logger
         )
         current_data = forecast_utils.parse_emd_data(current_data['result'])
     else:
@@ -344,7 +344,6 @@ def fetch_split_history(
         current_data = crest_utils.fetch_market_history(
             region_id,
             fetch_id,
-            mode=fetch_source,
             config=config,
             logger=logger
         )
@@ -358,9 +357,9 @@ def fetch_split_history(
 
     ## Fetch split data ##
     logger.info(
-        '--fetching data from cache {0}@{1}'.format(
-            split_obj.original_id, region_id
-    ))
+        '--fetching data from cache %s@%s',
+        split_obj.original_id, region_id
+    )
     split_data = fetch_split_cache_data(
         region_id,
         split_obj.original_id,
@@ -402,9 +401,4 @@ def fetch_split_history(
         split_data.copy()
     )
 
-    if fetch_source == api_config.SwitchCCPSource.CREST:
-        logger.info('--Setting CREST datetime')
-        combined_data['date'] = pd.to_datetime(combined_data['date']).\
-            dt.strftime('%Y-%m-%dT%H:%M:%S')
     return combined_data
-

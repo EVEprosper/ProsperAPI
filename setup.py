@@ -81,11 +81,11 @@ class PyTest(TestCommand):
             '--cov=publicAPI/',
             '--cov-report=term-missing'
         ]
-        if platform.system() == 'Windows':
-            self.pytest_args.extend([
-                '-p',
-                'no:logging',
-            ])
+        #if platform.system() == 'Windows':
+        #    self.pytest_args.extend([
+        #        '-p',
+        #        'no:logging',
+        #    ])
 
     def run_tests(self):
         import shlex

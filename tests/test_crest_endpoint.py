@@ -35,7 +35,6 @@ def test_clear_caches():
 VIRGIN_RUNTIME = None
 
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestODBCcsv:
     """test framework for collecting endpoint stats"""
     def test_odbc_happypath(self):
@@ -117,7 +116,6 @@ class TestODBCcsv:
         assert req._status_code == 405
 
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestODBCjson:
     """test framework for collecting endpoint stats"""
     def test_odbc_happypath(self):
@@ -175,25 +173,24 @@ class TestODBCjson:
 DAYS_SINCE_SPLIT = 10
 TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
 DEMO_SPLIT = {
-    "type_id":35,
-    "type_name":"Tritanium",
-    "original_id":34,
-    "new_id":35,
-    "split_date":TEST_DATE.strftime('%Y-%m-%d'),
-    "bool_mult_div":"False",
-    "split_rate": 10
+    'type_id':35,
+    'type_name':'Tritanium',
+    'original_id':34,
+    'new_id':35,
+    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+    'bool_mult_div':'False',
+    'split_rate': 10
 }
 DEMO_UNSPLIT = {
-"type_id":35,
-    "type_name":"Tritanium",
-    "original_id":34,
-    "new_id":35,
-    "split_date":TEST_DATE.strftime('%Y-%m-%d'),
-    "bool_mult_div":"False",
-    "split_rate": 10
+    'type_id':35,
+    'type_name':'Tritanium',
+    'original_id':34,
+    'new_id':35,
+    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+    'bool_mult_div':'False',
+    'split_rate': 10
 }
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestODBCsplit:
     """make sure behavior for splits is maintained"""
     demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
@@ -260,7 +257,6 @@ def test_get_api_key():
     TEST_API_KEY = test_key
 
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestProphetcsv:
     """test framework for collecting endpoint stats"""
     def test_prophet_happypath(self):
@@ -398,7 +394,6 @@ class TestProphetcsv:
         assert req._status_code == 405
 
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestProphetjson:
     """test framework for collecting endpoint stats"""
     def test_prophet_happypath(self):
@@ -522,7 +517,6 @@ class TestProphetjson:
         assert req._status_code == 413
 
 @pytest.mark.usefixtures('client_class')
-@pytest.mark.filterwarnings('ignore:DeprecationWarning')
 class TestProphetSplit:
     """make sure behavior for splits is maintained"""
     demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
