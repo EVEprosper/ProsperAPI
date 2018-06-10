@@ -11,7 +11,7 @@ import pytest
 from flask import url_for
 
 import publicAPI.exceptions as exceptions
-import publicAPI.split_utils as split_utils
+# import publicAPI.split_utils as split_utils
 import publicAPI.config as api_utils
 import helpers
 
@@ -170,74 +170,74 @@ class TestODBCjson:
         )
         assert req._status_code == 404
 
-DAYS_SINCE_SPLIT = 10
-TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
-DEMO_SPLIT = {
-    'type_id':35,
-    'type_name':'Tritanium',
-    'original_id':34,
-    'new_id':35,
-    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
-    'bool_mult_div':'False',
-    'split_rate': 10
-}
-DEMO_UNSPLIT = {
-    'type_id':35,
-    'type_name':'Tritanium',
-    'original_id':34,
-    'new_id':35,
-    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
-    'bool_mult_div':'False',
-    'split_rate': 10
-}
-@pytest.mark.usefixtures('client_class')
-class TestODBCsplit:
-    """make sure behavior for splits is maintained"""
-    demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
-    revrsplit_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
-    def test_validate_forward_split(self):
-        """run split as intended, new item with split in the past"""
-        # vv FIXME vv: depends on split_utils package
-        api_utils.SPLIT_INFO = split_utils.read_split_info()
-        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
-        # ^^ FIXME ^^ #
-        req = self.client.get(
-            url_for('ohlc_endpoint', return_type='csv') +
-            '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=self.demosplit_obj.type_id,
-                #type_id=CONFIG.get('TEST', 'type_id'),
-                region_id=CONFIG.get('TEST', 'region_id')
-            )
-        )
-
-        data = None
-        with io.StringIO(req.data.decode()) as buff:
-            data = pd.read_csv(buff)
-
-        assert req._status_code == 200
-        #TODO: validate return
-
-    def test_validate_reverse_split(self):
-        """run split normally, old item with forward data"""
-        # vv FIXME vv: depends on split_utils package
-        api_utils.SPLIT_INFO = split_utils.read_split_info()
-        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
-        # ^^ FIXME ^^ #
-        req = self.client.get(
-            url_for('ohlc_endpoint', return_type='csv') +
-            '?typeID={type_id}&regionID={region_id}'.format(
-                type_id=self.demosplit_obj.original_id,
-                #type_id=CONFIG.get('TEST', 'type_id'),
-                region_id=CONFIG.get('TEST', 'region_id')
-            )
-        )
-
-        data = None
-        with io.StringIO(req.data.decode()) as buff:
-            data = pd.read_csv(buff)
-
-        assert req._status_code == 200
-        #TODO: validate return
+#DAYS_SINCE_SPLIT = 10
+#TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
+#DEMO_SPLIT = {
+#    'type_id':35,
+#    'type_name':'Tritanium',
+#    'original_id':34,
+#    'new_id':35,
+#    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+#    'bool_mult_div':'False',
+#    'split_rate': 10
+#}
+#DEMO_UNSPLIT = {
+#    'type_id':35,
+#    'type_name':'Tritanium',
+#    'original_id':34,
+#    'new_id':35,
+#    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+#    'bool_mult_div':'False',
+#    'split_rate': 10
+#}
+#@pytest.mark.usefixtures('client_class')
+#class TestODBCsplit:
+#    """make sure behavior for splits is maintained"""
+#    demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
+#    revrsplit_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
+#    def test_validate_forward_split(self):
+#        """run split as intended, new item with split in the past"""
+#        # vv FIXME vv: depends on split_utils package
+#        api_utils.SPLIT_INFO = split_utils.read_split_info()
+#        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
+#        # ^^ FIXME ^^ #
+#        req = self.client.get(
+#            url_for('ohlc_endpoint', return_type='csv') +
+#            '?typeID={type_id}&regionID={region_id}'.format(
+#                type_id=self.demosplit_obj.type_id,
+#                #type_id=CONFIG.get('TEST', 'type_id'),
+#                region_id=CONFIG.get('TEST', 'region_id')
+#            )
+#        )
+#
+#        data = None
+#        with io.StringIO(req.data.decode()) as buff:
+#            data = pd.read_csv(buff)
+#
+#        assert req._status_code == 200
+#        #TODO: validate return
+#
+#    def test_validate_reverse_split(self):
+#        """run split normally, old item with forward data"""
+#        # vv FIXME vv: depends on split_utils package
+#        api_utils.SPLIT_INFO = split_utils.read_split_info()
+#        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
+#        # ^^ FIXME ^^ #
+#        req = self.client.get(
+#            url_for('ohlc_endpoint', return_type='csv') +
+#            '?typeID={type_id}&regionID={region_id}'.format(
+#                type_id=self.demosplit_obj.original_id,
+#                #type_id=CONFIG.get('TEST', 'type_id'),
+#                region_id=CONFIG.get('TEST', 'region_id')
+#            )
+#        )
+#
+#        data = None
+#        with io.StringIO(req.data.decode()) as buff:
+#            data = pd.read_csv(buff)
+#
+#        assert req._status_code == 200
+#        #TODO: validate return
 
 
 
@@ -516,67 +516,67 @@ class TestProphetjson:
         )
         assert req._status_code == 413
 
-@pytest.mark.usefixtures('client_class')
-class TestProphetSplit:
-    """make sure behavior for splits is maintained"""
-    demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
-    revrsplit_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
-    def test_validate_forward_split(self):
-        """run split as intended, new item with split in the past"""
-
-        if platform.system() == 'Darwin':
-            pytest.xfail('Unable to run fbprophet on mac')
-
-        test_clear_caches()
-        assert TEST_API_KEY != ''
-
-        # vv FIXME vv: depends on split_utils package
-        api_utils.SPLIT_INFO = split_utils.read_split_info()
-        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
-        # ^^ FIXME ^^ #
-
-        req = self.client.get(
-            url_for('prophetendpoint', return_type='csv') +
-            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=self.demosplit_obj.type_id,
-                region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=TEST_API_KEY,
-                range=CONFIG.get('TEST', 'forecast_range')
-            )
-        )
-
-        data = None
-        with io.StringIO(req.data.decode()) as buff:
-            data = pd.read_csv(buff)
-
-        assert req._status_code == 200
-
-    def test_validate_reverse_split(self):
-        """run split as intended, old item with new data"""
-
-        if platform.system() == 'Darwin':
-            pytest.xfail('Unable to run fbprophet on mac')
-
-        test_clear_caches()
-        assert TEST_API_KEY != ''
-
-        # vv FIXME vv: depends on split_utils package
-        api_utils.SPLIT_INFO = split_utils.read_split_info()
-        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
-        # ^^ FIXME ^^ #
-
-        req = self.client.get(
-            url_for('prophetendpoint', return_type='csv') +
-            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
-                type_id=self.demosplit_obj.original_id,
-                region_id=CONFIG.get('TEST', 'region_id'),
-                api_key=TEST_API_KEY,
-                range=CONFIG.get('TEST', 'forecast_range')
-            )
-        )
-
-        data = None
-        with io.StringIO(req.data.decode()) as buff:
-            data = pd.read_csv(buff)
-
-        assert req._status_code == 200
+#@pytest.mark.usefixtures('client_class')
+#class TestProphetSplit:
+#    """make sure behavior for splits is maintained"""
+#    demosplit_obj = split_utils.SplitInfo(DEMO_SPLIT)
+#    revrsplit_obj = split_utils.SplitInfo(DEMO_UNSPLIT)
+#    def test_validate_forward_split(self):
+#        """run split as intended, new item with split in the past"""
+#
+#        if platform.system() == 'Darwin':
+#            pytest.xfail('Unable to run fbprophet on mac')
+#
+#        test_clear_caches()
+#        assert TEST_API_KEY != ''
+#
+#        # vv FIXME vv: depends on split_utils package
+#        api_utils.SPLIT_INFO = split_utils.read_split_info()
+#        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
+#        # ^^ FIXME ^^ #
+#
+#        req = self.client.get(
+#            url_for('prophetendpoint', return_type='csv') +
+#            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+#                type_id=self.demosplit_obj.type_id,
+#                region_id=CONFIG.get('TEST', 'region_id'),
+#                api_key=TEST_API_KEY,
+#                range=CONFIG.get('TEST', 'forecast_range')
+#            )
+#        )
+#
+#        data = None
+#        with io.StringIO(req.data.decode()) as buff:
+#            data = pd.read_csv(buff)
+#
+#        assert req._status_code == 200
+#
+#    def test_validate_reverse_split(self):
+#        """run split as intended, old item with new data"""
+#
+#        if platform.system() == 'Darwin':
+#            pytest.xfail('Unable to run fbprophet on mac')
+#
+#        test_clear_caches()
+#        assert TEST_API_KEY != ''
+#
+#        # vv FIXME vv: depends on split_utils package
+#        api_utils.SPLIT_INFO = split_utils.read_split_info()
+#        api_utils.SPLIT_INFO[self.demosplit_obj.type_id] = self.demosplit_obj
+#        # ^^ FIXME ^^ #
+#
+#        req = self.client.get(
+#            url_for('prophetendpoint', return_type='csv') +
+#            '?typeID={type_id}&regionID={region_id}&api={api_key}&range={range}'.format(
+#                type_id=self.demosplit_obj.original_id,
+#                region_id=CONFIG.get('TEST', 'region_id'),
+#                api_key=TEST_API_KEY,
+#                range=CONFIG.get('TEST', 'forecast_range')
+#            )
+#        )
+#
+#        data = None
+#        with io.StringIO(req.data.decode()) as buff:
+#            data = pd.read_csv(buff)
+#
+#        assert req._status_code == 200

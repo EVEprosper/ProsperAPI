@@ -337,7 +337,10 @@ def build_forecast(
 
     ## Run prediction ##
     # https://facebookincubator.github.io/prophet/docs/quick_start.html#python-api
-    model = Prophet()
+    model = Prophet(
+        yearly_seasonality=True,
+        daily_seasonality=True,
+    )
     model.fit(predict_df)
     future = model.make_future_dataframe(periods=forecast_range)
     tst = model.predict(future)

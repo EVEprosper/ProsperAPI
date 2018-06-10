@@ -15,7 +15,7 @@ import publicAPI.crest_utils as crest_utils
 import publicAPI.api_utils as api_utils
 import publicAPI.exceptions as exceptions
 import publicAPI.config as api_config
-import publicAPI.split_utils as split_utils
+# import publicAPI.split_utils as split_utils
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
@@ -127,21 +127,21 @@ class OHLC_endpoint(Resource):
         ## Fetch CREST ##
         try:
             #LOGGER.info(api_config.SPLIT_INFO)
-            if args.get('typeID') in api_config.SPLIT_INFO:
-                self.logger.info('FORK: using split utility')
-                data = split_utils.fetch_split_history(
-                    args.get('regionID'),
-                    args.get('typeID'),
-                    config=api_config.CONFIG,
-                    logger=self.logger,
-                )
-            else:
-                data = crest_utils.fetch_market_history(
-                    args.get('regionID'),
-                    args.get('typeID'),
-                    config=api_config.CONFIG,
-                    logger=LOGGER
-                )
+            #if args.get('typeID') in api_config.SPLIT_INFO:
+            #    self.logger.info('FORK: using split utility')
+            #    data = split_utils.fetch_split_history(
+            #        args.get('regionID'),
+            #        args.get('typeID'),
+            #        config=api_config.CONFIG,
+            #        logger=self.logger,
+            #    )
+            #else:
+            data = crest_utils.fetch_market_history(
+                args.get('regionID'),
+                args.get('typeID'),
+                config=api_config.CONFIG,
+                logger=LOGGER
+            )
             data = crest_utils.data_to_ohlc(data)
         except exceptions.ValidatorException as err: #pragma: no cover
             self.logger.error(
@@ -304,28 +304,28 @@ class ProphetEndpoint(Resource):
 
         ## No cache, get data ##
         try:
-            if args.get('typeID') in api_config.SPLIT_INFO:
-                LOGGER.info('FORK: using split utility')
-                data = split_utils.fetch_split_history(
-                    args.get('regionID'),
-                    args.get('typeID'),
-                    data_range=api_config.MAX_RANGE,
-                    config=api_config.CONFIG,
-                    logger=self.logger,
-                )
-                data.sort_values(
-                    by='date',
-                    ascending=True,
-                    inplace=True
-                )
-            else:
-                data = forecast_utils.fetch_extended_history(
-                    args.get('regionID'),
-                    args.get('typeID'),
-                    data_range=api_config.MAX_RANGE,
-                    config=api_config.CONFIG,
-                    logger=self.logger,
-                )
+            #if args.get('typeID') in api_config.#_INFO:
+            #    LOGGER.info('FORK: using split utility')
+            #    data = split_utils.fetch_split_history(
+            #        args.get('regionID'),
+            #        args.get('typeID'),
+            #        data_range=api_config.MAX_RANGE,
+            #        config=api_config.CONFIG,
+            #        logger=self.logger,
+            #    )
+            #    data.sort_values(
+            #        by='date',
+            #        ascending=True,
+            #        inplace=True
+            #    )
+            #else:
+            data = forecast_utils.fetch_extended_history(
+                args.get('regionID'),
+                args.get('typeID'),
+                data_range=api_config.MAX_RANGE,
+                config=api_config.CONFIG,
+                logger=self.logger,
+            )
             data = forecast_utils.build_forecast(
                 data,
                 api_config.MAX_RANGE
