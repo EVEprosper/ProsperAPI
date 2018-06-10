@@ -8,7 +8,7 @@ try:
 
     import publicAPI.crest_endpoint as crest_endpoint
     import publicAPI.config as config
-    import publicAPI.split_utils as split_utils
+    # import publicAPI.split_utils as split_utils
 
     import prosper.common.prosper_logging as p_logging
 except ImportError:
@@ -62,5 +62,5 @@ def create_app(
     config.load_globals(local_configs)
     crest_endpoint.LOGGER = app.logger
 
-    config.SPLIT_INFO = split_utils.read_split_info(logger=crest_endpoint.LOGGER)
+    # config.SPLIT_INFO = split_utils.read_split_info(logger=crest_endpoint.LOGGER)
     return app

@@ -366,4 +366,3 @@ def build_forecast(
         report = report.loc[report.date > cut_date]
 
     return report
-

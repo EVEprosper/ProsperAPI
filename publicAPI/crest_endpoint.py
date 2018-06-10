@@ -15,7 +15,6 @@ import publicAPI.crest_utils as crest_utils
 import publicAPI.api_utils as api_utils
 import publicAPI.exceptions as exceptions
 import publicAPI.config as api_config
-# import publicAPI.split_utils as split_utils
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
