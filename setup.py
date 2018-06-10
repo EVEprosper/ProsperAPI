@@ -142,7 +142,7 @@ setup(
         'numpy',                #intelpython3 == 1.11.1
         'cython>=0.24',         #intelpython3 == 0.24
         'matplotlib>=2.0.0',    #required for building fbprophet (intel==1.5.1)
-        'pystan>=2.14.0',
+        'pystan==2.14.0',
         'fbprophet>=0.1.post1', #order matters: need pystan/cython first
         'tinydb',
         'tinymongo',
