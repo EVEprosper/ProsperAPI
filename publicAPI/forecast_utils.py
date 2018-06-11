@@ -190,7 +190,6 @@ def fetch_extended_history(
                 region_id,
                 type_id,
                 config=config,
-                mode=mode,
                 logger=logger
             )
         except Exception as err_msg:    #pragma: no cover

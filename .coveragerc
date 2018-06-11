@@ -1,0 +1,9 @@
+[report]
+    omit = 
+        publicAPI/__init__.py
+        publicAPI/_version.py
+        publicAPI/config.py
+        publicAPI/exceptions.py
+
+[paths]
+    source = publicAPI

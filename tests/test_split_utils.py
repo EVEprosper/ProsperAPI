@@ -25,31 +25,31 @@ DAYS_SINCE_SPLIT = 10
 TEST_DATE = datetime.utcnow() - timedelta(days=DAYS_SINCE_SPLIT)
 FUTURE_DATE = datetime.utcnow() + timedelta(days=DAYS_SINCE_SPLIT)
 DEMO_SPLIT = {
-    "type_id":35,
-    "type_name":"Tritanium",
-    "original_id":34,
-    "new_id":35,
-    "split_date":TEST_DATE.strftime('%Y-%m-%d'),
-    "bool_mult_div":"False",
-    "split_rate": 10
+    'type_id':35,
+    'type_name':'Tritanium',
+    'original_id':34,
+    'new_id':35,
+    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+    'bool_mult_div':'False',
+    'split_rate': 10
 }
 DEMO_UNSPLIT = {
-    "type_id":34,
-    "type_name":"Pyerite",
-    "original_id":34,
-    "new_id":35,
-    "split_date":FUTURE_DATE.strftime('%Y-%m-%d'),
-    "bool_mult_div":"True",
-    "split_rate": 10
+    'type_id':34,
+    'type_name':'Pyerite',
+    'original_id':34,
+    'new_id':35,
+    'split_date':FUTURE_DATE.strftime('%Y-%m-%d'),
+    'bool_mult_div':'True',
+    'split_rate': 10
 }
 DEMO_NOSPLIT = {
-    "type_id":35,
-    "type_name":"Tritanium",
-    "original_id":35,
-    "new_id":35,
-    "split_date":TEST_DATE.strftime('%Y-%m-%d'),
-    "bool_mult_div":"False",
-    "split_rate": 10
+    'type_id':35,
+    'type_name':'Tritanium',
+    'original_id':35,
+    'new_id':35,
+    'split_date':TEST_DATE.strftime('%Y-%m-%d'),
+    'bool_mult_div':'False',
+    'split_rate': 10
 }
 ROOT_CONFIG = helpers.get_config(
     path.join(ROOT, 'scripts', 'app.cfg')
@@ -244,12 +244,13 @@ class TestNoSplit:
             api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
-        assert test_data_esi.equals(crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_type_id,
-            mode=api_utils.SwitchCCPSource.ESI,
-            config=ROOT_CONFIG
-        ))
+        assert test_data_esi.equals(
+            crest_utils.fetch_market_history(
+                TEST_CONFIG.get('TEST', 'region_id'),
+                self.test_type_id,
+                config=ROOT_CONFIG
+            )
+        )
 
     def test_future_split_crest(self):
         """validate with CREST source"""
@@ -259,19 +260,20 @@ class TestNoSplit:
             api_utils.SwitchCCPSource.CREST,
             config=ROOT_CONFIG
         )
-        assert test_data_crest.equals(crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_type_id,
-            mode=api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        ))
+        assert test_data_crest.equals(
+            crest_utils.fetch_market_history(
+                TEST_CONFIG.get('TEST', 'region_id'),
+                self.test_type_id,
+                config=ROOT_CONFIG
+            )
+        )
 
     def test_future_split_emd(self):
         """valdiate with EMD source"""
         test_data_emd = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
-            api_utils.SwitchCCPSource.EMD,
+            fetch_source=api_utils.SwitchCCPSource.EMD,
             data_range=TEST_CONFIG.get('TEST', 'history_count'),
             config=ROOT_CONFIG
         )
@@ -289,7 +291,6 @@ class TestNoSplit:
         test_data_emd = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
-            api_utils.SwitchCCPSource.EMD,
             data_range=short_days,
             config=ROOT_CONFIG
         )
@@ -413,19 +414,16 @@ class TestSplit:
         raw_esi_data1 = crest_utils.fetch_market_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_type_id,
-            mode=api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
         raw_esi_data2 = crest_utils.fetch_market_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             self.test_original_id,
-            mode=api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
         split_data = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
-            api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
         #split_data.to_csv('split_data_esi.csv', index=False)
@@ -458,58 +456,59 @@ class TestSplit:
             split_obj
         )
 
-    def test_forward_happypath_crest(self):
-        """test a forward-split: crest"""
-        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
-        raw_crest_data1 = crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_type_id,
-            mode=api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        raw_crest_data2 = crest_utils.fetch_market_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_original_id,
-            mode=api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        split_data = split_utils.fetch_split_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            DEMO_SPLIT['type_id'],
-            api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        #split_data.to_csv('split_data_crest.csv', index=False)
-
-        ## Doctor data for testing ##
-        min_split_date = split_data.date.min()
-        raw_crest_data1 = prep_raw_data(
-            raw_crest_data1.copy(),
-            min_split_date
-        )
-        raw_crest_data2 = prep_raw_data(
-            raw_crest_data2.copy(),
-            min_split_date
-        )
-
-        split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
-        pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
-        pre_raw_data = raw_crest_data2[raw_crest_data2.date <= split_date_str].reset_index()
-        post_split_data = split_data[split_data.date > split_date_str].reset_index()
-        post_raw_data = raw_crest_data1[raw_crest_data1.date > split_date_str].reset_index()
-
-        ## Validate pre/post Split values ##
-        validate_plain_data(
-            post_raw_data,
-            post_split_data
-        )
-
-        validate_split_data(
-            pre_raw_data,
-            pre_split_data,
-            split_obj
-        )
-
+#    def test_forward_happypath_crest(self):
+#        """test a forward-split: crest"""
+#        pytest.skip('CREST deprecated')
+#        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
+#        raw_crest_data1 = crest_utils.fetch_market_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            self.test_type_id,
+#            mode=api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        raw_crest_data2 = crest_utils.fetch_market_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            self.test_original_id,
+#            mode=api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        split_data = split_utils.fetch_split_history(
+#            TEST_CONFIG.get('TEST', 'region_id'),
+#            DEMO_SPLIT['type_id'],
+#            api_utils.SwitchCCPSource.CREST,
+#            config=ROOT_CONFIG
+#        )
+#        #split_data.to_csv('split_data_crest.csv', index=False)
+#
+#        ## Doctor data for testing ##
+#        min_split_date = split_data.date.min()
+#        raw_crest_data1 = prep_raw_data(
+#            raw_crest_data1.copy(),
+#            min_split_date
+#        )
+#        raw_crest_data2 = prep_raw_data(
+#            raw_crest_data2.copy(),
+#            min_split_date
+#        )
+#
+#        split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
+#        pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
+#        pre_raw_data = raw_crest_data2[raw_crest_data2.date <= split_date_str].reset_index()
+#        post_split_data = split_data[split_data.date > split_date_str].reset_index()
+#        post_raw_data = raw_crest_data1[raw_crest_data1.date > split_date_str].reset_index()
+#
+#        ## Validate pre/post Split values ##
+#        validate_plain_data(
+#            post_raw_data,
+#            post_split_data
+#        )
+#
+#        validate_split_data(
+#            pre_raw_data,
+#            pre_split_data,
+#            split_obj
+#        )
+#
     def test_forward_happypath_emd(self):
         """test a forward-split: crest"""
         split_obj = split_utils.SplitInfo(DEMO_SPLIT)
