@@ -2,6 +2,7 @@
 from os import path, makedirs
 from datetime import datetime
 from enum import Enum
+import logging
 import warnings
 
 from tinydb import TinyDB, Query
