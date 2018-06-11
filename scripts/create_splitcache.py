@@ -115,14 +115,14 @@ def fetch_data(
         (:obj:`pandas.DataFrame`): data for caching
 
     """
-    if data_source == DataSources.CREST:
-        data = fetch_crest(
-            type_id,
-            region_id,
-            data_range,
-            logger
-        )
-    elif data_source == DataSources.ESI:
+    # if data_source == DataSources.CREST:
+    #     data = fetch_crest(
+    #         type_id,
+    #         region_id,
+    #         data_range,
+    #         logger
+    #     )
+    if data_source == DataSources.ESI:
         data = fetch_esi(
             type_id,
             region_id,
@@ -148,39 +148,39 @@ def fetch_data(
     return data
 
 CREST_MAX = 400
-def fetch_crest(
-        type_id,
-        region_id,
-        data_range=400,
-        logger=LOGGER
-):
-    """fetch data from CREST endpoint
+# def fetch_crest(
+#         type_id,
+#         region_id,
+#         data_range=400,
+#         logger=LOGGER
+# ):
+#     """fetch data from CREST endpoint
 
-    Args:
-        type_id (int): EVE Online type_id
-        region_id (int): EVE Online region_id
-        data_range (int, optional): days of back-propogation
-        logger (:obj:`logging.logger`, optional) logging handle
+#     Args:
+#         type_id (int): EVE Online type_id
+#         region_id (int): EVE Online region_id
+#         data_range (int, optional): days of back-propogation
+#         logger (:obj:`logging.logger`, optional) logging handle
 
-    Returns:
-        (:obj:`pandas.DataFrame`): data from endpoint
+#     Returns:
+#         (:obj:`pandas.DataFrame`): data from endpoint
 
-    """
-    logger.info('--Fetching price history: CREST')
-    if data_range > CREST_MAX:
-        warning_msg = 'CREST only returns %d days' % CREST_MAX
-        warnings.warn(warning_msg, UserWarning)
-        logger.warning(warning_msg)
+#     """
+#     logger.info('--Fetching price history: CREST')
+#     if data_range > CREST_MAX:
+#         warning_msg = 'CREST only returns %d days' % CREST_MAX
+#         warnings.warn(warning_msg, UserWarning)
+#         logger.warning(warning_msg)
 
-    data = crest_utils.fetch_market_history(
-        region_id,
-        type_id,
-        mode=api_utils.SwitchCCPSource.CREST,
-        config=CONFIG,
-        logger=logger
-    )
+#     data = crest_utils.fetch_market_history(
+#         region_id,
+#         type_id,
+#         mode=api_utils.SwitchCCPSource.CREST,
+#         config=CONFIG,
+#         logger=logger
+#     )
 
-    return data.tail(n=data_range)
+#     return data.tail(n=data_range)
 
 def fetch_esi(
         type_id,
@@ -209,7 +209,6 @@ def fetch_esi(
     data = crest_utils.fetch_market_history(
         region_id,
         type_id,
-        mode=api_utils.SwitchCCPSource.ESI,
         config=CONFIG,
         logger=logger
     )
