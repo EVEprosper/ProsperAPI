@@ -75,7 +75,7 @@ class PyTest(TestCommand):
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.pytest_args = [
-            '-rx',
+            '-rxs',
             'tests',
             '--cov=publicAPI/',
             '--cov-report=term-missing',
@@ -98,7 +98,7 @@ class FastTest(PyTest):
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.pytest_args = [
-            '-rx',
+            '-rxs',
             'tests',
             '-m',
             'not prophet',

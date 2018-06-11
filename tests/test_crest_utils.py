@@ -288,7 +288,7 @@ class TestValidateID:
 
     def test_happypath_types(self):
         """make sure behavior is expected for direct use"""
-        pytest.skip('CREST endpoint deprecated')
+        #pytest.skip('CREST endpoint deprecated')
         type_info = crest_utils.validate_id(
             'inventory_types',
             self.type_id,
@@ -308,7 +308,6 @@ class TestValidateID:
             self.type_id,
             cache_buster=True,
             config=ROOT_CONFIG,
-            mode=api_config.SwitchCCPSource.ESI
         )
         print(type_info)
         print(type_info_esi)
