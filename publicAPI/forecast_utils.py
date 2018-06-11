@@ -1,6 +1,7 @@
 """forecast_utils.py: collection of tools for forecasting future performance"""
 from os import path, makedirs
 from datetime import datetime, timedelta
+import logging
 
 import ujson as json
 import pandas as pd
