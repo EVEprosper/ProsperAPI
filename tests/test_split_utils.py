@@ -388,8 +388,8 @@ def validate_split_data(
 
     """
     for column in split_data.columns.values:
-        print(split_data[column])
-        print(raw_data[column])
+        #print(split_data[column])
+        #print(raw_data[column])
         if column == 'date':
             assert split_data[column].equals(raw_data[column])
         elif column == 'index':
@@ -405,7 +405,6 @@ def validate_split_data(
             )
             assert diff.max() < float_limit
 
-@pytest.mark.incremental
 class TestSplit:
     """test end-to-end behavior on fetch_split_history"""
     test_type_id = DEMO_SPLIT['type_id']
@@ -426,6 +425,7 @@ class TestSplit:
         split_data = split_utils.fetch_split_history(
             TEST_CONFIG.get('TEST', 'region_id'),
             DEMO_SPLIT['type_id'],
+            fetch_source=api_utils.SwitchCCPSource.ESI,
             config=ROOT_CONFIG
         )
         #split_data.to_csv('split_data_esi.csv', index=False)
@@ -451,6 +451,9 @@ class TestSplit:
             post_raw_data,
             post_split_data
         )
+
+        pre_raw_data.to_csv('pre_raw_data.csv')
+        pre_split_data.to_csv('pre_split_data.csv')
 
         validate_split_data(
             pre_raw_data,
@@ -512,7 +515,7 @@ class TestSplit:
 #        )
 #
     def test_forward_happypath_emd(self):
-        """test a forward-split: crest"""
+        """test a forward-split: emd"""
         split_obj = split_utils.SplitInfo(DEMO_SPLIT)
         raw_emd_data = forecast_utils.fetch_market_history_emd(
             TEST_CONFIG.get('TEST', 'region_id'),
