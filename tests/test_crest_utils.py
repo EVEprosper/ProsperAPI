@@ -344,7 +344,7 @@ class TestValidateID:
         )
 
         assert region_info_esi['name'] == region_info['name']
-        assert region_info_esi['region_id'] == region_info['id']
+        assert region_info_esi['region_id'] == region_info['region_id']
         assert region_info_esi['description'] == region_info['description']
 
     def test_cache_files(self):
