@@ -82,35 +82,35 @@ DEMO_DATA = {
     'key': 'typeID,regionID,date',
     'columns': 'typeID,regionID,date,lowPrice,highPrice,avgPrice,volume,orders',
     'result':[
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-28",
-            "lowPrice": "674.02",
-            "highPrice": "682.65",
-            "avgPrice": "681.99",
-            "volume": "43401081",
-            "orders": "1808"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-28',
+            'lowPrice': '674.02',
+            'highPrice': '682.65',
+            'avgPrice': '681.99',
+            'volume': '43401081',
+            'orders': '1808'
         }},
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-29",
-            "lowPrice": "677.29",
-            "highPrice": "681.95",
-            "avgPrice": "681.89",
-            "volume": "46045538",
-            "orders": "1770"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-29',
+            'lowPrice': '677.29',
+            'highPrice': '681.95',
+            'avgPrice': '681.89',
+            'volume': '46045538',
+            'orders': '1770'
         }},
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-30",
-            "lowPrice": "678.93",
-            "highPrice": "684",
-            "avgPrice": "679.14",
-            "volume": "56083217",
-            "orders": "1472"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-30',
+            'lowPrice': '678.93',
+            'highPrice': '684',
+            'avgPrice': '679.14',
+            'volume': '56083217',
+            'orders': '1472'
         }}
     ]
 }

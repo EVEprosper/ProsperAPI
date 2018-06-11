@@ -295,7 +295,7 @@ def execute_split(
 def fetch_split_history(
         region_id,
         type_id,
-        fetch_source=api_config.SwitchCCPSource.ESI,
+        fetch_source=api_config.SwitchCCPSource.EMD,
         data_range=400,
         #split_cache_file=SPLIT_CACHE_FILE,
         config=api_config.CONFIG,

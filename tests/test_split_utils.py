@@ -300,7 +300,9 @@ class TestNoSplit:
             data_range=short_days,
             config=ROOT_CONFIG
         )
-        assert test_data_emd.equals(forecast_utils.parse_emd_data(emd_data_raw['result']))
+
+        assert test_data_emd.equals(
+            forecast_utils.parse_emd_data(emd_data_raw['result']))
 
 def days_since_date(date_str):
     """return number of days since date requested
