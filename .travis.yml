@@ -14,7 +14,7 @@ script:
 branches:
   only:
   - master
-  - travis_test
+  - v1.2_withsplit
 after_success:
   - "pip install python-coveralls"
   - "coveralls"
