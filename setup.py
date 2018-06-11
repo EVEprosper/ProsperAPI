@@ -93,6 +93,19 @@ class PyTest(TestCommand):
         errno = pytest.main(pytest_commands)
         exit(errno)
 
+class FastTest(PyTest):
+    """pytest mode that skips prophet tests"""
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = [
+            '-rx',
+            'tests',
+            '-m',
+            'not prophet',
+            '--cov=publicAPI/',
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc',
+        ]
 with open('README.rst', 'r', 'utf-8') as f:
     README = f.read()
 
@@ -153,5 +166,6 @@ setup(
     ],
     cmdclass={
         'test':PyTest,
+        'fast':FastTest,
     },
 )

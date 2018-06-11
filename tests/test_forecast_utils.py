@@ -135,6 +135,7 @@ def test_parse_emd_data_fail():
 
 TEST_DATA_PATH = path.join(HERE, 'sample_emd_data.csv')
 TEST_PREDICT_PATH = path.join(HERE, 'sample_emd_predict.csv')
+@pytest.mark.prophet
 def test_build_forecast(config=CONFIG):
     """try to build a forecast"""
     test_data = pd.read_csv(TEST_DATA_PATH)
@@ -176,7 +177,7 @@ def test_build_forecast(config=CONFIG):
             #    assert (abs(val) < float_limit) or (np.isnan(val)) #fucking floats
         else:
             assert predict_data[key].equals(expected_prediction[key])
-
+@pytest.mark.prophet
 def test_forecast_truncate(config=CONFIG):
     """make sure truncate functionality works"""
     test_data = pd.read_csv(TEST_DATA_PATH)

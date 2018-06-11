@@ -286,39 +286,40 @@ class TestValidateID:
         #rmtree(TEST_CACHE_PATH)
         #makedirs(TEST_CACHE_PATH)
 
-#    def test_happypath_types(self):
-#        """make sure behavior is expected for direct use"""
-#        pytest.skip('CREST endpoint deprecated')
-#        type_info = crest_utils.validate_id(
-#            'inventory_types',
-#            self.type_id,
-#            config=ROOT_CONFIG
-#        )
-#        assert type_info['name'] == 'Tritanium'
-#
-#        type_info_retry = crest_utils.validate_id(
-#            'inventory_types',
-#            self.type_id,
-#            config=ROOT_CONFIG
-#        )
-#        assert type_info_retry == type_info
-#
-#        type_info_esi = crest_utils.validate_id(
-#            'inventory_types',
-#            self.type_id,
-#            cache_buster=True,
-#            config=ROOT_CONFIG,
-#            mode=api_config.SwitchCCPSource.ESI
-#        )
-#        print(type_info)
-#        print(type_info_esi)
-#        assert type_info_esi['name'] == type_info['name']
-#        assert type_info_esi['description'] == type_info['description']
-#        assert type_info_esi['published'] == type_info['published']
-#        assert type_info_esi['radius'] == type_info['radius']
-#        assert type_info_esi['icon_id'] == type_info['iconID']
-#        assert type_info_esi['capacity'] == type_info['capacity']
-#        assert type_info_esi['type_id'] == type_info['id']
+    def test_happypath_types(self):
+        """make sure behavior is expected for direct use"""
+        pytest.skip('CREST endpoint deprecated')
+        type_info = crest_utils.validate_id(
+            'inventory_types',
+            self.type_id,
+            config=ROOT_CONFIG
+        )
+        assert type_info['name'] == 'Tritanium'
+
+        type_info_retry = crest_utils.validate_id(
+            'inventory_types',
+            self.type_id,
+            config=ROOT_CONFIG
+        )
+        assert type_info_retry == type_info
+
+        type_info_esi = crest_utils.validate_id(
+            'inventory_types',
+            self.type_id,
+            cache_buster=True,
+            config=ROOT_CONFIG,
+            mode=api_config.SwitchCCPSource.ESI
+        )
+        print(type_info)
+        print(type_info_esi)
+        assert type_info == type_info_esi
+        #assert type_info_esi['name'] == type_info['name']
+        #assert type_info_esi['description'] == type_info['description']
+        #assert type_info_esi['published'] == type_info['published']
+        #assert type_info_esi['radius'] == type_info['radius']
+        #assert type_info_esi['icon_id'] == type_info['iconID']
+        #assert type_info_esi['capacity'] == type_info['capacity']
+        #assert type_info_esi['type_id'] == type_info['id']
 
     def test_happypath_regions(self):
         """make sure behavior is good for regions too"""

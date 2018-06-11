@@ -184,14 +184,12 @@ def test_get_api_key():
     connection.close()
     TEST_API_KEY = test_key
 
+@pytest.mark.prophet
 @pytest.mark.usefixtures('client_class')
 class TestProphetcsv:
     """test framework for collecting endpoint stats"""
     def test_prophet_happypath(self):
         """exercise `collect_stats`"""
-#        if platform.system() == 'Darwin':
-#            pytest.xfail('Unable to run fbprophet on mac')
-
         test_clear_caches()
         assert TEST_API_KEY != ''
         global VIRGIN_RUNTIME
@@ -307,6 +305,7 @@ class TestProphetcsv:
         )
         assert req._status_code == 405
 
+@pytest.mark.prophet
 @pytest.mark.usefixtures('client_class')
 class TestProphetjson:
     """test framework for collecting endpoint stats"""
