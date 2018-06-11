@@ -2,7 +2,6 @@
 from codecs import open
 import importlib
 from os import path, listdir
-import platform
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -15,10 +14,10 @@ def get_version(package_name):
     """find __version__ for making package
 
     Args:
-        package_path (str): path to _version.py folder (abspath > relpath)
+        package_name (str): path to _version.py folder (abspath > relpath)
 
     Returns:
-        (str) __version__ value
+        str: __version__ value
 
     """
     module = package_name + '._version'
@@ -34,7 +33,7 @@ def hack_find_packages(include_str):
     setuptools.find_packages(path='') doesn't work as intended
 
     Returns:
-        (:obj:`list` :obj:`str`) append <include_str>. onto every element of setuptools.find_pacakges() call
+        list: append <include_str>. onto every element of setuptools.find_pacakges() call
 
     """
     new_list = [include_str]
@@ -50,7 +49,7 @@ def include_all_subfiles(*args):
         Not recursive, only includes flat files
 
     Returns:
-        (:obj:`list` :obj:`str`) list of all non-directories in a file
+        list: list of all non-directories in a file
 
     """
     file_list = []
@@ -71,7 +70,7 @@ class PyTest(TestCommand):
     http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
 
     """
-    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -79,22 +78,17 @@ class PyTest(TestCommand):
             '-rx',
             'tests',
             '--cov=publicAPI/',
-            '--cov-report=term-missing'
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc',
         ]
-        #if platform.system() == 'Windows':
-        #    self.pytest_args.extend([
-        #        '-p',
-        #        'no:logging',
-        #    ])
 
     def run_tests(self):
         import shlex
-        #import here, cause outside the eggs aren't loaded
         import pytest
         pytest_commands = []
-        try:    #read commandline
+        try:
             pytest_commands = shlex.split(self.pytest_args)
-        except AttributeError:  #use defaults
+        except AttributeError:
             pytest_commands = self.pytest_args
         errno = pytest.main(pytest_commands)
         exit(errno)
@@ -128,7 +122,7 @@ setup(
         'publicAPI':[
             'split_info.json',
             'cache/prosperAPI.json',    #including key file for installer
-            'cache/splitcache.json'
+            'cache/splitcache.json',
         ]
     },
     python_requires='>=3.5',
@@ -158,6 +152,6 @@ setup(
         'pymysql',
     ],
     cmdclass={
-        'test':PyTest
-    }
+        'test':PyTest,
+    },
 )
