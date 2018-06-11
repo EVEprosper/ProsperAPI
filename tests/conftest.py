@@ -21,7 +21,7 @@ def app():
         local_configs=p_config.ProsperConfig(
             path.join(ROOT, 'scripts', 'app.cfg')
         ),
-        testmode=True
+        testmode=True,
     )
     return my_app
 

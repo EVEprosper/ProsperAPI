@@ -159,13 +159,13 @@ def read_split_info(
 def datetime_helper(
         datetime_str
 ):
-    """try to conver datetime for comparison
+    """try to convert datetime for comparison
 
     Args:
         datetime_str (str): datetime str (%Y-%m-%d) or (%Y-%m-%dT%H:%M:S)
 
     Returns:
-        (:obj:`datetime.datetime`)
+        datetime.datetime
 
     """
     try:
@@ -185,7 +185,6 @@ def fetch_split_cache_data(
         region_id,
         type_id,
         split_date=None,
-        #split_cache_file=SPLIT_CACHE_FILE,
         keep_columns=KEEP_COLUMNS
 ):
     """get data from cache
@@ -193,10 +192,9 @@ def fetch_split_cache_data(
     Args:
         region_id (int): EVE Online region id
         type_id (int): EVE Online type id
-        split_cache_file (str, optional): path to split file
-
+        keep_colums (list): sort columns to keep in DataFrame
     Returns:
-        pandas.data_frame pandas collection of data
+        pandas.DataFrame: pandas collection of data
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
 
     """
@@ -240,7 +238,7 @@ def combine_split_history(
         keep_columns (:obj:`list`, optional): expected headers/columns for dataframe
 
     Returns:
-        (:obj:`pandas.DataFrame`): combined data
+        pandas.DataFrame: combined data
 
     """
     current_data['date'] = pd.to_datetime(current_data['date']).dt.strftime('%Y-%m-%d')
@@ -277,7 +275,7 @@ def execute_split(
         volume_keys (:obj:`list`, optional): volume columns
 
     Returns:
-        (:obj:`pandas.DataFrame`): updated dataframe
+        pandas.DataFrame: updated dataframe
 
     """
     # vv FIXME vv: serial access to recast dataframe #
@@ -297,9 +295,8 @@ def fetch_split_history(
         type_id,
         fetch_source=api_config.SwitchCCPSource.EMD,
         data_range=400,
-        #split_cache_file=SPLIT_CACHE_FILE,
         config=api_config.CONFIG,
-        logger=api_config.LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """for split items, fetch and stitch the data together
 
@@ -307,12 +304,12 @@ def fetch_split_history(
         region_id (int): EVE Online region_id
         type_id (int): EVE Online type_id
         fetch_source (:enum:`api_config.SwitchCCPSource`): which endpoint to fetch
-        data_range (int, optional): how much total data to fetch
-        config (:obj:`configparser.ConfigParser`, optional): config overrides
-        logger (:obj:`logging.logger`, optional): logging handle
+        data_range (int): how much total data to fetch
+        config (:obj:`configparser.ConfigParser`): config overrides
+        logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        (:obj:`pandas.DataFrame`) data from endpoint
+        pandas.DataFrame: data from endpoint
 
     """
     ## Figure out if there's work to do ##
@@ -366,14 +363,14 @@ def fetch_split_history(
         split_date=split_obj.date_str
     )
 
-    if type_id == split_obj.new_id: #adjust the back history
+    if type_id == split_obj.new_id:  # adjust the back history
         logger.info('--splitting old-data')
         split_data = execute_split(
             split_data,
             split_obj
         )
     # vv FIX ME vv: Testable? #
-    elif type_id == split_obj.original_id: #adjust the current data
+    elif type_id == split_obj.original_id:  # adjust the current data
 
         logger.info('--splitting new-data')
         current_data = execute_split(
@@ -381,7 +378,7 @@ def fetch_split_history(
             split_obj
         )
     # ^^ FIX ME ^^ #
-    else:   #pragma: no cover
+    else:  # pragma: no cover
         logger.error(
             'Unable to map new/old type_ids correctly' +
             '\n\ttype_id={0}'.format(type_id) +
@@ -397,7 +394,7 @@ def fetch_split_history(
     current_data.to_csv('current_data.csv', index=False)
     split_data.to_csv('split_data.csv', index=False)
     combined_data = combine_split_history(
-        current_data.copy(),    #pass by value, not by reference
+        current_data.copy(),  # pass by value, not by reference
         split_data.copy()
     )
 

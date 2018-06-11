@@ -2,7 +2,6 @@
 from os import path
 from math import floor
 from datetime import datetime, timedelta
-import requests
 from tinydb import TinyDB, Query
 
 import pandas as pd
@@ -252,22 +251,6 @@ class TestNoSplit:
             )
         )
 
-    def test_future_split_crest(self):
-        """validate with CREST source"""
-        test_data_crest = split_utils.fetch_split_history(
-            TEST_CONFIG.get('TEST', 'region_id'),
-            self.test_type_id,
-            api_utils.SwitchCCPSource.CREST,
-            config=ROOT_CONFIG
-        )
-        assert test_data_crest.equals(
-            crest_utils.fetch_market_history(
-                TEST_CONFIG.get('TEST', 'region_id'),
-                self.test_type_id,
-                config=ROOT_CONFIG
-            )
-        )
-
     def test_future_split_emd(self):
         """valdiate with EMD source"""
         test_data_emd = split_utils.fetch_split_history(
@@ -311,7 +294,7 @@ def days_since_date(date_str):
         date_str (str)
 
     Returns
-        (int) number of days since date
+        int: number of days since date
 
     """
     demo_date = split_utils.datetime_helper(date_str)
@@ -330,7 +313,7 @@ def prep_raw_data(
         min_date (str): datetime to filter to
 
     Returns:
-        clean_data (:obj:`pandas.DataFrame)
+        pandas.DataFrame: clean_data
 
     """
     clean_data = data[data.date >= min_date]
@@ -352,7 +335,7 @@ def validate_plain_data(
     Args:
         raw_data (:obj:`pandas.DataFrame`): raw data (A group)
         split_data (:obj:`pandas.DataFrame`): split data (B group)
-        float_limit (float, optional): maximum deviation for equality test
+        float_limit (float): maximum deviation for equality test
 
     Returns:
         (None): asserts internally
@@ -381,10 +364,10 @@ def validate_split_data(
         raw_data (:obj:`pandas.DataFrame`): raw data (A group)
         split_data (:obj:`pandas.DataFrame`): split data (B group)
         split_obj (:obj:`split_utils.SplitInfo`): split information
-        float_limit (float, optional): maximum deviation for equality test
+        float_limit (float): maximum deviation for equality test
 
-    Returns:
-        (None): asserts internally
+    Raises:
+        AssertionError: asserts expected shapes
 
     """
     for column in split_data.columns.values:
@@ -452,68 +435,12 @@ class TestSplit:
             post_split_data
         )
 
-        pre_raw_data.to_csv('pre_raw_data.csv')
-        pre_split_data.to_csv('pre_split_data.csv')
-
         validate_split_data(
             pre_raw_data,
             pre_split_data,
             split_obj
         )
 
-#    def test_forward_happypath_crest(self):
-#        """test a forward-split: crest"""
-#        pytest.skip('CREST deprecated')
-#        split_obj = split_utils.SplitInfo(DEMO_SPLIT)
-#        raw_crest_data1 = crest_utils.fetch_market_history(
-#            TEST_CONFIG.get('TEST', 'region_id'),
-#            self.test_type_id,
-#            mode=api_utils.SwitchCCPSource.CREST,
-#            config=ROOT_CONFIG
-#        )
-#        raw_crest_data2 = crest_utils.fetch_market_history(
-#            TEST_CONFIG.get('TEST', 'region_id'),
-#            self.test_original_id,
-#            mode=api_utils.SwitchCCPSource.CREST,
-#            config=ROOT_CONFIG
-#        )
-#        split_data = split_utils.fetch_split_history(
-#            TEST_CONFIG.get('TEST', 'region_id'),
-#            DEMO_SPLIT['type_id'],
-#            api_utils.SwitchCCPSource.CREST,
-#            config=ROOT_CONFIG
-#        )
-#        #split_data.to_csv('split_data_crest.csv', index=False)
-#
-#        ## Doctor data for testing ##
-#        min_split_date = split_data.date.min()
-#        raw_crest_data1 = prep_raw_data(
-#            raw_crest_data1.copy(),
-#            min_split_date
-#        )
-#        raw_crest_data2 = prep_raw_data(
-#            raw_crest_data2.copy(),
-#            min_split_date
-#        )
-#
-#        split_date_str = datetime.strftime(split_obj.split_date, '%Y-%m-%dT%H:%M:%S')
-#        pre_split_data = split_data[split_data.date <= split_date_str].reset_index()
-#        pre_raw_data = raw_crest_data2[raw_crest_data2.date <= split_date_str].reset_index()
-#        post_split_data = split_data[split_data.date > split_date_str].reset_index()
-#        post_raw_data = raw_crest_data1[raw_crest_data1.date > split_date_str].reset_index()
-#
-#        ## Validate pre/post Split values ##
-#        validate_plain_data(
-#            post_raw_data,
-#            post_split_data
-#        )
-#
-#        validate_split_data(
-#            pre_raw_data,
-#            pre_split_data,
-#            split_obj
-#        )
-#
     def test_forward_happypath_emd(self):
         """test a forward-split: emd"""
         split_obj = split_utils.SplitInfo(DEMO_SPLIT)
@@ -538,7 +465,6 @@ class TestSplit:
             api_utils.SwitchCCPSource.EMD,
             config=ROOT_CONFIG
         )
-        #split_data.to_csv('split_data_emd.csv', index=False)
 
         ## Doctor data for testing ##
         min_split_date = split_data.date.min()

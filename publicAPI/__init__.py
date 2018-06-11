@@ -3,23 +3,12 @@ from os import path
 import warnings
 import logging
 
-try:
-    from flask import Flask
-
-    import publicAPI.crest_endpoint as crest_endpoint
-    import publicAPI.config as config
-    import publicAPI.split_utils as split_utils
-
-    import prosper.common.prosper_logging as p_logging
-except ImportError:
-    warnings.warn('pre-install mode -- requirements not installed', UserWarning)
-
 HERE = path.abspath(path.dirname(__file__))
 
 def create_app(
         settings=None,
         local_configs=None,
-        testmode=False
+        testmode=False,
 ):
     """create Flask application (ROOT)
 
@@ -28,9 +17,17 @@ def create_app(
     Args:
         settings (:obj:`dict`, optional): collection of Flask options
         local_configs (:obj:`configparser.ConfigParser` optional): app private configs
-        log_builder (:obj:`prosper_config.ProsperLogger`, optional): logging container
+        testmode (bool): pytest hook
 
     """
+    from flask import Flask
+
+    import publicAPI.crest_endpoint as crest_endpoint
+    import publicAPI.config as config
+    import publicAPI.split_utils as split_utils
+
+    import prosper.common.prosper_logging as p_logging
+
     app = Flask(__name__)
 
     if settings:

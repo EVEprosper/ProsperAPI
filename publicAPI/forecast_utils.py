@@ -17,7 +17,6 @@ import publicAPI.exceptions as exceptions
 import prosper.common.prosper_logging as p_logging
 
 HERE = path.abspath(path.dirname(__file__))
-#LOGGER = api_config.LOGGER
 
 CACHE_PATH = path.join(HERE, 'cache')
 makedirs(CACHE_PATH, exist_ok=True)
@@ -32,11 +31,11 @@ def check_prediction_cache(
     Args:
         region_id (int): EVE Online region ID
         type_id (int): EVE Online type ID
-        cache_path (str, optional): path to caches
-        db_filename (str, optional): name of tinydb
+        cache_path (str): path to caches
+        db_filename (str): name of tinydb
 
     Returns:
-        (:obj:`pandas.DataFrame`): cached prediction
+        pandas.DataFrame: cached prediction
 
     """
     utc_today = datetime.utcnow().strftime('%Y-%m-%d')
@@ -63,7 +62,7 @@ def write_prediction_cache(
         prediction_data,
         cache_path=CACHE_PATH,
         db_filename='prophet.json',
-        logger=api_config.LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """update tinydb latest prediction
 
@@ -120,11 +119,11 @@ def check_requested_range(
 
     Args:
         requested_range (int): number of days to forecast
-        max_range (int, optional): capped days (no more than this)
-        raise_for_status (bool, optional): raise exception if request too much
+        max_range (int): capped days (no more than this)
+        raise_for_status (bool): raise exception if request too much
 
     Returns:
-        (int): requested_range
+        int: requested_range
 
     """
 
@@ -147,19 +146,19 @@ def fetch_extended_history(
         crest_range=CREST_RANGE,
         config=api_config.CONFIG,
         data_range=DEFAULT_RANGE,
-        logger=api_config.LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """fetch data from database
 
     Args:
         region_id (int): EVE Online regionID: https://crest-tq.eveonline.com/regions/
         type_id (int): EVE Online typeID: https://crest-tq.eveonline.com/types/
-        cache_buster (bool, optional): skip cache, fetch new data
-        data_range (int, optional): how far back to fetch data
+        cache_buster (bool): skip cache, fetch new data
+        data_range (int): how far back to fetch data
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        (:obj:`pandas.data_frame`): collection of data from database
+        pandas.DataFrame: collection of data from database
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
     logger.info('--fetching history data')
@@ -229,10 +228,9 @@ def trim_prediction(
         data (:obj:`pandas.DataFrame`): data reported
         history_days (int): number of days BACK to report
         prediction_days (int): number of days FORWARD to report
-        logger (:obj:`logging.logger`, optional): logging hooks for progress
 
     Returns:
-        (:obj:`pandas.DataFrame`): same shape as original dataframe, but with days removed
+        pandas.DataFrame: same shape as original dataframe, but with days removed
 
     """
     back_date = datetime.utcnow() - timedelta(days=history_days)
@@ -264,7 +262,7 @@ def fetch_market_history_emd(
         config (:obj:`configparser.ConfigParser`, optional): overrides for config
 
     Returns:
-        (:obj:`dict` json): collection of data from endpoint
+        dict: JSONable collection of data from endpoint
             ['typeID', 'regionID', 'date', 'lowPrice', 'highPrice', 'avgPrice', 'volume', 'orders']
 
     """
@@ -298,7 +296,7 @@ def parse_emd_data(data_result):
         data_result (:obj:`list`): data['result'] collection of row data
 
     Returns:
-        (:obj:`pandas.DataFrame`): processed row data in table form
+        pandas.DataFrame: processed row data in table form
 
     """
     clean_data = []
@@ -320,10 +318,9 @@ def build_forecast(
         data (:obj:`pandas.data_frame`): data to build prediction
         forecast_range (int): how much time into the future to forecast
         truncate_range (int, optional): truncate output to CREST_RANGE
-        logger (:obj:`logging.logger`, optional): logging handle
 
     Returns:
-        (:obj:`pandas.data_frame`): collection of data + forecast info
+        pandas.DataFrame: collection of data + forecast info
             ['date', 'avgPrice', 'yhat', 'yhat_low', 'yhat_high', 'prediction']
 
     """

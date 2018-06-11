@@ -34,10 +34,9 @@ def setup_cache_file(
     Args:
         cache_filename (str): path to desired cache file
         cache_path (str, optional): path to cache folder
-        logger (:obj:`logging.logger`, optional): logging handle
 
     Returns:
-        (:obj:`TinyDB.TinyDB`): cache db
+        TinyDB.TinyDB: cache db
 
     """
     if not path.isdir(CACHE_PATH):
@@ -92,7 +91,7 @@ def endpoint_to_kwarg(
         type_id (int): EVE Online ID
 
     Returns:
-        (:obj:`dict`) kwarg pair
+        dict: kwarg pair
 
     """
     kwarg_pair = {}
@@ -110,7 +109,6 @@ def endpoint_to_kwarg(
 def validate_id(
         endpoint_name,
         type_id,
-        # mode=api_config.SwitchCCPSource.ESI,
         cache_buster=False,
         config=api_config.CONFIG,
         logger=logging.getLogger('publicAPI'),
@@ -131,7 +129,7 @@ def validate_id(
     ## Check local cache for value ##
     try:
         db_handle = setup_cache_file(endpoint_name)
-    except Exception as err_msg:    #pragma: no cover
+    except Exception as err_msg:  # pragma: no cover
         logger.error(
             'ERROR: unable to connect to local tinyDB cache' +
             '\n\tendpoint_name: {0}'.format(endpoint_name) +
@@ -194,7 +192,7 @@ def validate_id(
             type_id,
             type_info
         )
-    except Exception as err_msg:    #pragma: no cover
+    except Exception as err_msg:  # pragma: no cover
         logger.error(
             'ERROR: unable to write to cache' +
             '\n\ttype_id: {0}'.format(type_id) +
@@ -221,7 +219,7 @@ def fetch_crest_endpoint(
         **kwargs (:obj:`dict`): key/values to overwrite in query
 
     Returns:
-        (:obj:`dict`): JSON object returned by endpoint
+        dict: JSON object returned by endpoint
 
     """
     warnings.warn('CREST service deprecated by CCP, use ESI', DeprecationWarning)
@@ -315,7 +313,7 @@ def fetch_market_history(
         region_id,
         type_id,
         config=api_config.CONFIG,
-        logger=LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """Get market history data from EVE Online ESI endpoint
 
@@ -326,7 +324,7 @@ def fetch_market_history(
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        pandas.data_frame: pandas collection of data
+        pandas.DataFrame: pandas collection of data
             ['date', 'avgPrice', 'highPrice', 'lowPrice', 'volume', 'orders']
     """
     logger.info('--fetching market data from ESI')
@@ -393,7 +391,7 @@ def data_to_ohlc(
         data (:obj:`pandas.DataFrame`): data to recast
 
     Returns:
-        (:obj:`pandas.DataFrame`): OHLC format
+        pandas.DataFrame: OHLC format
             ['date', 'open', 'high', 'low', 'close', 'volume']
 
     """

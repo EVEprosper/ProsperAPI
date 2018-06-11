@@ -29,7 +29,7 @@ def check_key(
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        (bool) access allowed or not
+        bool: access allowed or not
 
     """
 
