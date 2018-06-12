@@ -14,10 +14,10 @@ def get_version(package_name):
     """find __version__ for making package
 
     Args:
-        package_path (str): path to _version.py folder (abspath > relpath)
+        package_name (str): path to _version.py folder (abspath > relpath)
 
     Returns:
-        (str) __version__ value
+        str: __version__ value
 
     """
     module = package_name + '._version'
@@ -33,7 +33,7 @@ def hack_find_packages(include_str):
     setuptools.find_packages(path='') doesn't work as intended
 
     Returns:
-        (:obj:`list` :obj:`str`) append <include_str>. onto every element of setuptools.find_pacakges() call
+        list: append <include_str>. onto every element of setuptools.find_pacakges() call
 
     """
     new_list = [include_str]
@@ -49,7 +49,7 @@ def include_all_subfiles(*args):
         Not recursive, only includes flat files
 
     Returns:
-        (:obj:`list` :obj:`str`) list of all non-directories in a file
+        list: list of all non-directories in a file
 
     """
     file_list = []
@@ -70,29 +70,42 @@ class PyTest(TestCommand):
     http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
 
     """
-    user_options = [('pytest-args=', 'a', "Arguments to pass to pytest")]
+    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.pytest_args = [
-            '-rx',
+            '-rxs',
             'tests',
             '--cov=publicAPI/',
-            '--cov-report=term-missing'
-        ]    #load defaults here
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc',
+        ]
 
     def run_tests(self):
         import shlex
-        #import here, cause outside the eggs aren't loaded
         import pytest
         pytest_commands = []
-        try:    #read commandline
+        try:
             pytest_commands = shlex.split(self.pytest_args)
-        except AttributeError:  #use defaults
+        except AttributeError:
             pytest_commands = self.pytest_args
         errno = pytest.main(pytest_commands)
         exit(errno)
 
+class FastTest(PyTest):
+    """pytest mode that skips prophet tests"""
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = [
+            '-rxs',
+            'tests',
+            '-m',
+            'not prophet',
+            '--cov=publicAPI/',
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc',
+        ]
 with open('README.rst', 'r', 'utf-8') as f:
     README = f.read()
 
@@ -122,35 +135,37 @@ setup(
         'publicAPI':[
             'split_info.json',
             'cache/prosperAPI.json',    #including key file for installer
-            'cache/splitcache.json'
+            'cache/splitcache.json',
         ]
     },
+    python_requires='>=3.5',
     install_requires=[
-        'ProsperCommon~=1.1.0',
-        'Flask~=0.12',
-        'Flask-RESTful~=0.3.5',
-        'flask-script~=2.0.5',
-        'requests~=2.13.0',         #intelpython3 == 2.10.0
-        'pandas==0.18.1',           #intelpython3 == 0.18.1
-        'numpy==1.11.1',            #intelpython3 == 1.11.1
-        'cython==0.24',             #intelpython3 == 0.24
-        'matplotlib~=2.0.0',        #required for building fbprophet (intel==1.5.1)
-        'pystan~=2.14.0',
-        'fbprophet~=0.1.post1',     #order matters: need pystan/cython first
-        'tinydb~=3.2.2',
-        'tinymongo~=0.1.8.dev0',
-        'ujson~=1.35',
-        'plumbum~=1.6.3',
-        'shortuuid~=0.5.0',
-        'retrying ~= 1.3.3'
+        'ProsperCommon~=1.4.0',
+        'Flask',
+        'Flask-RESTful',
+        'flask-script',
+        'requests',             #intelpython3 == 2.10.0
+        'pandas',               #intelpython3 == 0.18.1
+        'numpy',                #intelpython3 == 1.11.1
+        'cython>=0.24',         #intelpython3 == 0.24
+        'matplotlib>=2.0.0',    #required for building fbprophet (intel==1.5.1)
+        'pystan==2.15.0',
+        'fbprophet>=0.3.post1', #order matters: need pystan/cython first
+        'tinydb',
+        'tinymongo',
+        'ujson',
+        'plumbum',
+        'shortuuid',
+        'retrying',
     ],
     tests_require=[
-        'pytest>=3.0.0',
-        'pytest_cov~=2.4.0',        #requires requests==2.13.0
-        'pytest-flask~=0.10.0',
-        'pymysql~=0.7.10'
+        'pytest',  # >=3.0.0,<3.2.0',
+        'pytest_cov',        #requires requests==2.13.0
+        'pytest-flask',
+        'pymysql',
     ],
     cmdclass={
-        'test':PyTest
-    }
+        'test':PyTest,
+        'fast':FastTest,
+    },
 )

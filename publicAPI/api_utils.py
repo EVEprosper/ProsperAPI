@@ -1,5 +1,6 @@
 from os import path, makedirs
 from datetime import datetime
+import logging
 
 import ujson as json
 from tinymongo import TinyMongoClient
@@ -7,7 +8,7 @@ from tinymongo import TinyMongoClient
 import prosper.common.prosper_logging as p_logging
 import publicAPI.exceptions as exceptions
 
-LOGGER = p_logging.DEFAULT_LOGGER
+LOGGER = logging.getLogger('publicAPI')
 HERE = path.abspath(path.dirname(__file__))
 
 CACHE_PATH = path.join(HERE, 'cache')
@@ -16,7 +17,7 @@ makedirs(CACHE_PATH, exist_ok=True)
 def check_key(
         api_key,
         throw_on_fail=False,
-        logger=LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """check if API key is valid
 
@@ -28,7 +29,7 @@ def check_key(
         logger (:obj:`logging.logger`): logging handle
 
     Returns:
-        (bool) access allowed or not
+        bool: access allowed or not
 
     """
 

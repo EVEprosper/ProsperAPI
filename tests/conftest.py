@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """configtest.py: setup pytest defaults/extensions"""
 from os import path
+import logging
+import copy
 
 from publicAPI import create_app
 import publicAPI.config as api_config
@@ -19,18 +21,18 @@ def app():
         local_configs=p_config.ProsperConfig(
             path.join(ROOT, 'scripts', 'app.cfg')
         ),
-        testmode=True
+        testmode=True,
     )
     return my_app
 
 def pytest_runtest_makereport(item, call):
-    if "incremental" in item.keywords:
+    if 'incremental' in item.keywords:
         if call.excinfo is not None:
             parent = item.parent
             parent._previousfailed = item
 
 def pytest_runtest_setup(item):
-    if "incremental" in item.keywords:
-        previousfailed = getattr(item.parent, "_previousfailed", None)
+    if 'incremental' in item.keywords:
+        previousfailed = getattr(item.parent, '_previousfailed', None)
         if previousfailed is not None:
-            pytest.xfail("previous test failed (%s)" %previousfailed.name)
+            pytest.xfail('previous test failed (%s)' % previousfailed.name)

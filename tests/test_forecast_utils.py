@@ -82,35 +82,35 @@ DEMO_DATA = {
     'key': 'typeID,regionID,date',
     'columns': 'typeID,regionID,date,lowPrice,highPrice,avgPrice,volume,orders',
     'result':[
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-28",
-            "lowPrice": "674.02",
-            "highPrice": "682.65",
-            "avgPrice": "681.99",
-            "volume": "43401081",
-            "orders": "1808"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-28',
+            'lowPrice': '674.02',
+            'highPrice': '682.65',
+            'avgPrice': '681.99',
+            'volume': '43401081',
+            'orders': '1808'
         }},
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-29",
-            "lowPrice": "677.29",
-            "highPrice": "681.95",
-            "avgPrice": "681.89",
-            "volume": "46045538",
-            "orders": "1770"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-29',
+            'lowPrice': '677.29',
+            'highPrice': '681.95',
+            'avgPrice': '681.89',
+            'volume': '46045538',
+            'orders': '1770'
         }},
-        {"row": {
-            "typeID": "38",
-            "regionID": "10000002",
-            "date": "2015-03-30",
-            "lowPrice": "678.93",
-            "highPrice": "684",
-            "avgPrice": "679.14",
-            "volume": "56083217",
-            "orders": "1472"
+        {'row': {
+            'typeID': '38',
+            'regionID': '10000002',
+            'date': '2015-03-30',
+            'lowPrice': '678.93',
+            'highPrice': '684',
+            'avgPrice': '679.14',
+            'volume': '56083217',
+            'orders': '1472'
         }}
     ]
 }
@@ -135,11 +135,9 @@ def test_parse_emd_data_fail():
 
 TEST_DATA_PATH = path.join(HERE, 'sample_emd_data.csv')
 TEST_PREDICT_PATH = path.join(HERE, 'sample_emd_predict.csv')
+@pytest.mark.prophet
 def test_build_forecast(config=CONFIG):
     """try to build a forecast"""
-    if platform.system() == 'Darwin':
-        pytest.xfail('Unable to run fbprophet on mac')
-
     test_data = pd.read_csv(TEST_DATA_PATH)
     test_data['date'] = pd.to_datetime(test_data['date'])
     max_date = test_data['date'].max()
@@ -179,12 +177,9 @@ def test_build_forecast(config=CONFIG):
             #    assert (abs(val) < float_limit) or (np.isnan(val)) #fucking floats
         else:
             assert predict_data[key].equals(expected_prediction[key])
-
+@pytest.mark.prophet
 def test_forecast_truncate(config=CONFIG):
     """make sure truncate functionality works"""
-    if platform.system() == 'Darwin':
-        pytest.xfail('Unable to run fbprophet on mac')
-
     test_data = pd.read_csv(TEST_DATA_PATH)
     test_data['date'] = pd.to_datetime(test_data['date'])
     max_date = test_data['date'].max()

@@ -1,13 +1,14 @@
 """config.py: a place to hold config/globals"""
 from os import path
 from enum import Enum
+import logging
 
 import prosper.common.prosper_logging as p_logging
 import prosper.common.prosper_config as p_config
 
 HERE = path.abspath(path.dirname(__file__))
 
-LOGGER = p_logging.DEFAULT_LOGGER
+LOGGER =logging.getLogger('publicAPI')
 CONFIG = None #TODO
 
 USER_AGENT = 'lockefox https://github.com/EVEprosper/ProsperAPI'

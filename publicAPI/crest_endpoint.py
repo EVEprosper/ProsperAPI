@@ -4,6 +4,7 @@ import sys
 from os import path
 from datetime import datetime
 from enum import Enum
+import logging
 
 import ujson as json
 from flask import Flask, Response, jsonify
@@ -85,44 +86,38 @@ class OHLC_endpoint(Resource):
             help='API key for tracking requests',
             location=['args', 'headers']
         )
-
+        self.logger = logging.getLogger('publicAPI')
     def get(self, return_type):
         """GET data from CREST and send out OHLC info"""
         args = self.reqparse.parse_args()
         #TODO: info archive
-        LOGGER.info('OHLC {0} Request: {1}'.format(return_type, args))
+        self.logger.info('OHLC %s Request: %s', return_type, args)
 
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
-
-        mode = api_config.SwitchCCPSource(
-            api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
-        )
         ## Validate inputs ##
         try:
             crest_utils.validate_id(
                 'map_regions',
                 args.get('regionID'),
-                mode=mode,
                 config=api_config.CONFIG,
-                logger=LOGGER
+                logger=self.logger,
             )
             crest_utils.validate_id(
                 'inventory_types',
                 args.get('typeID'),
-                mode=mode,
                 config=api_config.CONFIG,
-                logger=LOGGER
+                logger=self.logger,
             )
         except exceptions.ValidatorException as err:
-            LOGGER.warning(
+            self.logger.warning(
                 'ERROR: unable to validate type/region ids' +
                 '\n\targs={0}'.format(args),
                 exc_info=True
             )
             return err.message, err.status
         except Exception: #pragma: no cover
-            LOGGER.error(
+            self.logger.error(
                 'ERROR: unable to validate type/region ids' +
                 'args={0}'.format(args),
                 exc_info=True
@@ -133,49 +128,46 @@ class OHLC_endpoint(Resource):
         try:
             #LOGGER.info(api_config.SPLIT_INFO)
             if args.get('typeID') in api_config.SPLIT_INFO:
-                LOGGER.info('FORK: using split utility')
+                self.logger.info('FORK: using split utility')
                 data = split_utils.fetch_split_history(
                     args.get('regionID'),
                     args.get('typeID'),
-                    mode,
                     config=api_config.CONFIG,
-                    logger=LOGGER
+                    logger=self.logger,
                 )
             else:
                 data = crest_utils.fetch_market_history(
                     args.get('regionID'),
                     args.get('typeID'),
                     config=api_config.CONFIG,
-                    mode=mode,
                     logger=LOGGER
                 )
             data = crest_utils.data_to_ohlc(data)
         except exceptions.ValidatorException as err: #pragma: no cover
-            LOGGER.error(
-                'ERROR: unable to parse CREST data' +
-                '\n\targs={0}'.format(args),
+            self.logger.error(
+                'ERROR: unable to parse CREST data\n\targs=%s',
+                args,
                 exc_info=True
             )
             return err.message, err.status
         except Exception: #pragma: no cover
-        #except Exception as err:    #pragma: no cover
-            LOGGER.error(
-                'ERROR: unhandled issue in parsing CREST data' +
-                'args={0}'.format(args),
+            self.logger.error(
+                'ERROR: unhandled issue in parsing CREST data\n\targs=%s',
+                args,
                 exc_info=True
             )
             return 'UNHANDLED EXCEPTION', 500
 
         ## Format output ##
         if return_type == AcceptedDataFormat.JSON.value:
-            LOGGER.info('rolling json response')
+            self.logger.info('rolling json response')
             data_str = data.to_json(
                 path_or_buf=None,
                 orient='records'
             )
             message = json.loads(data_str)
         elif return_type == AcceptedDataFormat.CSV.value:
-            LOGGER.info('rolling csv response')
+            self.logger.info('rolling csv response')
             data_str = data.to_csv(
                 path_or_buf=None,
                 header=True,
@@ -192,10 +184,11 @@ class OHLC_endpoint(Resource):
             message = output_csv(data_str, 200)
         else:   #pragma: no cover
             #TODO: CUT?
-            LOGGER.error(
+            self.logger.error(
                 'invalid format requested' +
-                '\n\targs={0}'.format(args) +
-                '\n\treturn_type={0}'.format(return_type),
+                '\n\targs=%s' +
+                '\n\treturn_type=%s',
+                args, return_type,
                 exc_info=True
             )
             return 'UNSUPPORTED FORMAT', 500
@@ -242,18 +235,14 @@ class ProphetEndpoint(Resource):
                 format(api_config.DEFAULT_RANGE, api_config.MAX_RANGE),
             location=['args', 'headers']
         )
-
+        self.logger = logging.getLogger('publicAPI')
     def get(self, return_type):
         args = self.reqparse.parse_args()
-        LOGGER.info('Prophet {0} Request: {1}'.format(return_type, args))
-
+        self.logger.info('Prophet %s Request: %s', return_type, args)
 
         if return_type not in return_supported_types():
             return 'INVALID RETURN FORMAT', 405
 
-        mode = api_config.SwitchCCPSource(
-            api_config.CONFIG.get('GLOBAL', 'crest_or_esi')
-        )
         forecast_range = api_config.DEFAULT_RANGE
         if 'range' in args:
             forecast_range = args.get('range')
@@ -262,21 +251,19 @@ class ProphetEndpoint(Resource):
             api_utils.check_key(
                 args.get('api'),
                 throw_on_fail=True,
-                logger=LOGGER
+                logger=self.logger,
             )
             crest_utils.validate_id(
                 'map_regions',
                 args.get('regionID'),
                 config=api_config.CONFIG,
-                mode=mode,
-                logger=LOGGER
+                logger=self.logger,
             )
             crest_utils.validate_id(
                 'inventory_types',
                 args.get('typeID'),
                 config=api_config.CONFIG,
-                mode=mode,
-                logger=LOGGER
+                logger=self.logger,
             )
             forecast_range = forecast_utils.check_requested_range(
                 forecast_range,
@@ -284,16 +271,16 @@ class ProphetEndpoint(Resource):
                 raise_for_status=True
             )
         except exceptions.ValidatorException as err:
-            LOGGER.warning(
-                'ERROR: unable to validate type/region ids' +
-                '\n\targs={0}'.format(args),
+            self.logger.warning(
+                'ERROR: unable to validate type/region ids\n\targs=%s',
+                args,
                 exc_info=True
             )
             return err.message, err.status
         except Exception: #pragma: no cover
-            LOGGER.error(
-                'ERROR: unable to validate type/region ids' +
-                'args={0}'.format(args),
+            self.logger.error(
+                'ERROR: unable to validate type/region ids\n\targs=%s',
+                args,
                 exc_info=True
             )
             return 'UNHANDLED EXCEPTION', 500
@@ -303,14 +290,14 @@ class ProphetEndpoint(Resource):
             args.get('regionID'),
             args.get('typeID')
         )
-        LOGGER.debug(cache_data)
+        self.logger.debug(cache_data)
         if cache_data is not None:
-            LOGGER.info('returning cached forecast')
+            self.logger.info('returning cached forecast')
             message = forecast_reporter(
                 cache_data,
                 forecast_range,
                 return_type,
-                LOGGER
+                self.logger,
             )
 
             return message
@@ -322,10 +309,9 @@ class ProphetEndpoint(Resource):
                 data = split_utils.fetch_split_history(
                     args.get('regionID'),
                     args.get('typeID'),
-                    mode,
                     data_range=api_config.MAX_RANGE,
                     config=api_config.CONFIG,
-                    logger=LOGGER
+                    logger=self.logger,
                 )
                 data.sort_values(
                     by='date',
@@ -336,10 +322,9 @@ class ProphetEndpoint(Resource):
                 data = forecast_utils.fetch_extended_history(
                     args.get('regionID'),
                     args.get('typeID'),
-                    mode=mode,
                     data_range=api_config.MAX_RANGE,
                     config=api_config.CONFIG,
-                    logger=LOGGER
+                    logger=self.logger,
                 )
             data = forecast_utils.build_forecast(
                 data,
@@ -347,16 +332,16 @@ class ProphetEndpoint(Resource):
             )
         except exceptions.ValidatorException as err:
             #FIX ME: testing?
-            LOGGER.warning(
-                'ERROR: unable to generate forecast' +
-                '\n\targs={0}'.format(args),
+            self.logger.warning(
+                'ERROR: unable to generate forecast\n\targs=%s',
+                args,
                 exc_info=True
             )
             return err.message, err.status
         except Exception: #pragma: no cover
             LOGGER.error(
-                'ERROR: unable to generate forecast' +
-                '\n\targs={0}'.format(args),
+                'ERROR: unable to generate forecast\n\targs=%s',
+                args,
                 exc_info=True
             )
             return 'UNHANDLED EXCEPTION', 500
@@ -366,20 +351,21 @@ class ProphetEndpoint(Resource):
             args.get('regionID'),
             args.get('typeID'),
             data,
-            logger=LOGGER
+            logger=self.logger,
         )
         try:
             message = forecast_reporter(
                 data,
                 forecast_range,
                 return_type,
-                LOGGER
+                self.logger,
             )
         except Exception as err_msg:    #pragma: no cover
             LOGGER.error(
-                'invalid format requested' +
-                '\n\targs={0}'.format(args) +
-                '\n\treturn_type={0}'.format(return_type),
+                'invalid format requested'
+                '\n\targs=%s'
+                '\n\treturn_type=%s',
+                args, return_type,
                 exc_info=True
             )
             return 'UNABLE TO GENERATE REPORT', 500
@@ -389,7 +375,7 @@ def forecast_reporter(
         data,
         forecast_range,
         return_type,
-        logger=LOGGER
+        logger=logging.getLogger('publicAPI')
 ):
     """prepares forecast response for Flask
 

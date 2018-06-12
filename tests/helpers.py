@@ -61,7 +61,7 @@ def get_config(config_filename):
         config_filename (str): path to config file
 
     Returns:
-        (:obj:`configparser.ConfigParser`)
+        prosper.common.ProsperConfig: a ConfigParser like object
 
     """
     config = p_config.ProsperConfig(config_filename)
@@ -83,7 +83,7 @@ def check_db_values(
         config (:obj:`configparser.ConfigParser`): db info
 
     Returns:
-        (:obj:`list`) data from db (or None if no creds)
+        list: data from db (or None if no creds)
 
     """
     try:

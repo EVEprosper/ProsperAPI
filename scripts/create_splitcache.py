@@ -2,6 +2,7 @@
 from os import path, makedirs
 from datetime import datetime
 from enum import Enum
+import logging
 import warnings
 
 from tinydb import TinyDB, Query
@@ -17,10 +18,10 @@ import publicAPI.config as api_utils
 HERE = path.abspath(path.dirname(__file__))
 ROOT = path.dirname(HERE)
 
-LOGGER = p_logging.DEFAULT_LOGGER
 CACHE_PATH = path.join(ROOT, 'publicAPI', 'cache')
 CONFIG = p_config.ProsperConfig(path.join(HERE, 'app.cfg'))
 makedirs(CACHE_PATH, exist_ok=True)
+PROGNAME = 'splitcache_helper'
 
 REGION_LIST = [
     10000001,   #'Derelik',
@@ -101,7 +102,7 @@ def fetch_data(
         region_id,
         data_range,
         data_source,
-        logger=LOGGER
+        logger=logging.getLogger(PROGNAME)
 ):
     """fetch/crunch data for cache
 
@@ -109,20 +110,13 @@ def fetch_data(
         type_id (int): EVE Online type_id for data
         data_range (int): days of back-propogation to fetch
         data_source (:enum:`DataSources`): which data source to fetch
-        logger (:obj:`logging.logger`, optional): logging handle for printing
+        logger (:obj:`logging.logger`): logging handle for printing
 
     Returns:
-        (:obj:`pandas.DataFrame`): data for caching
+        pandas.DataFrame: data for caching
 
     """
-    if data_source == DataSources.CREST:
-        data = fetch_crest(
-            type_id,
-            region_id,
-            data_range,
-            logger
-        )
-    elif data_source == DataSources.ESI:
+    if data_source == DataSources.ESI:
         data = fetch_esi(
             type_id,
             region_id,
@@ -148,45 +142,11 @@ def fetch_data(
     return data
 
 CREST_MAX = 400
-def fetch_crest(
-        type_id,
-        region_id,
-        data_range=400,
-        logger=LOGGER
-):
-    """fetch data from CREST endpoint
-
-    Args:
-        type_id (int): EVE Online type_id
-        region_id (int): EVE Online region_id
-        data_range (int, optional): days of back-propogation
-        logger (:obj:`logging.logger`, optional) logging handle
-
-    Returns:
-        (:obj:`pandas.DataFrame`): data from endpoint
-
-    """
-    logger.info('--Fetching price history: CREST')
-    if data_range > CREST_MAX:
-        warning_msg = 'CREST only returns %d days' % CREST_MAX
-        warnings.warn(warning_msg, UserWarning)
-        logger.warning(warning_msg)
-
-    data = crest_utils.fetch_market_history(
-        region_id,
-        type_id,
-        mode=api_utils.SwitchCCPSource.CREST,
-        config=CONFIG,
-        logger=logger
-    )
-
-    return data.tail(n=data_range)
-
 def fetch_esi(
         type_id,
         region_id,
         data_range=400,
-        logger=LOGGER
+        logger=logging.getLogger(PROGNAME)
 ):
     """fetch data from ESI endpoint
 
@@ -194,10 +154,10 @@ def fetch_esi(
         type_id (int): EVE Online type_id
         region_id (int): EVE Online region_id
         data_range (int, optional): days of back-propogation
-        logger (:obj:`logging.logger`, optional) logging handle
+        logger (:obj:`logging.logger`) logging handle
 
     Returns:
-        (:obj:`pandas.DataFrame`): data from endpoint
+        pandas.DataFrame: data from endpoint
 
     """
     logger.info('--Fetching price history: ESI')
@@ -209,7 +169,6 @@ def fetch_esi(
     data = crest_utils.fetch_market_history(
         region_id,
         type_id,
-        mode=api_utils.SwitchCCPSource.ESI,
         config=CONFIG,
         logger=logger
     )
@@ -220,7 +179,7 @@ def fetch_emd(
         type_id,
         region_id,
         data_range=400,
-        logger=LOGGER
+        logger=logging.getLogger(PROGNAME)
 ):
     """fetch data from eve-marketdata endpoint
 
@@ -228,10 +187,10 @@ def fetch_emd(
         type_id (int): EVE Online type_id
         region_id (int): EVE Online region_id
         data_range (int, optional): days of back-propogation
-        logger (:obj:`logging.logger`, optional) logging handle
+        logger (:obj:`logging.logger`) logging handle
 
     Returns:
-        (:obj:`pandas.DataFrame`): data from endpoint
+        pandas.DataFrame: data from endpoint
 
     """
     logger.info('--Fetching price history: EMD')
@@ -252,7 +211,7 @@ def write_to_cache_file(
         cache_path,
         type_id=0,
         region_id=0,
-        logger=LOGGER
+        logger=logging.getLogger(PROGNAME)
 ):
     """save data to tinyDB
 
@@ -261,7 +220,7 @@ def write_to_cache_file(
         cache_path (str): path to cache file
         type_id (int, optional): EVE Online type_id
         region_id (int, optional): EVE Online region_id
-        logger (:obj:`logging.logger`, optional): logging handle
+        logger (:obj:`logging.logger`): logging handle
 
     Returns:
         None
@@ -360,20 +319,19 @@ class SplitCache(cli.Application):
 
     def main(self):
         """application runtime"""
-        global LOGGER
-        LOGGER = self.__log_builder.logger
+        logger = self.__log_builder.logger
 
-        LOGGER.info('hello world')
+        logger.info('hello world')
 
         for region_id in cli.terminal.Progress(self.region_list):
             for type_id in self.type_id:
-                LOGGER.info('Fetching: {0}@{1}'.format(type_id, region_id))
+                logger.info('Fetching: {0}@{1}'.format(type_id, region_id))
                 data = fetch_data(
                     type_id,
                     region_id,
                     self.back_range,
                     self.data_source,
-                    LOGGER
+                    logger
                 )
                 if self.force:
                     ## WARNING: deletes old cache values ##
@@ -382,13 +340,13 @@ class SplitCache(cli.Application):
                         self.cache_path,
                         type_id=type_id,
                         region_id=region_id,
-                        logger=LOGGER
+                        logger=logger
                     )
                 else:
                     write_to_cache_file(
                         data,
                         self.cache_path,
-                        logger=LOGGER
+                        logger=logger
                     )
 
 if __name__ == '__main__':
