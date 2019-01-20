@@ -255,7 +255,8 @@ def fetch_crest_endpoint(
 
     return data
 
-ESI_BASE = 'https://esi.tech.ccp.is/latest/'
+# ESI_BASE = 'https://esi.tech.ccp.is/latest/'
+ESI_BASE = 'https://esi.evetech.net/latest/'
 def fetch_esi_endpoint(
         endpoint_name,
         esi_base=ESI_BASE,
