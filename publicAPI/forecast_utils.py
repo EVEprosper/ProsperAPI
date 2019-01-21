@@ -271,7 +271,7 @@ def fetch_market_history_emd(
         'region_ids': region_id,
         'type_ids': type_id,
         'days': data_range,
-        'char_name': config.get('GLOBAL', 'useragent_short')
+        'char_name': 'lockefox',
     }
     headers = {
         'User-Agent': config.get('GLOBAL', 'useragent')

@@ -20,6 +20,7 @@ CONFIG_FILENAME = path.join(HERE, 'test_config.cfg')
 
 CONFIG = helpers.get_config(CONFIG_FILENAME)
 
+@pytest.mark.skip('EMD No longer reliable')
 def test_fetch_emd_history(config=CONFIG):
     """happypath test for `fetch_market_history_emd`"""
     data = forecast_utils.fetch_market_history_emd(
