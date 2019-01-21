@@ -15,6 +15,8 @@ import publicAPI.forecast_utils as forecast_utils
 import publicAPI.exceptions as exceptions
 
 HERE = path.abspath(path.dirname(__file__))
+
+DeprecationWarning('PLEX split happened too far back for dependencies to work')
 class SplitInfo(object):
     """utility for managing split information"""
     def __init__(self, json_entry=None):
@@ -293,7 +295,7 @@ def execute_split(
 def fetch_split_history(
         region_id,
         type_id,
-        fetch_source=api_config.SwitchCCPSource.EMD,
+        fetch_source=api_config.SwitchCCPSource.ESI,
         data_range=400,
         config=api_config.CONFIG,
         logger=logging.getLogger('publicAPI')
